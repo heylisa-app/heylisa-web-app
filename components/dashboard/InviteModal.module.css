@@ -1,0 +1,291 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  border-radius: 18px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+  padding: 22px 22px 20px;
+  color: #f5f5f7;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d8d8dc;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  margin: 0 28px 18px 0;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #f5f5f7;
+}
+
+.fieldBlock {
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #cfcfd4;
+}
+
+.input {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #181818;
+  color: #f4f4f6;
+  padding: 0 12px;
+  outline: none;
+  font-size: 13px;
+  line-height: 1.2;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.input::placeholder {
+  color: #7f7f86;
+}
+
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: #191919;
+}
+
+.roleWrap {
+  position: relative;
+}
+
+.roleTrigger {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 0;
+  background: #2a2a2a;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.roleTrigger:hover {
+  background: #2d2d2d;
+}
+
+.roleIconBox {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+
+.roleIcon {
+  font-size: 14px;
+  line-height: 1;
+  color: #d7d7dc;
+}
+
+.roleContent {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.roleTopLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.roleName {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #f3f3f5;
+}
+
+.roleChevron {
+  font-size: 13px;
+  line-height: 1;
+  color: #d0d0d5;
+  transform: translateY(-1px);
+}
+
+.roleDescription {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #8f8f95;
+  max-width: 360px;
+}
+
+.roleMenu {
+  position: absolute;
+  left: 0;
+  top: calc(100% - 6px);
+  z-index: 20;
+  width: 330px;
+  border-radius: 14px;
+  background: #191919;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.roleOption {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 12px 12px 11px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.roleOption:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.roleOptionActive {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.roleOptionText {
+  min-width: 0;
+}
+
+.roleOptionLabel {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #f1f1f3;
+  margin-bottom: 4px;
+}
+
+.roleOptionDescription {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #8e8e95;
+}
+
+.roleCheck {
+  font-size: 14px;
+  line-height: 1;
+  color: #ffffff;
+  margin-top: 1px;
+  flex: 0 0 auto;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.cancelBtn {
+  border: 0;
+  background: transparent;
+  color: #d4d4d8;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cancelBtn:hover {
+  color: #ffffff;
+}
+
+.primaryBtn {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f3f3f5;
+  color: #111111;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  opacity: 0.94;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .modal {
+    padding: 18px 18px 18px;
+  }
+
+  .roleMenu {
+    width: 100%;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primaryBtn {
+    width: 100%;
+  }
+
+  .cancelBtn {
+    align-self: flex-end;
+  }
+}

@@ -1,0 +1,595 @@
+.protocol {
+    display: grid;
+    grid-template-columns: 272px minmax(0, 1fr);
+    height: 100%;
+    min-height: 100%;
+    border-radius: inherit;
+    overflow: hidden;
+    background:
+      radial-gradient(1200px 700px at 50% 40%, rgba(14, 14, 14, 0.92) 0%, rgba(9, 9, 9, 0.98) 58%, #090909 100%),
+      #090909;
+  }
+  
+  .sidebar {
+    width: 272px;
+    min-width: 272px;
+    background: #191919;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebarInner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 2px 6px 8px;
+    overflow: hidden;
+  }
+  
+  .sidebarHead {
+    padding: 0 0 14px;
+  }
+  
+  .sidebarTitle {
+    margin: 0 0 10px;
+    font-size: 15px;
+    line-height: 1.05;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #f4f4f6;
+  }
+  
+  .docCurrent {
+    margin-bottom: 8px;
+  }
+  
+  .docCurrentBtn {
+    width: 100%;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 10px;
+    border-radius: 9px;
+    border: 0;
+    background: transparent;
+    color: #e7e7ea;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  
+  .activeDoc {
+    background: rgba(255, 255, 255, 0.045);
+  }
+  
+  .docCurrentBtn:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  
+  .docCurrentIcon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .docCurrentIcon img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: block;
+    opacity: 0.92;
+  }
+  
+  .docCurrentText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  
+  .sectionsShell {
+    position: relative;
+    padding-left: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .sectionsLine {
+    position: absolute;
+    left: 18px;
+    top: 4px;
+    bottom: 10px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.09);
+  }
+  
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .sectionLink {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 0 18px;
+    text-decoration: none;
+    color: #b7b7bc;
+    background: transparent;
+    transition: color 0.18s ease;
+  }
+  
+  .sectionLink:hover {
+    color: #ececef;
+  }
+  
+  .sectionActive {
+    color: #ffffff;
+  }
+  
+  .sectionIndex {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    border-radius: 4px;
+    display: inline-grid;
+    place-items: center;
+    background: linear-gradient(180deg, #8db0d5 0%, #6f90b5 100%);
+    color: #f4f8ff;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  
+  .sectionLabel {
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 350;
+    letter-spacing: -0.01em;
+  }
+  
+  .addSectionBtn {
+    width: 100%;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    color: #6f6f75;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.18s ease;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 350;
+  }
+  
+  .addSectionBtn:hover {
+    color: #9d9da3;
+  }
+  
+  .addSectionPlus {
+    width: 14px;
+    flex: 0 0 14px;
+    display: inline-flex;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 300;
+  }
+  
+  .sidebarVersions {
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  
+  .sidebarVersionsLabel {
+    font-size: 11px;
+    line-height: 1.2;
+    color: #8f8f95;
+    margin-bottom: 8px;
+    padding-left: 12px;
+  }
+  
+  .versionItem {
+    width: 100%;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 0;
+    background: transparent;
+    color: #8f8f95;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  
+  .versionItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #d5d5da;
+  }
+  
+  .versionItemActive {
+    color: #ffffff;
+  }
+  
+  .versionDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #53c578;
+    flex: 0 0 7px;
+  }
+  
+  .versionDotArchive {
+    background: #67676f;
+  }
+  
+  .main {
+    min-width: 0;
+    background: #222222;
+    overflow: hidden;
+  }
+  
+  .mainScroll {
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .topbar {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 6px 14px 0 16px;
+  }
+  
+  .breadcrumbs {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  .breadcrumbCabinet,
+  .breadcrumbCurrent,
+  .breadcrumbSection {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  
+  .breadcrumbCabinet {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #c2c2c8;
+  }
+  
+  .breadcrumbCurrent {
+    color: #f4f4f6;
+  }
+  
+  .breadcrumbSection {
+    color: #8dd17d;
+  }
+  
+  .breadcrumbSep {
+    color: #66666d;
+    flex: 0 0 auto;
+  }
+  
+  .breadcrumbCabinetBadge {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-grid;
+    place-items: center;
+    background: #21c45d;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    flex: 0 0 14px;
+  }
+  
+  .topActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  
+  .topActionBtn {
+    min-height: 28px;
+    padding: 0 4px;
+    border-radius: 0;
+    border: 0;
+    background: transparent;
+    color: #c3c3c3;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 420;
+    cursor: pointer;
+    transition: opacity 0.18s ease;
+  }
+  
+  .topActionBtn:hover {
+    opacity: 0.78;
+  }
+  
+  .topActionAvatarWrap {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    display: inline-flex;
+  }
+  
+  .topActionAvatarWrap img {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.22);
+  }
+  
+  .topActionOnlineDot {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #21c45d;
+    box-shadow: 0 0 0 1.5px #222222;
+  }
+  
+  .topActionIcon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: block;
+    opacity: 0.84;
+  }
+  
+  .docFrame {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    margin: 8px 10px 10px;
+    border-radius: 16px;
+    background: #111111;
+    overflow: hidden;
+  }
+  
+  .docShell {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+    padding: 84px 44px 42px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+  }
+  
+  .docShell::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  .docShell::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .docShell::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+  }
+  
+  .docTools {
+    position: absolute;
+    top: 22px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 3;
+  }
+  
+  .docToolBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  
+  .docToolBtn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  
+  .docToolBtn img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    display: block;
+    opacity: 0.8;
+  }
+  
+  .docHeader {
+    max-width: 760px;
+    margin: 0 auto 34px;
+  }
+  
+  .docTitle {
+    margin: 0 0 14px;
+    font-size: 29px;
+    line-height: 1.08;
+    letter-spacing: -0.032em;
+    font-weight: 700;
+    color: #f4f4f6;
+  }
+  
+  .docMeta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .docMetaAuthor {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #f4f4f6;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 450;
+  }
+  
+  .docMetaAuthor img {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .docMetaText,
+  .docMetaSep {
+    font-size: 13px;
+    line-height: 1.2;
+    color: #8f8f95;
+  }
+  
+  .docSection {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  
+  .docSectionTitle {
+    margin: 0 0 14px;
+    font-size: 18px;
+    line-height: 1.15;
+    font-weight: 650;
+    color: #f3f3f5;
+  }
+  
+  .docContent {
+    color: #d3d3d8;
+  }
+  
+  .docContent p {
+    margin: 0 0 18px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #d0d0d5;
+  }
+  
+  .docContent ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  
+  .docContent li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #d0d0d5;
+  }
+  
+  .docContent li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #d0d0d5;
+  }
+  
+  @media (max-width: 1360px) {
+    .protocol {
+      grid-template-columns: 244px minmax(0, 1fr);
+    }
+  
+    .sidebar {
+      width: 244px;
+      min-width: 244px;
+    }
+  
+    .docShell {
+      padding: 28px 34px 42px;
+    }
+  }
+  
+  @media (max-width: 1100px) {
+    .topbar {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 12px 18px;
+    }
+  
+    .docShell {
+      padding: 24px 22px 34px;
+    }
+  
+    .docTools {
+      top: 24px;
+      right: 14px;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .protocol {
+      grid-template-columns: 1fr;
+    }
+  
+    .sidebar {
+      display: none;
+    }
+  
+    .docTitle {
+      font-size: 24px;
+    }
+  }

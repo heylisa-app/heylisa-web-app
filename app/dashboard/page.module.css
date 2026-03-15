@@ -1,0 +1,710 @@
+.homeView {
+    height: 100%;
+    min-height: 100%;
+    background: #111111;
+    overflow: hidden;
+  }
+  
+  .homeScroll {
+    height: 100%;
+    overflow: auto;
+    padding: 18px 20px 20px;
+  }
+  
+  .homeScroll::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  .homeScroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .homeScroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+  }
+  
+  .homeTopGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(420px, 1fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  
+  /* =========================
+     COMMON CARD
+  ========================= */
+  
+  .card {
+    border-radius: 18px;
+    background: #161616;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    min-width: 0;
+  }
+  
+  /* =========================
+     SCORE CARD
+  ========================= */
+  
+  .healthCard {
+    padding: 22px 22px 20px;
+  }
+  
+  .healthCardHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  
+  .eyebrow {
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    color: #8f8f95;
+    text-transform: uppercase;
+  }
+  
+  .healthTitle {
+    margin: 0 0 10px;
+    font-size: 34px;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: #f5f5f7;
+  }
+  
+  .healthSubtitle {
+    margin: 0;
+    max-width: 620px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #9b9ba1;
+  }
+  
+  .healthTrendBadge {
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    background: rgba(83, 197, 120, 0.12);
+    border: 1px solid rgba(83, 197, 120, 0.18);
+    color: #53c578;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  
+  .healthMain {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 28px;
+    align-items: stretch;
+    min-height: 300px;
+  }
+  
+  .healthGaugeWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .healthGauge {
+    position: relative;
+    width: 188px;
+    height: 188px;
+    border-radius: 50%;
+    background:
+      conic-gradient(
+        #4fd37a 0deg 292deg,
+        rgba(255, 255, 255, 0.08) 292deg 360deg
+      );
+    display: grid;
+    place-items: center;
+    box-shadow:
+      0 16px 36px rgba(79, 211, 122, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  
+  .healthGauge::before {
+    content: "";
+    position: absolute;
+    inset: 16px;
+    border-radius: 50%;
+    background: #111111;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  
+  .healthGaugeInner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  
+  .healthGaugeValue {
+    font-size: 54px;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    font-weight: 750;
+    color: #f5f5f7;
+  }
+  
+  .healthGaugeScale {
+    font-size: 20px;
+    line-height: 1;
+    color: #8f8f95;
+    font-weight: 650;
+    padding-bottom: 8px;
+  }
+  
+  .healthChartBlock {
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  
+  .healthChartHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  
+  .healthChartTitle {
+    font-size: 14px;
+    font-weight: 650;
+    color: #f3f3f5;
+  }
+  
+  .healthChartMeta {
+    font-size: 12px;
+    color: #8f8f95;
+  }
+  
+  .healthBars {
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 18px;
+    margin-top: auto;
+  }
+  
+  .healthBarCol {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .healthBar {
+    width: 100%;
+    max-width: 74px;
+    border-radius: 10px 10px 6px 6px;
+    background: linear-gradient(180deg, #7e60ff 0%, #5a8fff 100%);
+    box-shadow: 0 12px 24px rgba(90, 112, 255, 0.18);
+  }
+  
+  .healthBarCol span {
+    font-size: 12px;
+    color: #7f7f86;
+  }
+  
+  .healthDrivers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 2px;
+  }
+  
+  .healthDriver {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .healthDriverLabel {
+    font-size: 13px;
+    color: #9b9ba1;
+  }
+  
+  .healthDriverValue {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f2f2f4;
+  }
+  
+  /* =========================
+     RIGHT STACK
+  ========================= */
+  
+  .homeSideStack {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 18px;
+    min-width: 0;
+  }
+  
+  .homeMiniCards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  
+  .miniCard {
+    padding: 16px 16px 14px;
+    min-height: 210px;
+  }
+  
+  .miniCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .miniCardTitle {
+    font-size: 16px;
+    line-height: 1.1;
+    font-weight: 650;
+    color: #f3f3f5;
+  }
+  
+  .actionBtn {
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: transparent;
+    color: #f3f3f5;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  
+  .actionBtn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.24);
+  }
+  
+  .actionIcon {
+    font-size: 13px;
+    line-height: 1;
+  }
+  
+  .miniCardScoreRow {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  
+  .miniCardValue {
+    font-size: 40px;
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+    font-weight: 750;
+    color: #f5f5f7;
+  }
+  
+  .miniCardStatus {
+    font-size: 14px;
+    line-height: 1.2;
+    color: #b4b4bb;
+    padding-bottom: 4px;
+  }
+  
+  .miniCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .miniCardLine {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #c9c9cf;
+  }
+  
+  .miniCardLine strong {
+    color: #f3f3f5;
+    font-size: 13px;
+  }
+  
+  .miniCardCritical {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  
+  .miniCardDanger {
+    background:
+      linear-gradient(180deg, rgba(216, 91, 91, 0.12) 0%, rgba(216, 91, 91, 0.04) 100%),
+      #161616;
+  }
+  
+  .miniCardDanger .miniCardCritical {
+    color: #ff8d8d;
+  }
+  
+  .miniCardWarning {
+    background:
+      linear-gradient(180deg, rgba(243, 179, 76, 0.12) 0%, rgba(243, 179, 76, 0.04) 100%),
+      #161616;
+  }
+  
+  .miniCardWarning .miniCardCritical {
+    color: #f3b34c;
+  }
+  
+  .miniCardPositive {
+    background:
+      linear-gradient(180deg, rgba(83, 197, 120, 0.12) 0%, rgba(83, 197, 120, 0.04) 100%),
+      #161616;
+  }
+  
+  .miniCardPositive .miniCardCritical {
+    color: #7ed69a;
+  }
+  
+  /* =========================
+     ACTIVITY CARD
+  ========================= */
+  
+  .activityCard {
+    padding: 18px;
+    min-height: 240px;
+  }
+  
+  .activityHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  
+  .activityTitle {
+    font-size: 16px;
+    line-height: 1.1;
+    font-weight: 650;
+    color: #f3f3f5;
+    margin-bottom: 6px;
+  }
+  
+  .activitySubtitle {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #8f8f95;
+    max-width: 520px;
+  }
+  
+  .activityBadge {
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    color: #d7d7dc;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  
+  .activityChart {
+    height: 150px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  
+  .activityDay {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .activityBarSolid,
+  .activityBarProjected {
+    width: 100%;
+    max-width: 64px;
+    border-radius: 10px 10px 6px 6px;
+  }
+  
+  .activityBarSolid {
+    background: linear-gradient(180deg, #6c7bff 0%, #5c98ff 100%);
+    box-shadow: 0 10px 22px rgba(92, 152, 255, 0.12);
+  }
+  
+  .activityBarProjected {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.18) 0 6px,
+        rgba(255, 255, 255, 0.06) 6px 12px
+      ),
+      linear-gradient(180deg, rgba(108, 123, 255, 0.5) 0%, rgba(92, 152, 255, 0.35) 100%);
+    border: 1px dashed rgba(255, 255, 255, 0.22);
+  }
+  
+  .activityDay span {
+    font-size: 12px;
+    color: #7f7f86;
+  }
+  
+  .activityFooter {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: #d3d3d8;
+  }
+
+  /* =========================
+   BOTTOM GRID
+========================= */
+
+.homeBottomGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+    align-items: stretch;
+  }
+  
+  .bottomCard {
+    padding: 18px;
+    min-height: 260px;
+  }
+  
+  .bottomCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .bottomCardTitle {
+    font-size: 16px;
+    line-height: 1.1;
+    font-weight: 650;
+    color: #f3f3f5;
+  }
+  
+  .bottomMainValue {
+    font-size: 36px;
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+    font-weight: 750;
+    color: #f5f5f7;
+    margin-bottom: 10px;
+  }
+  
+  .bottomSubtitle {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #8f8f95;
+    margin-bottom: 16px;
+  }
+  
+  /* =========================
+     VALIDATIONS
+  ========================= */
+  
+  .validationList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .validationItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #d5d5da;
+  }
+  
+  .validationDot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 999px;
+    background: #f3b34c;
+  }
+  
+  /* =========================
+     LISA STATS
+  ========================= */
+  
+  .lisaStatsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  
+  .lisaStatBox {
+    border-radius: 14px;
+    background: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px 14px;
+  }
+  
+  .lisaStatValue {
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 750;
+    color: #f5f5f7;
+    margin-bottom: 8px;
+  }
+  
+  .lisaStatLabel {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #9b9ba1;
+  }
+  
+  /* =========================
+     QUALITY
+  ========================= */
+  
+  .qualityList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .qualityRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  
+  .qualityLabel {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #b5b5bb;
+  }
+  
+  .qualityValue {
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #f2f2f4;
+  }
+  
+  .qualityFooter {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #8f8f95;
+  }
+  
+  /* =========================
+     RESPONSIVE BOTTOM GRID
+  ========================= */
+  
+  @media (max-width: 1500px) {
+    .homeBottomGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .lisaStatsGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* =========================
+     RESPONSIVE
+  ========================= */
+  
+  @media (max-width: 1500px) {
+    .homeTopGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .homeMiniCards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 1180px) {
+    .healthMain {
+      grid-template-columns: 1fr;
+    }
+  
+    .homeMiniCards {
+      grid-template-columns: 1fr;
+    }
+  
+    .activityFooter {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .healthTitle {
+      font-size: 28px;
+    }
+  
+    .healthGauge {
+      width: 164px;
+      height: 164px;
+    }
+  
+    .healthGauge::before {
+      inset: 14px;
+    }
+  
+    .healthGaugeValue {
+      font-size: 46px;
+    }
+  
+    .healthBars {
+      gap: 8px;
+    }
+  
+    .healthBar {
+      max-width: 56px;
+    }
+  }
