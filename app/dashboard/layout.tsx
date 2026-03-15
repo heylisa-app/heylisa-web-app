@@ -14,7 +14,7 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("https://heylisa.io/login");
+    redirect("https://heylisa.io/signup");
   }
 
   return <DashboardShell>{children}</DashboardShell>;
