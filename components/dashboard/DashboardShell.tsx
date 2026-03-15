@@ -32,7 +32,19 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function DashboardShell({ children }: { children: React.ReactNode }) {
+type DashboardShellProps = {
+  children: React.ReactNode;
+  userDisplayName: string;
+  userInitials: string;
+  cabinetName: string;
+};
+
+export default function DashboardShell({
+  children,
+  userDisplayName,
+  userInitials,
+  cabinetName,
+}: DashboardShellProps) {
   const pathname = usePathname();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -144,7 +156,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             <header className={styles.topbar}>
               <div className={styles.topbarLeft}>
                 <button className={styles.workspaceSwitcher} type="button">
-                  <span className={styles.workspaceName}>Cabinet du Dr Martin</span>
+                <span className={styles.workspaceName}>{cabinetName}</span>
                   <span className={styles.workspaceChevron} />
                 </button>
               </div>
@@ -177,24 +189,29 @@ export default function DashboardShell({ children }: { children: React.ReactNode
                     aria-haspopup="menu"
                     aria-expanded={isProfileMenuOpen}
                   >
-                    <span className={styles.profileAvatar}>
-                      BM
-                      <span className={styles.profileOnlineDot} />
-                    </span>
+                  <span className={styles.profileAvatar}>
+                    {userInitials}
+                    <span className={styles.profileOnlineDot} />
+                  </span>
                   </button>
 
                   {isProfileMenuOpen && (
-                    <div className={styles.profileDropdown} role="menu">
-                      <button
-                        type="button"
-                        className={styles.profileDropdownItem}
-                        onClick={handleSignOut}
-                        disabled={isSigningOut}
-                      >
-                        {isSigningOut ? "Déconnexion..." : "Se déconnecter"}
-                      </button>
+                  <div className={styles.profileDropdown} role="menu">
+                    <div className={styles.profileDropdownHeader}>
+                      <div className={styles.profileDropdownName}>{userDisplayName}</div>
+                      <div className={styles.profileDropdownStatus}>En ligne</div>
                     </div>
-                  )}
+
+                    <button
+                      type="button"
+                      className={styles.profileDropdownItem}
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                    >
+                      {isSigningOut ? "Déconnexion..." : "Se déconnecter"}
+                    </button>
+                  </div>
+                )}
                 </div>
               </div>
             </header>
