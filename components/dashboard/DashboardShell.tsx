@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import InviteModal from "./InviteModal";
 import styles from "./DashboardShell.module.css";
+import { createClient } from "@/lib/supabase/client";
 
 type NavItem = {
   href: string;
@@ -34,6 +35,37 @@ function isActive(pathname: string, href: string) {
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  async function handleSignOut() {
+    try {
+      setIsSigningOut(true);
+      await supabase.auth.signOut();
+      window.location.href = "https://heylisa.io/signup";
+    } catch (error) {
+      console.error("Logout error", error);
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <>
@@ -137,9 +169,33 @@ export default function DashboardShell({ children }: { children: React.ReactNode
                   <img src="/imgs/mic-notes.png" alt="" />
                 </button>
 
-                <button className={styles.profileBtn} type="button">
-                  <span className={styles.profileAvatar}>BM</span>
-                </button>
+                <div className={styles.profileMenuWrap} ref={profileMenuRef}>
+                  <button
+                    className={styles.profileBtn}
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                    aria-haspopup="menu"
+                    aria-expanded={isProfileMenuOpen}
+                  >
+                    <span className={styles.profileAvatar}>
+                      BM
+                      <span className={styles.profileOnlineDot} />
+                    </span>
+                  </button>
+
+                  {isProfileMenuOpen && (
+                    <div className={styles.profileDropdown} role="menu">
+                      <button
+                        type="button"
+                        className={styles.profileDropdownItem}
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                      >
+                        {isSigningOut ? "Déconnexion..." : "Se déconnecter"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </header>
 
