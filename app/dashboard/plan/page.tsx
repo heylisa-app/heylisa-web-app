@@ -1,100 +1,72 @@
-import styles from "./page.module.css";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import PlanPageClient from "./PlanPageClient";
 
-export default function DashboardPlanPage() {
-  return (
-    <div className={styles.planView}>
-      <div className={styles.planShell}>
-        <div className={styles.planGrid}>
-          <div className={styles.planMainColumn}>
-            <section className={styles.planSection}>
-              <h1 className={styles.pageTitle}>Facturation</h1>
+type BillingStatus =
+  | "trial_active"
+  | "trial_contacted"
+  | "trial_expired_waiting_response"
+  | "pending_payment"
+  | "active_paid"
+  | "grace_period"
+  | "suspended"
+  | "closed"
+  | null;
 
-              <div className={styles.sectionTitle}>Plan actuel</div>
-              <div className={styles.mainCard}>
-                <div className={styles.mainCardInner}>
-                <div className={styles.planNameRow}>
-                  <img
-                    src="/imgs/Lisa_Avatar-min.webp"
-                    alt="Lisa"
-                    className={styles.lisaAvatar}
-                  />
-                  <span className={styles.planName}>Chef de cabinet - Lisa</span>
-                </div>
+export default async function DashboardPlanPage() {
+  const isDev = process.env.NODE_ENV === "development";
+  const devPublicUserId = process.env.DEV_PUBLIC_USER_ID;
 
-                  <ul className={styles.planFeatureList}>
-                    <li>Assistant IA médical dédié au cabinet</li>
-                    <li>Gestion des mails, rappels et suivi patient</li>
-                    <li>Accès aux vues Patients, Protocole et Dashboard</li>
-                    <li>Notes, historique, suggestions et documents analysés</li>
-                    <li>Support prioritaire et évolutions produit</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
+  let billingStatus: BillingStatus = null;
 
-            <section className={styles.planSection}>
-              <div className={styles.sectionTitle}>Dépassement</div>
-              <div className={styles.mainCard}>
-                <div className={styles.usageCardHeader}>
-                  <div>
-                    <div className={styles.usageTitle}>Hors forfait tokens</div>
-                    <div className={styles.usageDescription}>
-                      Votre abonnement inclut un volume mensuel de tokens. Au-delà,
-                      la consommation additionnelle est facturée automatiquement.
-                    </div>
-                  </div>
+  // -----------------------------
+  // DEV MODE: même logique que ton layout dashboard
+  // -----------------------------
+  if (isDev && devPublicUserId) {
+    const supabase = createAdminClient();
 
-                  <div className={styles.usageAmountPill}>0€</div>
-                </div>
-              </div>
-            </section>
-          </div>
+    const { data: billingRow } = await supabase
+      .from("user_billing_status")
+      .select("billing_status")
+      .eq("public_user_id", devPublicUserId)
+      .maybeSingle();
 
-          <aside className={styles.planSideColumn}>
-            <section className={styles.sideSection}>
-              <div className={styles.sideSectionTitle}>Prochaine facture</div>
+    billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
 
-              <div className={styles.invoiceCard}>
-                <div className={styles.invoiceRow}>
-                  <span className={styles.invoiceLabel}>Montant de base</span>
-                  <span className={styles.invoiceValue}>499€</span>
-                </div>
+    return <PlanPageClient billingStatus={billingStatus} />;
+  }
 
-                <div className={styles.invoiceDivider} />
+  // -----------------------------
+  // NORMAL MODE: session auth -> users.id -> billing.public_user_id
+  // -----------------------------
+  const supabase = await createClient();
 
-                <div className={styles.invoiceRow}>
-                  <span className={styles.invoiceLabel}>Hors forfait</span>
-                  <span className={styles.invoiceValue}>0€</span>
-                </div>
-              </div>
-            </section>
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
 
-            <section className={styles.linkSection}>
-              <div className={styles.linkBlock}>
-                <div className={styles.linkBlockTitle}>Gérer les infos de facturation</div>
-                <div className={styles.linkBlockText}>
-                  Mettre à jour les moyens de paiement, l’adresse de facturation ou les
-                  informations de l’entreprise.
-                </div>
-                <a href="#" className={styles.sideLink}>
-                  Ouvrir Stripe →
-                </a>
-              </div>
+  if (!authUser) {
+    redirect("https://heylisa.io/signup");
+  }
 
-              <div className={styles.linkBlock}>
-                <div className={styles.linkBlockTitle}>Factures</div>
-                <div className={styles.linkBlockText}>
-                  Consulter et télécharger vos factures émises depuis votre espace de
-                  facturation Stripe.
-                </div>
-                <a href="#" className={styles.sideLink}>
-                  Voir les factures →
-                </a>
-              </div>
-            </section>
-          </aside>
-        </div>
-      </div>
-    </div>
-  );
+  const { data: userRow, error: userError } = await supabase
+    .from("users")
+    .select("id")
+    .eq("auth_user_id", authUser.id)
+    .single();
+
+  if (userError || !userRow?.id) {
+    redirect("https://heylisa.io/signup");
+  }
+
+  const { data: billingRow } = await supabase
+    .from("user_billing_status")
+    .select("billing_status")
+    .eq("public_user_id", userRow.id)
+    .maybeSingle();
+
+  billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
+
+  return <PlanPageClient billingStatus={billingStatus} />;
 }

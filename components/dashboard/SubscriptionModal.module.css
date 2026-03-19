@@ -1,0 +1,356 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+  }
+  
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top, rgba(77, 107, 255, 0.08), transparent 32%),
+      rgba(4, 8, 20, 0.72);
+    backdrop-filter: blur(16px);
+  }
+  
+  .modal {
+    position: relative;
+    z-index: 1;
+    width: min(1420px, calc(100vw - 52px));
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #121212;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    padding: 34px 36px 34px;
+    color: #f3f4f6;
+  }
+  
+  .closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  
+  .header {
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto 42px;
+  }
+  
+  .title {
+    margin: 0;
+    font-size: clamp(2rem, 2.6vw, 2.7rem);
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    color: #f8fafc;
+  }
+  
+  .subtitle {
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.97rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  
+  .body {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 34px;
+    align-items: start;
+  }
+  
+  .contextCard {
+    padding-top: 22px;
+  }
+  
+  .contextCardInner {
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 20px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.015);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+  
+  .contextTitle {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.94);
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  
+  .contextField {
+    padding: 14px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .contextField:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+  }
+  
+  .contextLabel {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.46);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+    font-weight: 400;
+  }
+  
+  .contextValue {
+    font-size: 0.98rem;
+    color: rgba(255, 255, 255, 0.96);
+    font-weight: 500;
+  }
+  
+  .pricingSection {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .cards {
+    width: 100%;
+    max-width: 860px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+  
+  .card {
+    position: relative;
+    min-height: 620px;
+    padding: 26px 24px 28px;
+    background: #171717;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .card:first-child {
+    border-top-left-radius: 22px;
+    border-bottom-left-radius: 22px;
+  }
+  
+  .card:last-child {
+    border-top-right-radius: 22px;
+    border-bottom-right-radius: 22px;
+    margin-left: -1px;
+  }
+  
+  .cardFeatured {
+    z-index: 2;
+    transform: translateY(-14px);
+    margin-bottom: -26px;
+    min-height: 650px;
+    border-radius: 22px;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: #171717;
+    box-shadow: none;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  
+  .planName {
+    font-size: 1.22rem;
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+    color: #f8fafc;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 26px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  
+  .primaryButton:hover,
+  .secondaryButton:hover {
+    transform: translateY(-1px);
+  }
+  
+  .primaryButton {
+    border: 0;
+    background: #4d6bff;
+    color: white;
+    box-shadow: none;
+  }
+  
+  .secondaryButton {
+    border: 0;
+    background: #4d6bff;
+    color: white;
+    box-shadow: none;
+  }
+  
+  .priceBlock {
+    margin-bottom: 22px;
+  }
+  
+  .priceLine {
+    display: flex;
+    align-items: flex-end;
+    gap: 7px;
+  }
+  
+  .price {
+    font-size: clamp(2.55rem, 4.2vw, 3.45rem);
+    line-height: 0.94;
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    color: #f8fafc;
+  }
+  
+  .priceSuffix {
+    font-size: 0.96rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 7px;
+    font-weight: 400;
+  }
+  
+  .priceMeta {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.89rem;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+  
+  .discountLine {
+    margin-top: 10px;
+    color: #7ee2a1;
+    font-size: 0.89rem;
+    font-weight: 500;
+  }
+  
+  .separator {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 22px 0;
+  }
+  
+  .featuresTitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.56);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+  
+  .featureList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .featureList li {
+    position: relative;
+    padding-left: 21px;
+    margin-bottom: 13px;
+    font-size: 0.91rem;
+    line-height: 1.48;
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 400;
+  }
+  
+  .featureList li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #7ee2a1;
+    font-weight: 700;
+  }
+  
+  @media (max-width: 1180px) {
+    .modal {
+      width: min(1080px, calc(100vw - 28px));
+      padding: 28px 24px 26px;
+    }
+  
+    .body {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  
+    .contextCard {
+      padding-top: 0;
+    }
+  
+    .cards {
+      max-width: 100%;
+    }
+  }
+  
+  @media (max-width: 760px) {
+    .overlay {
+      padding: 14px;
+    }
+  
+    .modal {
+      width: calc(100vw - 20px);
+      padding: 22px 18px 20px;
+    }
+  
+    .title {
+      font-size: 1.7rem;
+    }
+  
+    .subtitle {
+      font-size: 0.92rem;
+    }
+  
+    .cards {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  
+    .card,
+    .card:last-child,
+    .card:first-child {
+      border-radius: 20px;
+      margin-left: 0;
+      min-height: auto;
+    }
+  
+    .cardFeatured {
+      transform: none;
+      min-height: auto;
+    }
+  
+    .price {
+      font-size: 2.5rem;
+    }
+  }

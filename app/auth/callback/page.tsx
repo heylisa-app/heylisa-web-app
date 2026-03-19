@@ -34,7 +34,8 @@ export default function AuthCallbackPage() {
           throw error;
         }
 
-        router.replace("/dashboard");
+        const next = params.get("next") || "/dashboard";
+        router.replace(next);
       } catch (error) {
         console.error("Auth callback error", error);
         setMessage("Impossible d’ouvrir votre session. Merci de réessayer.");

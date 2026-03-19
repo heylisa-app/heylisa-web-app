@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import InviteModal from "./InviteModal";
 import styles from "./DashboardShell.module.css";
 import { createClient } from "@/lib/supabase/client";
+import SubscriptionModal from "./SubscriptionModal";
 
 type NavItem = {
   href: string;
@@ -24,7 +25,8 @@ const topItems: NavItem[] = [
 
 const bottomItems: NavItem[] = [
   { href: "/dashboard/invite", label: "Inviter", icon: "/imgs/invite.png", activeClass: "activeInvite" },
-  { href: "/dashboard/plan", label: "Formule", icon: "/imgs/docs.png", activeClass: "activePlan" },
+  { href: "/dashboard/support", label: "Support", icon: "/imgs/support.png", activeClass: "activeSupport" },
+  { href: "/dashboard/plan", label: "Plan", icon: "/imgs/docs.png", activeClass: "activePlan" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -37,6 +39,9 @@ type DashboardShellProps = {
   userDisplayName: string;
   userInitials: string;
   cabinetName: string;
+  publicUserId: string;
+  initialBillingStatus: string | null;
+  initialStripeUrl: string | null;
 };
 
 export default function DashboardShell({
@@ -44,12 +49,21 @@ export default function DashboardShell({
   userDisplayName,
   userInitials,
   cabinetName,
+  publicUserId,
+  initialBillingStatus,
+  initialStripeUrl,
 }: DashboardShellProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const billingStatus = initialBillingStatus;
+  const stripeUrl = initialStripeUrl;
+  const billingLoaded = true;
   const supabase = createClient();
 
   useEffect(() => {
@@ -68,6 +82,29 @@ export default function DashboardShell({
     };
   }, []);
 
+  const showHardPaywall = billingLoaded && billingStatus === "suspended";
+  console.log("[HL billing]", {
+    billingLoaded,
+    billingStatus,
+    stripeUrl,
+    showHardPaywall,
+  });
+
+  useEffect(() => {
+    if (showHardPaywall) {
+      setIsSubscriptionModalOpen(true);
+      return;
+    }
+  
+    const shouldOpenFromUrl = searchParams.get("subscribe") === "1";
+  
+    if (shouldOpenFromUrl) {
+      setIsSubscriptionModalOpen(true);
+    }
+  }, [showHardPaywall, searchParams]);
+
+
+
   async function handleSignOut() {
     try {
       setIsSigningOut(true);
@@ -76,6 +113,22 @@ export default function DashboardShell({
     } catch (error) {
       console.error("Logout error", error);
       setIsSigningOut(false);
+    }
+  }
+
+  function handleCloseSubscriptionModal() {
+    if (showHardPaywall) return;
+  
+    setIsSubscriptionModalOpen(false);
+  
+    if (searchParams.get("subscribe") === "1") {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("subscribe");
+      const nextUrl = params.toString()
+        ? `${pathname}?${params.toString()}`
+        : pathname;
+  
+      router.replace(nextUrl);
     }
   }
 
@@ -226,6 +279,13 @@ export default function DashboardShell({
       <InviteModal
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
+      />
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        mode={showHardPaywall ? "hard" : "soft"}
+        onClose={handleCloseSubscriptionModal}
+        onSelectAnnual={() => console.log("annual")}
+        onSelectMonthly={() => console.log("monthly")}
       />
     </>
   );

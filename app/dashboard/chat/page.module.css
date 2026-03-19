@@ -189,19 +189,21 @@
   
   .chatMain {
     min-width: 0;
-    display: flex;
-    flex-direction: column;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
     height: 100%;
     background: #111111;
     position: relative;
+    overflow: hidden;
   }
   
   .chatMessages {
     --chat-max-width: 860px;
-    flex: 1;
     min-height: 0;
-    overflow: auto;
-    padding: 18px 34px 184px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 18px 34px 24px;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
   }
@@ -353,12 +355,15 @@
   /* COMPOSER */
   
   .chatComposerWrap {
-    position: absolute;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
     width: min(860px, calc(100% - 96px));
     min-width: 680px;
+    justify-self: center;
+    align-self: end;
+    margin: 0 0 18px;
     z-index: 5;
   }
   
@@ -581,6 +586,20 @@
   .chatThinking span:nth-child(3) {
     animation-delay: 0.4s;
   }
+
+  .lisaInlineLink {
+    color: #7c9cff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(124, 156, 255, 0.52);
+    word-break: break-all;
+    transition: color 0.18s ease, text-decoration-color 0.18s ease, opacity 0.18s ease;
+  }
+  
+  .lisaInlineLink:hover {
+    color: #9db6ff;
+    text-decoration-color: rgba(157, 182, 255, 0.95);
+  }
   
   @keyframes lisaThinking {
     0%, 80%, 100% {
@@ -599,8 +618,7 @@
         grid-template-columns: 244px minmax(0, 1fr);
       }
       
-    .chatComposerWrap {
-        left: 50%;
+      .chatComposerWrap {
         width: min(780px, calc(100% - 72px));
         min-width: 560px;
       }
@@ -625,8 +643,6 @@
     }
   
     .chatComposerWrap {
-      left: 50%;
-      transform: translateX(-50%);
       width: calc(100% - 32px);
       min-width: 0;
     }
@@ -654,4 +670,264 @@
     .chatInput {
       font-size: 15px;
     }
+  }
+
+  .lisaRichMessage {
+    --lisa-text: rgba(255, 255, 255, 0.94);
+    --lisa-muted: rgba(255, 255, 255, 0.72);
+    --lisa-soft: rgba(255, 255, 255, 0.04);
+    --lisa-soft-strong: rgba(255, 255, 255, 0.06);
+    --lisa-border: rgba(255, 255, 255, 0.08);
+    --lisa-border-strong: rgba(255, 255, 255, 0.12);
+    --lisa-accent: rgba(124, 92, 255, 0.22);
+    --lisa-accent-border: rgba(124, 92, 255, 0.34);
+    --lisa-report-bg: rgba(255, 255, 255, 0.03);
+    --lisa-report-header: rgba(255, 255, 255, 0.05);
+    --lisa-rx-bg: #ffffff;
+    --lisa-rx-text: #111111;
+    --lisa-rx-muted: #5f5f5f;
+  
+    color: var(--lisa-text);
+  }
+  
+  .lisaParagraph {
+    margin: 0 0 14px 0;
+    line-height: 1.72;
+    color: var(--lisa-text);
+  }
+  
+  .lisaTitle {
+    margin: 0 0 14px 0;
+    font-size: 1.08rem;
+    line-height: 1.32;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+  }
+  
+  .lisaSection {
+    margin: 0 0 18px 0;
+  }
+  
+  .lisaSectionTitle {
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+  
+  .lisaSectionBody {
+    line-height: 1.72;
+    color: var(--lisa-text);
+  }
+  
+  .lisaListCard {
+    margin: 0 0 16px 0;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--lisa-soft);
+    border: 1px solid var(--lisa-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .lisaList {
+    margin: 0;
+    padding-left: 18px;
+  }
+  
+  .lisaListItem {
+    margin: 0 0 8px 0;
+    line-height: 1.66;
+    color: var(--lisa-text);
+  }
+  
+  .lisaListItem:last-child {
+    margin-bottom: 0;
+  }
+  
+  .lisaReportHeader {
+    margin: 0 0 18px 0;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: linear-gradient(
+      180deg,
+      var(--lisa-report-header) 0%,
+      var(--lisa-report-bg) 100%
+    );
+    border: 1px solid var(--lisa-border);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    line-height: 1.7;
+  }
+  
+  .lisaNextStep {
+    margin: 14px 0 2px 0;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--lisa-accent);
+    border: 1px solid var(--lisa-accent-border);
+    line-height: 1.68;
+    color: #ffffff;
+  }
+  
+  .lisaRxMeta,
+  .lisaRxMain,
+  .lisaRxNotes {
+    margin: 0 0 14px 0;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--lisa-rx-bg);
+    color: var(--lisa-rx-text);
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.12),
+      0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    line-height: 1.68;
+  }
+  
+  .lisaRxMeta {
+    background:
+      linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  }
+  
+  .lisaRxMain {
+    background:
+      linear-gradient(180deg, #ffffff 0%, #fcfcfc 100%);
+  }
+  
+  .lisaRxNotes {
+    background:
+      linear-gradient(180deg, #fbfbfb 0%, #f4f4f4 100%);
+    color: var(--lisa-rx-text);
+  }
+  
+  .lisaRichMessage strong {
+    font-weight: 700;
+    color: inherit;
+  }
+  
+  .lisaRxMeta strong,
+  .lisaRxMain strong,
+  .lisaRxNotes strong {
+    color: #111111;
+  }
+  
+  .lisaRichMessage p:last-child,
+  .lisaRichMessage section:last-child,
+  .lisaRichMessage div:last-child {
+    margin-bottom: 0;
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaTitle {
+    font-size: 1.18rem;
+    margin-bottom: 16px;
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaSection {
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaSection:last-of-type {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .lisaRichMessage[data-lisa-format="prescription"] .lisaTitle {
+    font-size: 1.14rem;
+    color: #ffffff;
+  }
+  
+  .lisaRichMessage[data-lisa-format="prescription"] .lisaParagraph {
+    color: var(--lisa-text);
+  }
+
+  .lisaReportHero {
+    margin: 0 0 22px 0;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 12px 34px rgba(0,0,0,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  
+  .lisaReportHeroInner {
+    padding: 18px 20px 16px 20px;
+  }
+  
+  .lisaReportHeroBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px 0;
+  }
+  
+  .lisaReportHeroBadgeIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  
+  .lisaReportHeroBadgeText {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.98);
+  }
+  
+  .lisaReportHeroBody {
+    line-height: 1.75;
+    color: rgba(255,255,255,0.92);
+  }
+  
+  .lisaReportHeroBody p {
+    margin: 0 0 10px 0;
+  }
+  
+  .lisaReportHeroBody p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaSectionTitle {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaSection {
+    margin: 0 0 20px 0;
+    padding: 0 0 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaSection:last-of-type {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  
+  .lisaRichMessage[data-lisa-format="report"] .lisaListCard {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.028) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    border-radius: 18px;
+  }
+
+  .lisaRichMessage [data-lisa-block="next-step"] {
+    margin-top: 20px;
+    margin-bottom: 18px;
+  }
+  
+  .lisaRichMessage [data-lisa-block="next-step"] p:last-child {
+    margin-bottom: 0;
   }

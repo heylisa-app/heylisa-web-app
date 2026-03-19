@@ -44,6 +44,9 @@ export default function DashboardPatientsPage() {
       author: "Dr Martin",
       content:
         "Patiente revue en consultation de suivi. Douleurs abdominales toujours présentes mais moins fréquentes que lors du précédent épisode. Pas de signe de décompensation aiguë. Surveillance recommandée à court terme avec contrôle des résultats biologiques dès réception. Revoir la patiente sous 2 semaines ou plus tôt en cas d’aggravation clinique.",
+      hasAudio: true,
+      audioDuration: "01:42",
+      audioWaveform: [18, 32, 24, 40, 52, 34, 22, 46, 58, 44, 28, 20, 36, 54, 42, 26, 16, 30, 48, 38, 24, 18, 34, 50],
     },
     {
       id: "note-2",
@@ -53,6 +56,9 @@ export default function DashboardPatientsPage() {
       author: "Dr Martin",
       content:
         "Suites post-coloscopie simples à ce stade. Pas de complication immédiate rapportée. Consignes de surveillance données à la patiente. Réévaluer selon les résultats consolidés et l’évolution des symptômes digestifs dans les prochains jours.",
+      hasAudio: false,
+      audioDuration: null,
+      audioWaveform: [],
     },
     {
       id: "note-3",
@@ -62,6 +68,9 @@ export default function DashboardPatientsPage() {
       author: "Lisa",
       content:
         "Les derniers éléments reçus ont été rapprochés du protocole patient actif. Une proposition de suivi à 14 jours a été identifiée comme cohérente avec la trajectoire actuelle du dossier. Aucun signal critique immédiat détecté à ce stade, mais une relecture humaine des résultats reste recommandée.",
+      hasAudio: true,
+      audioDuration: "00:58",
+      audioWaveform: [14, 22, 18, 28, 44, 36, 20, 26, 48, 40, 24, 16, 30, 46, 34, 22, 18, 26, 38, 30, 20, 14, 24, 32],
     },
   ];
 
@@ -613,41 +622,93 @@ export default function DashboardPatientsPage() {
               </div>
 
               {patientMainTab === "notes" && (
-                <div className={styles.notesSplitView}>
-                  <div className={styles.notesListPane}>
-                    {notes.map((note) => (
+            <div className={styles.notesSplitView}>
+              <div className={styles.notesListPane}>
+                {notes.map((note) => (
+                  <button
+                    key={note.id}
+                    type="button"
+                    className={`${styles.noteListItem} ${
+                      selectedNoteId === note.id ? styles.isNoteSelected : ""
+                    }`}
+                    onClick={() => setSelectedNoteId(note.id)}
+                  >
+                    <div className={styles.noteListItemMain}>
+                      <div className={styles.noteListItemTopRow}>
+                        <div className={styles.noteListItemTitle}>{note.title}</div>
+
+                        {note.hasAudio && (
+                          <div className={styles.noteListItemAudioBadge}>
+                            <span className={styles.noteListItemAudioDot}></span>
+                            <span>Audio</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={styles.noteListItemSummary}>{note.summary}</div>
+                    </div>
+
+                    <div className={styles.noteListItemTime}>{note.datetime}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div className={styles.noteDetailPane}>
+                <div className={styles.noteDetailHeader}>
+                  <div>
+                    <div className={styles.noteDetailTitle}>{selectedNote.title}</div>
+                    <div className={styles.noteDetailMeta}>
+                      {selectedNote.author} · {selectedNote.datetime}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.noteDetailBody}>{selectedNote.content}</div>
+
+                {selectedNote.hasAudio && (
+                  <div className={styles.noteDetailFooter}>
+                    <div className={styles.audioDock}>
                       <button
-                        key={note.id}
                         type="button"
-                        className={`${styles.noteListItem} ${
-                          selectedNoteId === note.id ? styles.isNoteSelected : ""
-                        }`}
-                        onClick={() => setSelectedNoteId(note.id)}
+                        className={styles.audioDockMenu}
+                        aria-label="Actions note audio"
                       >
-                        <div className={styles.noteListItemMain}>
-                          <div className={styles.noteListItemTitle}>{note.title}</div>
-                          <div className={styles.noteListItemSummary}>{note.summary}</div>
+                        <span />
+                        <span />
+                        <span />
+                      </button>
+
+                      <div className={styles.audioDockInner}>
+                        <div className={styles.audioDockLeft}>
+                          <button
+                            type="button"
+                            className={styles.audioPlayButton}
+                            aria-label="Lire la note audio"
+                          >
+                            <span className={styles.audioPlayIcon} />
+                          </button>
+
+                          <div className={styles.audioPlayerDuration}>
+                            {selectedNote.audioDuration}
+                          </div>
                         </div>
 
-                        <div className={styles.noteListItemTime}>{note.datetime}</div>
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className={styles.noteDetailPane}>
-                    <div className={styles.noteDetailHeader}>
-                      <div>
-                        <div className={styles.noteDetailTitle}>{selectedNote.title}</div>
-                        <div className={styles.noteDetailMeta}>
-                          {selectedNote.author} · {selectedNote.datetime}
+                        <div className={styles.audioDockWave}>
+                          {selectedNote.audioWaveform.map((bar, index) => (
+                            <span
+                              key={`${selectedNote.id}-${index}`}
+                              className={styles.audioWaveBar}
+                              style={{ height: `${Math.max(bar, 10)}%` }}
+                            />
+                          ))}
                         </div>
                       </div>
                     </div>
-
-                    <div className={styles.noteDetailBody}>{selectedNote.content}</div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            </div>
+          )}
 
               {patientMainTab === "history" && (
                 <div className={styles.historyListView}>

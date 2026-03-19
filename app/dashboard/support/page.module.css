@@ -1,0 +1,86 @@
+.supportView {
+    min-height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 42px 40px 56px;
+  }
+  
+  .supportGrid {
+    width: 100%;
+    max-width: 1380px;
+    display: grid;
+    grid-template-columns: 280px auto;
+    gap: 44px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  
+  /* LEFT */
+  
+  .supportLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .supportAvatar {
+    width: 92px;
+    height: 92px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  
+  .supportTitle {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: -0.02em;
+  }
+  
+  .supportSubtitle {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    max-width: 320px;
+  }
+  
+  .supportDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .supportDetailItem {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.75);
+  }
+  
+  /* RIGHT */
+  
+  .supportRight {
+    width: fit-content;
+    max-width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 10px;
+    overflow: hidden;
+  }
+  
+  .calendlyWrapper {
+    width: 690px;
+    height: 700px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #ffffff;
+  }
+  
+  .calendlyWrapper iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    display: block;
+  }
