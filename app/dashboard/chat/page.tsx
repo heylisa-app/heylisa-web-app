@@ -1211,36 +1211,35 @@ export default function DashboardChatPage() {
       </aside>
 
       <section className={styles.chatMain}>
-        <div className={styles.chatMessages} id="hlChatMessages" ref={messagesRef}>
-          <div className={styles.chatDaySeparator}>
-            <span className={styles.chatDayLine} />
-            <span className={styles.chatDayPill}>Aujourd’hui</span>
-            {shouldShowInitialThinking && (
-              <div className={styles.chatMessage}>
-                <div className={styles.chatMessageRow}>
-                  <div className={styles.chatMessageAvatar}>
-                    <img src={LISA_AVATAR} alt="Lisa" />
-                  </div>
+      <div className={styles.chatMessages} id="hlChatMessages" ref={messagesRef}>
+        <div className={styles.chatDaySeparator}>
+          <span className={styles.chatDayLine} />
+          <span className={styles.chatDayPill}>Aujourd’hui</span>
+          <span className={styles.chatDayLine} />
+        </div>
 
-                  <div className={styles.chatMessageContent}>
-                    <div className={styles.chatMessageMeta}>
-                      <span className={styles.chatMessageAuthor}>Lisa</span>
-                      <span className={styles.chatMessageTime}>…</span>
-                    </div>
+        {shouldShowInitialThinking && (
+          <div className={styles.chatMessage}>
+            <div className={styles.chatMessageRow}>
+              <div className={styles.chatMessageAvatar}>
+                <img src={LISA_AVATAR} alt="Lisa" />
+              </div>
 
-                    <div className={styles.chatMessageText} />
+              <div className={styles.chatMessageContent}>
+                <div className={styles.chatMessageMeta}>
+                  <span className={styles.chatMessageAuthor}>Lisa</span>
+                  <span className={styles.chatMessageTime}>…</span>
+                </div>
 
-                    <div className={styles.chatThinking}>
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  </div>
+                <div className={styles.chatThinking}>
+                  <span />
+                  <span />
+                  <span />
                 </div>
               </div>
-            )}
-            <span className={styles.chatDayLine} />
+            </div>
           </div>
+        )}
 
           {messages.map((message) => {
             if (message.sender === "user") {
