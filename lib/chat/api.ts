@@ -1,3 +1,5 @@
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+
 export type SseEvent =
   | { event: "ack"; data: any }
   | { event: "meta"; data: any }
@@ -5,27 +7,46 @@ export type SseEvent =
   | { event: "done"; data: any }
   | { event: "error"; data: any };
 
-  function getApiBaseUrl() {
-    const isBrowser = typeof window !== "undefined";
-    const isLocalhost =
-      isBrowser &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1");
-  
-    // En local, on tape le backend prod pour garder le même comportement
-    // que ton setup actuel, sans casser le dev.
-    if (isLocalhost) {
-      return "https://api.heylisa.io";
-    }
-  
-    const url = process.env.NEXT_PUBLIC_API_BASE_URL;
-  
-    if (!url) {
-      throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
-    }
-  
-    return url.replace(/\/+$/, "");
+function getApiBaseUrl() {
+  const isBrowser = typeof window !== "undefined";
+  const isLocalBrowser =
+    isBrowser &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (isLocalBrowser && !url) {
+    return "http://localhost:8000";
   }
+
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
+  }
+
+  return url.replace(/\/+$/, "");
+}
+
+async function getAccessToken() {
+  const supabase = createSupabaseClient();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
+  const accessToken = session?.access_token;
+
+  if (!accessToken) {
+    throw new Error("Missing Supabase access token");
+  }
+
+  return accessToken;
+}
 
 function parseSseChunk(buffer: string): { events: SseEvent[]; rest: string } {
   const parts = buffer.split("\n\n");
@@ -68,12 +89,14 @@ async function streamPost(
   onEvent: (event: SseEvent) => void
 ) {
   const apiBaseUrl = getApiBaseUrl();
+  const accessToken = await getAccessToken();
 
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "text/event-stream",
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
   });
