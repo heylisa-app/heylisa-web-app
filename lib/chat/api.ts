@@ -5,13 +5,27 @@ export type SseEvent =
   | { event: "done"; data: any }
   | { event: "error"; data: any };
 
-function getApiBaseUrl() {
-  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!url) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
+  function getApiBaseUrl() {
+    const isBrowser = typeof window !== "undefined";
+    const isLocalhost =
+      isBrowser &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+  
+    // En local, on tape le backend prod pour garder le même comportement
+    // que ton setup actuel, sans casser le dev.
+    if (isLocalhost) {
+      return "https://api.heylisa.io";
+    }
+  
+    const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  
+    if (!url) {
+      throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
+    }
+  
+    return url.replace(/\/+$/, "");
   }
-  return url.replace(/\/+$/, "");
-}
 
 function parseSseChunk(buffer: string): { events: SseEvent[]; rest: string } {
   const parts = buffer.split("\n\n");

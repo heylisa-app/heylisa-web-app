@@ -60,6 +60,7 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
       </div>
     );
   }
+  
 
   return (
     <div className={styles.planView}>

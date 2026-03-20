@@ -34,8 +34,15 @@ const LISA_AVATAR = "/imgs/Lisa_Avatar-min.webp";
 const INTRO_STREAMING_ID = "intro-streaming-placeholder";
 const MAIN_STREAMING_PREFIX = "lisa-streaming";
 
-const DEV_PUBLIC_USER_ID = process.env.NEXT_PUBLIC_DEV_PUBLIC_USER_ID ?? "";
-const DEV_CONVERSATION_ID = process.env.NEXT_PUBLIC_DEV_CONVERSATION_ID ?? "";
+const DEV_PUBLIC_USER_ID =
+  process.env.NODE_ENV === "development"
+    ? process.env.NEXT_PUBLIC_DEV_PUBLIC_USER_ID ?? ""
+    : "";
+
+const DEV_CONVERSATION_ID =
+  process.env.NODE_ENV === "development"
+    ? process.env.NEXT_PUBLIC_DEV_CONVERSATION_ID ?? ""
+    : "";
 
 function getCurrentTime() {
   const now = new Date();
@@ -45,8 +52,11 @@ function getCurrentTime() {
 }
 
 async function fetchChatHistory(conversationId: string) {
+  const isDev = process.env.NODE_ENV === "development";
+  const basePath = isDev ? "/api/dev/chat/history" : "/api/chat/history";
+
   const response = await fetch(
-    `/api/dev/chat/history?conversation_id=${encodeURIComponent(conversationId)}`,
+    `${basePath}?conversation_id=${encodeURIComponent(conversationId)}`,
     {
       method: "GET",
       cache: "no-store",
@@ -506,6 +516,10 @@ export default function DashboardChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasBootstrappedIntro, setHasBootstrappedIntro] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+
+  const [publicUserId, setPublicUserId] = useState("");
+  const [conversationId, setConversationId] = useState("");
+  const [chatContextLoaded, setChatContextLoaded] = useState(false);
   
 
   const messagesRef = useRef<HTMLDivElement | null>(null);
@@ -514,6 +528,69 @@ export default function DashboardChatPage() {
   const streamedMessageIdsRef = useRef<Set<string>>(new Set());
   const knownMessageIdsRef = useRef<Set<string>>(new Set());
   const supabase = useMemo(() => createSupabaseClient(), []);
+
+  useEffect(() => {
+    let cancelled = false;
+  
+    async function loadChatContext() {
+      try {
+        // mode dev local conservé
+        if (DEV_PUBLIC_USER_ID && DEV_CONVERSATION_ID) {
+          if (cancelled) return;
+          setPublicUserId(DEV_PUBLIC_USER_ID);
+          setConversationId(DEV_CONVERSATION_ID);
+          return;
+        }
+  
+        const {
+          data: { user: authUser },
+          error: authError,
+        } = await supabase.auth.getUser();
+  
+        if (authError) throw authError;
+        if (!authUser) throw new Error("AUTH_USER_NOT_FOUND");
+  
+        const { data: userRow, error: userError } = await supabase
+          .from("users")
+          .select("id")
+          .eq("auth_user_id", authUser.id)
+          .single();
+  
+        if (userError || !userRow?.id) {
+          throw userError ?? new Error("PUBLIC_USER_NOT_FOUND");
+        }
+  
+        const { data: conversationRow, error: conversationError } = await supabase
+          .from("conversations")
+          .select("id")
+          .eq("user_id", userRow.id)
+          .order("last_message_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+  
+        if (conversationError || !conversationRow?.id) {
+          throw conversationError ?? new Error("CONVERSATION_NOT_FOUND");
+        }
+  
+        if (cancelled) return;
+  
+        setPublicUserId(userRow.id);
+        setConversationId(conversationRow.id);
+      } catch (error) {
+        console.error("[HL Chat] context load error:", error);
+      } finally {
+        if (!cancelled) {
+          setChatContextLoaded(true);
+        }
+      }
+    }
+  
+    loadChatContext();
+  
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase]);
 
   const isSending = status === "connecting" || status === "streaming";
   const hasText = input.trim().length > 0;
@@ -840,8 +917,8 @@ export default function DashboardChatPage() {
   }
 
   async function bootstrapIntro() {
-    if (!DEV_CONVERSATION_ID) {
-      console.error("[HL Chat] Missing NEXT_PUBLIC_DEV_CONVERSATION_ID");
+    if (!conversationId) {
+      console.error("[HL Chat] Missing conversationId");
       return;
     }
   
@@ -866,7 +943,7 @@ export default function DashboardChatPage() {
     try {
       setStatus("connecting");
 
-      await streamChatIntro(DEV_CONVERSATION_ID, async (event) => {
+      await streamChatIntro(conversationId, async (event) => {
         await handleStreamEvent(event, streamingMessageId, () => {
           setHasBootstrappedIntro(true);
         });
@@ -889,14 +966,16 @@ export default function DashboardChatPage() {
 
   useEffect(() => {
     async function loadHistory() {
-      if (!DEV_CONVERSATION_ID) {
-        console.error("[HL Chat] Missing NEXT_PUBLIC_DEV_CONVERSATION_ID");
+      if (!chatContextLoaded) return;
+  
+      if (!conversationId) {
+        console.error("[HL Chat] Missing conversationId");
         setHistoryLoaded(true);
         return;
       }
 
       try {
-        const dbMessages = await fetchChatHistory(DEV_CONVERSATION_ID);
+        const dbMessages = await fetchChatHistory(conversationId);
         const uiMessages = mapDbMessagesToUi(dbMessages);
       
         setMessages(uiMessages);
@@ -912,20 +991,20 @@ export default function DashboardChatPage() {
     }
 
     loadHistory();
-  }, []);
+  }, [chatContextLoaded, conversationId]);
 
   useEffect(() => {
-    if (!DEV_CONVERSATION_ID) return;
+    if (!conversationId) return;
 
     const channel = supabase
-      .channel(`chat-conversation-${DEV_CONVERSATION_ID}`)
+    .channel(`chat-conversation-${conversationId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "conversation_messages",
-          filter: `conversation_id=eq.${DEV_CONVERSATION_ID}`,
+          filter: `conversation_id=eq.${conversationId}`,
         },
         (
           payload: {
@@ -956,9 +1035,10 @@ export default function DashboardChatPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, upsertFinalMessageFromDb]);
+  }, [supabase, upsertFinalMessageFromDb, conversationId]);
 
   useEffect(() => {
+    if (!chatContextLoaded) return;
     if (!historyLoaded) return;
     if (hasBootstrappedIntro) return;
     if (messages.length > 0) return;
@@ -1014,8 +1094,8 @@ export default function DashboardChatPage() {
     const text = input.trim();
 
     if (!text || isSending) return;
-    if (!DEV_PUBLIC_USER_ID || !DEV_CONVERSATION_ID) {
-      console.error("[HL Chat] Missing dev user/conversation env vars");
+    if (!publicUserId || !conversationId) {
+      console.error("[HL Chat] Missing publicUserId or conversationId");
       return;
     }
 
@@ -1043,13 +1123,13 @@ export default function DashboardChatPage() {
 
     try {
       const inserted = await insertUserMessage({
-        conversationId: DEV_CONVERSATION_ID,
-        publicUserId: DEV_PUBLIC_USER_ID,
+        conversationId,
+        publicUserId,
         text,
       });
 
       await streamChatMessage(
-        DEV_CONVERSATION_ID,
+        conversationId,
         inserted.id,
         async (event) => {
           await handleStreamEvent(event, streamingMessageId);

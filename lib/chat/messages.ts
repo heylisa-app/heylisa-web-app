@@ -3,7 +3,10 @@ export async function insertUserMessage(params: {
   publicUserId: string;
   text: string;
 }) {
-  const response = await fetch("/api/dev/chat/messages", {
+  const isDev = process.env.NODE_ENV === "development";
+  const path = isDev ? "/api/dev/chat/messages" : "/api/chat/messages";
+
+  const response = await fetch(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -93,6 +93,8 @@ export default async function DashboardLayout({
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
+  const admin = createAdminClient();
+
   if (!authUser) {
     redirect("https://heylisa.io/signup");
   }
@@ -130,11 +132,18 @@ export default async function DashboardLayout({
   let initialBillingStatus: string | null = null;
   let initialStripeUrl: string | null = "/dashboard/plan";
 
-  const { data: billingRow } = await supabase
+  const { data: billingRow, error: billingError } = await admin
     .from("user_billing_status")
     .select("billing_status, stripe_hosted_invoice_url, stripe_portal_url")
     .eq("public_user_id", userRow.id)
     .maybeSingle();
+
+  console.log("[HL billing layout][PROD]", {
+    authUserId: authUser.id,
+    publicUserId: userRow.id,
+    billingStatus: billingRow?.billing_status ?? null,
+    billingError: billingError?.message ?? null,
+  });
 
   if (billingRow) {
     initialBillingStatus = billingRow.billing_status ?? null;

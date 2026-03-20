@@ -21,16 +21,22 @@ export default async function DashboardPlanPage() {
   let billingStatus: BillingStatus = null;
 
   // -----------------------------
-  // DEV MODE: même logique que ton layout dashboard
+  // DEV MODE
   // -----------------------------
   if (isDev && devPublicUserId) {
-    const supabase = createAdminClient();
+    const admin = createAdminClient();
 
-    const { data: billingRow } = await supabase
+    const { data: billingRow, error: billingError } = await admin
       .from("user_billing_status")
       .select("billing_status")
       .eq("public_user_id", devPublicUserId)
       .maybeSingle();
+
+    console.log("[HL Plan server][DEV]", {
+      devPublicUserId,
+      billingStatus: billingRow?.billing_status ?? null,
+      billingError: billingError?.message ?? null,
+    });
 
     billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
 
@@ -38,7 +44,8 @@ export default async function DashboardPlanPage() {
   }
 
   // -----------------------------
-  // NORMAL MODE: session auth -> users.id -> billing.public_user_id
+  // NORMAL MODE
+  // session auth -> users.id -> billing.public_user_id
   // -----------------------------
   const supabase = await createClient();
 
@@ -57,14 +64,31 @@ export default async function DashboardPlanPage() {
     .single();
 
   if (userError || !userRow?.id) {
+    console.error("[HL Plan server] users lookup failed", {
+      authUserId: authUser.id,
+      userError: userError?.message ?? null,
+    });
+
     redirect("https://heylisa.io/signup");
   }
 
-  const { data: billingRow } = await supabase
+  // IMPORTANT:
+  // lookup billing via service role pour éviter qu'une policy RLS
+  // fasse remonter null alors que la ligne existe bien
+  const admin = createAdminClient();
+
+  const { data: billingRow, error: billingError } = await admin
     .from("user_billing_status")
     .select("billing_status")
     .eq("public_user_id", userRow.id)
     .maybeSingle();
+
+  console.log("[HL Plan server][PROD]", {
+    authUserId: authUser.id,
+    publicUserId: userRow.id,
+    billingStatus: billingRow?.billing_status ?? null,
+    billingError: billingError?.message ?? null,
+  });
 
   billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
 
