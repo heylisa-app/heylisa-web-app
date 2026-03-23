@@ -29,6 +29,10 @@
   }
   
   .patientsSidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     padding-bottom: 2px;
   }
   
@@ -39,6 +43,46 @@
     font-weight: 600;
     letter-spacing: -0.02em;
     color: #f4f4f6;
+  }
+
+  .patientsSidebarAddBtn {
+    width: 32px;              /* légèrement réduit */
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    background: #000000;      /* intérieur 100% noir */
+    color: rgba(255, 255, 255, 0.96);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;          /* léger ajustement pour garder le + centré visuellement */
+    line-height: 1;
+    font-weight: 300;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+      0 0 16px rgba(132, 110, 255, 0.14),
+      0 0 32px rgba(132, 110, 255, 0.08);
+    transition:
+      transform 0.16s ease,
+      border-color 0.16s ease,
+      background 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+  
+  .patientsSidebarAddBtn:hover {
+    transform: translateY(-1px);
+    background: #000000; /* reste noir */
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+      0 0 20px rgba(132, 110, 255, 0.22),
+      0 0 40px rgba(132, 110, 255, 0.12);
+  }
+  
+  .patientsSidebarAddBtn:active {
+    transform: translateY(0);
   }
   
   .patientsSearchWrap {
@@ -615,21 +659,26 @@
 ========================= */
 
 .notesSplitView {
-    display: grid;
-    grid-template-columns: 420px minmax(0, 1fr);
-    gap: 0;
-    min-height: 520px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #141414;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 0;
+  height: 520px;
+  max-height: 520px;
+  min-height: 520px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
   
-  .notesListPane {
-    background: #161616;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    overflow: auto;
-  }
+.notesListPane {
+  background: #161616;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  min-height: 0;
+}
   
   .notesListPane::-webkit-scrollbar {
     width: 8px;
@@ -695,6 +744,7 @@
   }
   
   .noteDetailPane {
+    position: relative;
     background: #111111;
     padding: 24px 26px 26px;
     display: flex;
@@ -706,9 +756,14 @@
   }
   
   .noteDetailHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     margin-bottom: 18px;
+    overflow: visible;
   }
   
   .noteDetailTitle {
@@ -815,6 +870,75 @@
     font-size: 13px;
     line-height: 1.7;
     color: #d0d0d5;
+  }
+
+  .noteAudioPlayer {
+    width: 100%;
+    height: 42px;
+    display: block;
+    filter: invert(1) hue-rotate(180deg);
+    opacity: 0.92;
+  }
+  
+  .noteAudioLoading {
+    font-size: 13px;
+    color: #8f8f95;
+  }
+
+  .audioDockLeft {
+    display: none;
+  }
+
+  .followupRequestModal {
+    width: min(520px, calc(100vw - 32px));
+    border-radius: 20px;
+    background: #111214;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+  
+  .followupRequestBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px 8px;
+  }
+  
+  .followupRequestOption {
+    width: 100%;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 16px 16px 15px;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  }
+  
+  .followupRequestOption:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(107, 107, 255, 0.45);
+    transform: translateY(-1px);
+  }
+  
+  .followupRequestOption:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .followupRequestOptionTitle {
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 650;
+    color: #f3f3f5;
+    margin-bottom: 6px;
+  }
+  
+  .followupRequestOptionText {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #a5a5ab;
   }
   
 /* =========================
@@ -1624,7 +1748,8 @@
   
   .documentsTableWrap {
     width: 100%;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: visible;
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.06);
     background: #141414;
@@ -1634,6 +1759,7 @@
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    overflow: visible;
   }
 
   .documentsTable col:nth-child(1) { width: 46%; }
@@ -1666,6 +1792,12 @@
     color: #d8d8dd;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     vertical-align: middle;
+  }
+
+  .documentsTable tbody,
+  .documentsTable tr,
+  .documentsTable td {
+    overflow: visible;
   }
   
   .documentsTable tbody tr:last-child td {
@@ -2581,3 +2713,2093 @@
   .patientsModalAction:hover {
     opacity: 0.94;
   }
+
+  .demoModeBadge {
+    position: fixed;
+    left: calc(112px + ((100vw - 112px) / 2));
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 40;
+  
+    min-width: 360px;
+    max-width: 520px;
+    padding: 12px 16px 13px;
+    border-radius: 16px;
+  
+    background: rgba(10, 10, 10, 0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 0 20px rgba(255, 59, 48, 0.18),
+    0 0 40px rgba(255, 59, 48, 0.08);
+  
+    text-align: center;
+    pointer-events: none;
+  }
+  
+  .demoModeBadgeTitle {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  .demoModeBadgeText {
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  
+  @media (max-width: 1100px) {
+    .demoModeBadge {
+      min-width: 320px;
+      max-width: 440px;
+      bottom: 18px;
+      padding: 11px 14px 12px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .demoModeBadge {
+      left: 50%;
+      width: calc(100vw - 36px);
+      min-width: 0;
+      max-width: none;
+      bottom: 16px;
+      padding: 11px 14px 12px;
+    }
+  
+    .demoModeBadgeTitle {
+      font-size: 11px;
+    }
+  
+    .demoModeBadgeText {
+      font-size: 11px;
+    }
+  }
+
+  .uploadModalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 160;
+    background: rgba(7, 7, 10, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  
+  .uploadModal {
+    width: min(680px, 100%);
+    border-radius: 22px;
+    background: #111214;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+  }
+  
+  .uploadModalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .uploadModalTitle {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .uploadModalSubtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.54);
+  }
+  
+  .uploadModalClose {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background 0.16s ease,
+      transform 0.16s ease;
+  }
+  
+  .uploadModalClose:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-1px);
+  }
+  
+  .uploadModalBody {
+    padding: 24px;
+  }
+  
+  .uploadDropzone {
+    min-height: 340px;
+    border-radius: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.16);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0%, rgba(255, 255, 255, 0.01) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 36px 24px;
+  }
+  
+  .uploadDropzoneIconWrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+      0 14px 30px rgba(0, 0, 0, 0.22);
+  }
+  
+  .uploadDropzoneIcon {
+    font-size: 24px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.92);
+    transform: translateY(-1px);
+  }
+  
+  .uploadDropzoneTitle {
+    margin-bottom: 8px;
+    font-size: 20px;
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .uploadDropzoneText {
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.58);
+  }
+  
+  .uploadDropzoneButton {
+    height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #0b0b0d;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition:
+      transform 0.16s ease,
+      opacity 0.16s ease,
+      box-shadow 0.16s ease;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  }
+  
+  .uploadDropzoneButton:hover {
+    transform: translateY(-1px);
+    opacity: 0.97;
+  }
+  
+  .uploadDropzoneHint {
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.42);
+  }
+  
+  @media (max-width: 768px) {
+    .uploadModalOverlay {
+      padding: 16px;
+    }
+  
+    .uploadModal {
+      border-radius: 18px;
+    }
+  
+    .uploadModalHeader {
+      padding: 18px 18px 16px;
+    }
+  
+    .uploadModalBody {
+      padding: 18px;
+    }
+  
+    .uploadDropzone {
+      min-height: 300px;
+      padding: 28px 18px;
+    }
+  
+    .uploadDropzoneTitle {
+      font-size: 18px;
+    }
+  }
+
+  .uploadHiddenInput {
+    display: none;
+  }
+  
+  .uploadErrorMessage {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 89, 89, 0.08);
+    border: 1px solid rgba(255, 89, 89, 0.16);
+    color: rgba(255, 175, 175, 0.92);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .uploadSelectedCard {
+    min-height: 220px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.022) 0%, rgba(255, 255, 255, 0.012) 100%);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .uploadSelectedTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .uploadSelectedFileMeta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  
+  .uploadSelectedFileIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  
+  .uploadSelectedFileText {
+    min-width: 0;
+  }
+  
+  .uploadSelectedFileName {
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.96);
+    word-break: break-word;
+  }
+  
+  .uploadSelectedFileSubline {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .uploadSelectedRemoveBtn {
+    height: 34px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+    white-space: nowrap;
+  }
+  
+  .uploadSelectedRemoveBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
+  
+  .uploadSelectedPreviewNote {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .uploadProgressBlock {
+    margin-top: 22px;
+  }
+  
+  .uploadProgressTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .uploadProgressLabel {
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  
+  .uploadProgressValue {
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  
+  .uploadProgressBar {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  
+  .uploadProgressFill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ffffff 0%, #dcdcdc 100%);
+    transition: width 0.2s ease;
+  }
+  
+  .uploadSelectedFooter {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .uploadImportButton,
+  .uploadDoneButton {
+    height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #0b0b0d;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition:
+      transform 0.16s ease,
+      opacity 0.16s ease,
+      box-shadow 0.16s ease;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  }
+  
+  .uploadImportButton:hover,
+  .uploadDoneButton:hover {
+    transform: translateY(-1px);
+    opacity: 0.97;
+  }
+  
+  .uploadSelectedSuccessNote {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(88, 214, 141, 0.08);
+    border: 1px solid rgba(88, 214, 141, 0.16);
+    color: rgba(194, 255, 216, 0.92);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .documentsLoadingState {
+    margin-top: 14px;
+    margin-bottom: 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.46);
+  }
+
+  .documentPreviewOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 170;
+    background: rgba(7, 7, 10, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  
+  .documentPreviewModal {
+    width: min(980px, 100%);
+    height: min(82vh, 820px);
+    border-radius: 22px;
+    background: #111214;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .documentPreviewHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .documentPreviewTitle {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .documentPreviewSubtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.52);
+  }
+  
+  .documentPreviewClose {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .documentPreviewBody {
+    flex: 1;
+    min-height: 0;
+    background: #0b0c0e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .documentPreviewLoading {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  
+  .documentPreviewFrame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: #ffffff;
+  }
+  
+  .documentPreviewImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .documentPreviewPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  .documentPreviewPlaceholderImage {
+    width: min(420px, 70vw);
+    max-height: 52vh;
+    object-fit: contain;
+    opacity: 0.94;
+    display: block;
+  }
+  
+  .documentPreviewPlaceholderText {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .documentsMoreWrap {
+    position: relative;
+    display: inline-flex;
+    justify-content: flex-end;
+    overflow: visible;
+  }
+  
+  .documentsMoreMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 170px;
+    padding: 8px;
+    border-radius: 14px;
+    background: #17181b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 22px 50px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    z-index: 999;
+  }
+  
+  .documentsMoreMenuItem {
+    width: 100%;
+    height: 38px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+
+  .uploadDoneButton:disabled {
+    opacity: 0.72;
+    cursor: wait;
+    transform: none;
+  }
+  
+  .documentsMoreMenuItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+  }
+  
+  .documentsMoreMenuItem:disabled {
+    opacity: 0.56;
+    cursor: wait;
+  }
+  
+  .documentsMoreMenuItemDanger {
+    color: rgba(255, 132, 132, 0.92);
+  }
+  
+  .documentsMoreMenuItemDanger:hover {
+    background: rgba(255, 80, 80, 0.08);
+    color: #ffffff;
+  }
+  
+  .documentAnalysisOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 175;
+    background: rgba(7, 7, 10, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  
+  .documentAnalysisModal {
+    width: min(640px, 100%);
+    border-radius: 22px;
+    background: #111214;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+  }
+  
+  .documentAnalysisHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .documentAnalysisTitle {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .documentAnalysisSubtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.52);
+  }
+  
+  .documentAnalysisClose {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .documentAnalysisBody {
+    padding: 22px;
+  }
+  
+  .documentAnalysisPlaceholder {
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+
+  .documentAnalysisOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 175;
+    background: rgba(7, 7, 10, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  
+  .documentAnalysisModal {
+    width: min(1240px, calc(100vw - 48px));
+    max-height: min(82vh, 900px);
+    border-radius: 26px;
+    background:
+      linear-gradient(180deg, rgba(18, 19, 23, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .documentAnalysisHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex: 0 0 auto;
+  }
+  
+  .documentAnalysisTitle {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .documentAnalysisSubtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.48);
+    max-width: 760px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .documentAnalysisClose {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 24px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  
+  .documentAnalysisClose:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
+  
+  .documentAnalysisBody {
+    padding: 24px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  
+  .documentAnalysisPlaceholder {
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  .documentAnalysisGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+  }
+ 
+  .documentAnalysisOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 175;
+    background: rgba(7, 7, 10, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  
+  .documentAnalysisModal {
+    width: min(1180px, calc(100vw - 48px));
+    max-height: min(84vh, 920px);
+    border-radius: 26px;
+    background:
+      linear-gradient(180deg, rgba(18, 19, 23, 0.985) 0%, rgba(13, 14, 18, 0.985) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .documentAnalysisHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex: 0 0 auto;
+  }
+  
+  .documentAnalysisTitle {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.96);
+  }
+  
+  .documentAnalysisSubtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.48);
+    max-width: 760px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .documentAnalysisClose {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 24px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  
+  .documentAnalysisClose:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
+  
+  .documentAnalysisBody {
+    padding: 22px 24px 24px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  
+  .documentAnalysisPlaceholder {
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  /* ===== NOUVELLE STRUCTURE ===== */
+  
+  .analysisLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .analysisTopbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  
+  .analysisDocMeta {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .analysisDocTypeBadge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    max-width: 100%;
+    padding: 0 14px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.035) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  
+  .analysisConfidencePill {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    background:
+      linear-gradient(180deg, rgba(107, 88, 255, 0.15) 0%, rgba(107, 88, 255, 0.08) 100%);
+    border: 1px solid rgba(132, 118, 255, 0.18);
+    color: rgba(235, 236, 255, 0.92);
+    font-size: 13px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  
+  .analysisMainGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.95fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .analysisMainLeft,
+  .analysisMainRight {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  
+  .analysisPanel {
+    min-width: 0;
+    border-radius: 22px;
+    padding: 16px 16px 15px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.02),
+      0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+  
+  .analysisPanelHero {
+    padding: 18px 18px 17px;
+  }
+  
+  .analysisPanelAlert {
+    background:
+      linear-gradient(180deg, rgba(255, 96, 96, 0.11) 0%, rgba(255, 96, 96, 0.045) 100%);
+    border-color: rgba(255, 122, 122, 0.16);
+  }
+  
+  .analysisPanelAction {
+    background:
+      linear-gradient(180deg, rgba(107, 88, 255, 0.13) 0%, rgba(107, 88, 255, 0.05) 100%);
+    border-color: rgba(132, 118, 255, 0.18);
+  }
+  
+  .analysisPanelLabel {
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .analysisPanelText {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 14px;
+    line-height: 1.68;
+  }
+  
+  .analysisPanelList {
+    margin: 0;
+    padding-left: 18px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  .analysisPanelList li + li {
+    margin-top: 10px;
+  }
+  
+  .analysisBottomPanel {
+    border-radius: 20px;
+    padding: 15px 16px 14px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.018) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .analysisReferenceRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  
+  .analysisReferenceCard {
+    padding: 13px 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .analysisReferenceSource {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 5px;
+  }
+  
+  .analysisReferenceExcerpt {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.72);
+    margin-bottom: 6px;
+  }
+  
+  .analysisReferenceLink {
+    font-size: 12px;
+    line-height: 1.45;
+    color: rgba(145, 164, 255, 0.95);
+    word-break: break-word;
+  }
+  
+  /* ===== RESPONSIVE ===== */
+  
+  @media (max-width: 1080px) {
+    .documentAnalysisModal {
+      width: min(980px, calc(100vw - 36px));
+    }
+  
+    .analysisMainGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .analysisMainRight {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+  
+  @media (max-width: 760px) {
+    .documentAnalysisOverlay {
+      padding: 14px;
+    }
+  
+    .documentAnalysisModal {
+      width: 100%;
+      max-height: calc(100vh - 28px);
+      border-radius: 22px;
+    }
+  
+    .documentAnalysisHeader {
+      padding: 18px 18px 14px;
+    }
+  
+    .documentAnalysisBody {
+      padding: 18px;
+    }
+  
+    .documentAnalysisSubtitle {
+      white-space: normal;
+    }
+  
+    .analysisTopbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .analysisConfidencePill {
+      white-space: normal;
+    }
+  
+    .analysisMainRight {
+      grid-template-columns: 1fr;
+    }
+  
+    .analysisPanel,
+    .analysisBottomPanel {
+      border-radius: 18px;
+    }
+  }
+
+
+    /* ===== MODAL NOTE ===== */
+
+    .noteModalOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      background: rgba(6, 6, 10, 0.76);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 110px 24px 24px;
+    }
+    
+    .noteModal {
+      position: relative;
+      width: min(900px, calc(100vw - 56px));
+      min-height: 470px;
+      border-radius: 26px;
+      background: #191919;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 26px 72px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .noteModalClose {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 24px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+    
+    .noteModalClose:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: scale(1.03);
+    }
+    
+    .noteModalTabs {
+      display: flex;
+      align-items: flex-end;
+      gap: 30px;
+      padding: 22px 24px 0;
+      min-height: 74px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    
+    .noteModalTab {
+      position: relative;
+      padding: 0 0 16px;
+      border: 0;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.38);
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      cursor: pointer;
+      transition: color 0.16s ease;
+    }
+    
+    .noteModalTab:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .noteModalTab.isActive,
+    .isActive.noteModalTab {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    
+    .noteModalTab.isActive::after,
+    .isActive.noteModalTab::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      border-radius: 999px;
+      background: #ffffff;
+    }
+    
+    .noteModalEditor {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 24px 0;
+    }
+    
+    .noteTextarea {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 210px;
+      resize: none;
+      border: 0;
+      outline: none;
+      background: transparent;
+      padding: 0;
+      color: rgba(255, 255, 255, 0.94);
+      font-size: 18px;
+      line-height: 1.5;
+      letter-spacing: -0.02em;
+    }
+    
+    .noteTextarea::placeholder {
+      color: rgba(255, 255, 255, 0.32);
+    }
+    
+    .noteAudioPlaceholder {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 240px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+    
+    .noteAudioPlaceholderText {
+      color: rgba(255, 255, 255, 0.32);
+      font-size: 18px;
+      line-height: 1.5;
+      letter-spacing: -0.02em;
+    }
+    
+    .noteActionButtons {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 10px 0 18px;
+    }
+    
+    .noteActionButton {
+      min-height: 42px;
+      padding: 0 17px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #111111;
+      color: #c3c3c3;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      cursor: pointer;
+      transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+    
+    .noteActionButton:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+    }
+    
+    .noteActionButton.isSelected,
+    .isSelected.noteActionButton {
+      background: #2b2b2b;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      font-weight: 600;
+    }
+    
+    .noteModalFooter {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 24px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    
+    .noteFooterLeft {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    
+    .noteFooterToggle {
+      position: relative;
+      width: 34px;
+      height: 20px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      transition: background 0.18s ease;
+      flex: 0 0 34px;
+    }
+    
+    .noteFooterToggleKnob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      transition: transform 0.18s ease;
+    }
+    
+    .noteFooterToggle.isOn,
+    .isOn.noteFooterToggle {
+      background: linear-gradient(135deg, #5b6cff 0%, #7a5cff 100%);
+    }
+    
+    .noteFooterToggle.isOn .noteFooterToggleKnob,
+    .isOn.noteFooterToggle .noteFooterToggleKnob {
+      transform: translateX(14px);
+    }
+    
+    .noteFooterText {
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      white-space: nowrap;
+    }
+    
+    .noteInfoWrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .noteInfoBtn {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .noteInfoTooltip {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 12px);
+      width: 300px;
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: #202020;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      line-height: 1.5;
+      z-index: 5;
+    }
+    
+    .noteMicBtn {
+      justify-self: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: background 0.16s ease, transform 0.16s ease;
+    }
+    
+    .noteMicBtn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+    
+    .noteMicBtn img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: block;
+      opacity: 0.92;
+    }
+    
+    .noteSaveBtn {
+      justify-self: end;
+      min-height: 52px;
+      padding: 0 24px;
+      border-radius: 16px;
+      border: 0;
+      background: #f1f1f2;
+      color: #151515;
+      font-size: 16px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.08);
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+    
+    .noteSaveBtn:hover {
+      transform: translateY(-1px);
+      opacity: 0.98;
+    }
+
+    .noteModalError {
+      margin-top: 6px;
+      color: #ff8e8e;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .noteListItemBadges {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .noteListItemFollowupBadge {
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(107, 88, 255, 0.12);
+      border: 1px solid rgba(132, 118, 255, 0.18);
+      color: rgba(232, 230, 255, 0.92);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .noteDetailFollowupBadge {
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(107, 88, 255, 0.14);
+      border: 1px solid rgba(132, 118, 255, 0.2);
+      color: rgba(238, 236, 255, 0.94);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .noteDetailHeaderRight {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      position: relative;
+      flex: 0 0 auto;
+    }
+    
+    .noteDetailMenuWrap {
+      position: relative;
+      flex: 0 0 auto;
+    }
+    
+    .noteDetailMenuBtn {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 0;
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+    
+    .noteDetailMenuBtn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+    
+    .noteDetailMenu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 190px;
+      padding: 8px;
+      border-radius: 14px;
+      background: #17181b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 22px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      z-index: 60;
+    }
+    
+    .noteDetailMenuItem {
+      width: 100%;
+      height: 38px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      padding: 0 12px;
+      cursor: pointer;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+    
+    .noteDetailMenuItem:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+    }
+    
+    .noteDetailMenuItem:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+    
+    .noteDetailMenuItemDanger {
+      color: rgba(255, 132, 132, 0.92);
+    }
+    
+    .noteDetailMenuItemDanger:hover {
+      background: rgba(255, 80, 80, 0.08);
+      color: #ffffff;
+    }
+
+    .followupDraftOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      background: rgba(7, 7, 10, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    
+    .followupDraftModal {
+      width: min(980px, 100%);
+      border-radius: 24px;
+      background: #111214;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.46),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+    }
+    
+    .followupDraftHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    
+    .followupDraftTitle {
+      margin: 0 0 6px 0;
+      font-size: 20px;
+      line-height: 1.1;
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      color: rgba(255, 255, 255, 0.96);
+    }
+    
+    .followupDraftSubtitle {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.52);
+    }
+    
+    .followupDraftClose {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 22px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .followupDraftBody {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+    
+    .followupDraftEmailShell {
+      border-radius: 22px;
+      background: #f6f7fb;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+    }
+    
+    .followupDraftEmailHeader {
+      padding: 18px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(16, 24, 40, 0.08);
+    }
+    
+    .followupDraftEmailLabel {
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #7a8091;
+      margin-bottom: 8px;
+    }
+    
+    .followupDraftEmailSubject {
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: #16181d;
+    }
+    
+    .followupDraftEmailContent {
+      white-space: pre-wrap;
+      padding: 22px 20px 24px;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #2a2f3a;
+      background: #fbfcff;
+    }
+    
+    .followupDraftRiskBox {
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: rgba(255, 196, 87, 0.08);
+      border: 1px solid rgba(255, 196, 87, 0.22);
+    }
+    
+    .followupDraftRiskTitle {
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: rgba(255, 237, 190, 0.96);
+      margin-bottom: 8px;
+    }
+    
+    .followupDraftRiskSummary {
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255, 248, 226, 0.92);
+    }
+    
+    .followupDraftRiskList {
+      margin: 10px 0 0 0;
+      padding-left: 18px;
+      color: rgba(255, 248, 226, 0.88);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    
+    .followupDraftRiskList li + li {
+      margin-top: 6px;
+    }
+    
+    .followupDraftFooter {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 24px 24px;
+    }
+    
+    .followupDraftSecondaryBtn {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .followupDraftPrimaryBtn {
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: 0;
+      background: linear-gradient(135deg, #5b6cff 0%, #7a5cff 100%);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .noteListItemTitleWrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    
+    .noteListItemRiskIcon {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+      object-fit: contain;
+      display: block;
+      position: relative;
+      top: -1px; /* 👈 ajuste ici */
+    }
+    
+    .noteDetailRiskBadge {
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 196, 87, 0.22);
+      background: rgba(255, 196, 87, 0.08);
+      color: rgba(255, 241, 206, 0.96);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+    
+    .noteDetailRiskBadge:hover {
+      transform: translateY(-1px);
+      opacity: 0.96;
+    }
+    
+    .followupRiskModal {
+      width: min(760px, 100%);
+      border-radius: 24px;
+      background: #111214;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.46),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+    }
+
+    .followupDraftError {
+      flex: 1 1 auto;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 194, 194, 0.95);
+    }
+
+    .followupDraftPrimaryBtn:disabled {
+      background: linear-gradient(
+        135deg,
+        rgba(120, 120, 140, 0.25),
+        rgba(90, 90, 110, 0.25)
+      );
+      color: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: not-allowed;
+      opacity: 0.9;
+    
+      /* enlève les effets premium actifs */
+      box-shadow: none;
+      transform: none;
+    }
+
+    .followupDraftPrimaryBtn:disabled:hover {
+      background: linear-gradient(
+        135deg,
+        rgba(120, 120, 140, 0.25),
+        rgba(90, 90, 110, 0.25)
+      );
+      transform: none;
+      box-shadow: none;
+    }
+    
+    @media (max-width: 900px) {
+      .noteModal {
+        width: min(100%, calc(100vw - 28px));
+        min-height: 460px;
+      }
+
+      .noteModalOverlay {
+        padding: 72px 14px 14px;
+      }
+    
+      .noteModalTabs {
+        gap: 20px;
+        padding: 24px 20px 0;
+      }
+    
+      .noteModalEditor {
+        padding: 22px 20px 0;
+      }
+    
+      .noteModalFooter {
+        padding: 16px 20px 20px;
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+      }
+    
+      .noteFooterLeft {
+        order: 1;
+      }
+    
+      .noteMicBtn {
+        order: 2;
+        justify-self: center;
+      }
+    
+      .noteSaveBtn {
+        order: 3;
+        justify-self: stretch;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .noteModalOverlay {
+        padding: 14px;
+      }
+    
+      .noteModal {
+        border-radius: 22px;
+        min-height: auto;
+      }
+    
+      .noteModalTabs {
+        overflow-x: auto;
+        padding: 22px 18px 0;
+      }
+    
+      .noteModalTab {
+        font-size: 16px;
+        white-space: nowrap;
+      }
+    
+      .noteModalEditor {
+        padding: 18px 18px 0;
+      }
+    
+      .noteTextarea,
+      .noteAudioPlaceholderText {
+        font-size: 18px;
+      }
+    
+      .noteActionButtons {
+        gap: 10px;
+      }
+    
+      .noteActionButton {
+        width: 100%;
+        justify-content: center;
+      }
+    
+      .noteModalFooter {
+        padding: 16px 18px 18px;
+      }
+    
+      .noteFooterLeft {
+        flex-wrap: wrap;
+      }
+    
+      .noteFooterText {
+        white-space: normal;
+      }
+    
+      .noteInfoTooltip {
+        left: auto;
+        right: 0;
+        width: min(280px, calc(100vw - 36px));
+      }
+    }
+
+    .noteMicWrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .noteAudioMenu {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      right: 0;
+      min-width: 220px;
+      padding: 10px;
+      border-radius: 16px;
+      background: #1b1b1b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+      z-index: 30;
+    }
+    
+    .noteAudioMenuItem {
+      width: 100%;
+      height: 40px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+    
+    .noteAudioMenuItem:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    
+    .noteRecordingPanel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .noteRecordingTopRow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .noteRecordingDot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ff5c5c;
+      box-shadow: 0 0 0 6px rgba(255, 92, 92, 0.14);
+    }
+    
+    .noteRecordingText {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.92);
+    }
+    
+    .noteRecordingTimer {
+      margin-left: auto;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    
+    .noteRecordingStopBtn {
+      height: 40px;
+      border: 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .noteRecordingStopBtn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .noteSelectedAudioMeta {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.64);
+    }
+
+
+
+
+
+
+
+
+    .noteAudioUploadRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .noteAudioUploadBtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .noteAudioUploadBtn:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+    
+    .noteAudioUploadInput {
+      display: none;
+    }
+    
+    .noteAudioSelectedMeta {
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.58);
+    }
+    
+    .noteModalInlineError {
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 194, 194, 0.95);
+    }

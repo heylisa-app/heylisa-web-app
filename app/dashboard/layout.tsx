@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import DashboardShell from "@/components/dashboard/DashboardShell";
+import DashboardShellWithSplash from "@/components/dashboard/DashboardShellWithSplash";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function getInitials(fullName: string) {
@@ -73,7 +73,7 @@ export default async function DashboardLayout({
       const userInitials = getInitials(displayName);
 
       return (
-        <DashboardShell
+        <DashboardShellWithSplash
           userDisplayName={displayName}
           userInitials={userInitials}
           cabinetName={cabinetName}
@@ -82,7 +82,7 @@ export default async function DashboardLayout({
           initialStripeUrl={initialStripeUrl}
         >
           {children}
-        </DashboardShell>
+        </DashboardShellWithSplash>
       );
     }
   }
@@ -156,15 +156,15 @@ export default async function DashboardLayout({
   const userInitials = getInitials(displayName);
 
   return (
-    <DashboardShell
-      userDisplayName={displayName}
-      userInitials={userInitials}
-      cabinetName={cabinetName}
-      publicUserId={userRow.id}
-      initialBillingStatus={initialBillingStatus}
-      initialStripeUrl={initialStripeUrl}
-    >
-      {children}
-    </DashboardShell>
+      <DashboardShellWithSplash
+        userDisplayName={displayName}
+        userInitials={userInitials}
+        cabinetName={cabinetName}
+        publicUserId={userRow.id}
+        initialBillingStatus={initialBillingStatus}
+        initialStripeUrl={initialStripeUrl}
+      >
+        {children}
+      </DashboardShellWithSplash>
   );
 }

@@ -130,3 +130,94 @@ G. Documentation HeyLisa
 Pourquoi cet ordre ?
 Parce que A+B+C sécurisent le launch.
 Le reste augmente la puissance produit, mais ne doit pas casser le cadre.
+
+
+
+
+
+
+RESTE À FAIRE CALENDLY
+
+Ce qui est déjà géré
+
+Aujourd’hui, côté front, la vue Support affiche le bloc rendez-vous uniquement si :
+	•	status est dans les statuts actifs (scheduled, confirmed)
+	•	et scheduled_at est dans le futur
+
+Donc :
+	•	pending → vue default ✅
+	•	scheduled + futur → vue active ✅
+	•	confirmed + futur → vue active ✅
+	•	scheduled + passé → vue default ✅
+	•	confirmed + passé → vue default ✅
+	•	canceled → vue default ✅
+
+Ce qui manque encore
+
+Le front sait interpréter canceled, mais il ne peut pas l’inventer.
+
+Donc pour les cas d’annulation / reprogrammation, il manque la mise à jour DB automatique depuis Calendly.
+
+Autrement dit :
+	•	si le user annule sur Calendly, la DB ne bougera pas toute seule tant qu’on n’écoute pas invitee.canceled
+	•	si le user reprogramme, il faut vérifier comment Calendly le remonte, mais en pratique il faudra aussi traiter ce webhook / event
+
+La règle d’affichage à figer
+
+Je te propose qu’on considère officiellement cette matrice :
+
+Vue active
+
+Afficher le bloc rendez-vous seulement si :
+	•	status ∈ {scheduled, confirmed}
+	•	scheduled_at > now
+
+Vue default
+
+Afficher la vue vide si :
+	•	aucune ligne
+	•	status = pending
+	•	status = canceled
+	•	status = no_show un jour si tu l’ajoutes
+	•	scheduled_at <= now
+
+En clair
+
+Le front est déjà quasiment bon.
+Le vrai maillon restant, c’est :
+
+À faire encore
+	1.	Webhook Calendly invitee.canceled
+	•	retrouver la ligne via calendly_invitee_uri
+	•	mettre status = canceled
+	2.	éventuellement plus tard :
+	•	gérer explicitement le reschedule si besoin
+	•	nettoyer les vieux pending
+
+La version simple et propre
+
+Pour ne pas repartir dans 2h de tunnel, je te conseille qu’on s’arrête là conceptuellement :
+
+état final du support
+	•	pending → invisible côté user
+	•	scheduled/confirmed futur → visible
+	•	canceled ou passé → invisible
+
+Et le seul vrai chantier restant sur ce sujet est :
+brancher invitee.canceled dans Calendly + n8n
+
+
+RESTE À FAIRE AJOUT FICHIER
+
+Pour la V1, 1 fichier à la fois est le bon choix :
+	•	moins de complexité UI
+	•	moins de bugs upload/progression
+	•	plus simple pour le flow d’analyse Lisa
+
+Et plus tard, on fera évoluer vers :
+	•	sélection multiple
+	•	queue d’upload
+	•	progression par fichier
+	•	import Lisa unitaire ou batch
+
+Donc on garde ça comme dette produit assumée, pas comme oubli.
