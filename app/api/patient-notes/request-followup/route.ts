@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-type FollowupMode = "draft" | "with_validation" | "without_validation";
+type FollowupMode =
+  | "draft"
+  | "refresh_draft"
+  | "with_validation"
+  | "without_validation";
 
 async function resolveContext() {
   const isDev = process.env.NODE_ENV === "development";
@@ -94,12 +98,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!["draft", "with_validation", "without_validation"].includes(mode)) {
-      return NextResponse.json(
-        { ok: false, error: "INVALID_MODE" },
-        { status: 400 }
-      );
-    }
+    if (
+        !["draft", "refresh_draft", "with_validation", "without_validation"].includes(
+          mode
+        )
+      ) {
+        return NextResponse.json(
+          { ok: false, error: "INVALID_MODE" },
+          { status: 400 }
+        );
+      }
 
     const { data: noteRow, error: noteError } = await admin
       .from("patient_notes")
@@ -149,12 +157,22 @@ export async function POST(request: Request) {
       );
     }
 
-    if (noteRow.followup_email_subject && noteRow.followup_email_body) {
-      return NextResponse.json(
-        { ok: false, error: "FOLLOWUP_DRAFT_ALREADY_EXISTS" },
-        { status: 400 }
-      );
-    }
+    const hasExistingDraft =
+    !!noteRow.followup_email_subject && !!noteRow.followup_email_body;
+  
+  if (mode === "draft" && hasExistingDraft) {
+    return NextResponse.json(
+      { ok: false, error: "FOLLOWUP_DRAFT_ALREADY_EXISTS" },
+      { status: 400 }
+    );
+  }
+  
+  if (mode === "refresh_draft" && !hasExistingDraft) {
+    return NextResponse.json(
+      { ok: false, error: "FOLLOWUP_DRAFT_MISSING" },
+      { status: 400 }
+    );
+  }
 
     const noteText = String(noteRow.clean_text || noteRow.raw_text || "").trim();
 
@@ -169,21 +187,19 @@ export async function POST(request: Request) {
     const send_followup_email =
       mode === "with_validation" || mode === "without_validation";
     const send_without_validation = mode === "without_validation";
-
+    
     const followup_email_status =
-      mode === "draft"
-        ? "to_prepare"
-        : mode === "with_validation"
-        ? "pending_validation"
-        : "to_prepare";
+      mode === "with_validation" ? "pending_validation" : "to_prepare";
 
-    const { error: updateError } = await admin
+      const { error: updateError } = await admin
       .from("patient_notes")
       .update({
         prepare_followup_email,
         send_followup_email,
         send_without_validation,
         followup_email_status,
+        followup_email_subject: null,
+        followup_email_body: null,
       })
       .eq("id", noteId);
 
@@ -198,7 +214,7 @@ export async function POST(request: Request) {
       noteId,
       interactionType: noteRow.interaction_type,
       noteText,
-      prepareOnly: mode === "draft",
+      prepareOnly: mode === "draft" || mode === "refresh_draft",
       send: mode === "with_validation" || mode === "without_validation",
       noValidation: mode === "without_validation",
       source: "patients_ui",

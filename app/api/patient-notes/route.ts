@@ -222,6 +222,35 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!patientId) {
+        return NextResponse.json(
+          { ok: false, error: "PATIENT_ID_REQUIRED" },
+          { status: 400 }
+        );
+      }
+  
+      const { data: patientRecord, error: patientError } = await admin
+        .from("patient_records")
+        .select("id, is_demo")
+        .eq("id", patientId)
+        .eq("cabinet_account_id", cabinetAccountId)
+        .eq("public_user_id", publicUserId)
+        .single();
+  
+      if (patientError || !patientRecord) {
+        return NextResponse.json(
+          { ok: false, error: "PATIENT_NOT_FOUND" },
+          { status: 404 }
+        );
+      }
+  
+      if (patientRecord.is_demo !== isDemo) {
+        return NextResponse.json(
+          { ok: false, error: "PATIENT_MODE_MISMATCH" },
+          { status: 400 }
+        );
+      }
+
     const followupEmailStatus = prepareFollowupEmail
       ? sendFollowupEmail
         ? sendWithoutValidation

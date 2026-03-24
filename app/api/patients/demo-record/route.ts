@@ -220,28 +220,37 @@ export async function GET() {
     let patientContact = await findExistingDemoContact(admin, cabinetAccountId);
 
     if (!patientContact) {
-      const { data: createdContact, error: contactError } = await admin
+        const { data: createdContact, error: contactError } = await admin
         .from("patient_contacts")
         .insert({
           cabinet_id: cabinetAccountId,
           first_name: "Claire",
           last_name: "Martin",
+          full_name: "Claire Martin",
           email: "claire.martin@email.fr",
           email_normalized: "claire.martin@email.fr",
           phone: "06 12 34 56 78",
+          phone_normalized: "0612345678",
           date_of_birth: "1974-02-14",
           tags: ["demo", "gastro", "followup"],
           notes: "Patient démo HeyLisa",
+          is_demo: true,
         })
         .select("*")
         .single();
 
-      if (contactError || !createdContact) {
-        return NextResponse.json(
-          { ok: false, error: "DEMO_CONTACT_CREATE_FAILED" },
-          { status: 500 }
-        );
-      }
+        if (contactError || !createdContact) {
+            return NextResponse.json(
+              {
+                ok: false,
+                error: "DEMO_CONTACT_CREATE_FAILED",
+                details: contactError?.message ?? null,
+                code: contactError?.code ?? null,
+                hint: contactError?.hint ?? null,
+              },
+              { status: 500 }
+            );
+          }
 
       patientContact = createdContact;
     }
@@ -270,8 +279,8 @@ export async function GET() {
         trusted_contact_email: "sophie.martin@email.fr",
 
         // suivi
-        followup_status: "À suivre",
-        current_reason: "Douleurs abdominales",
+        followup_status: "followup_needed",
+        last_reason: "Douleurs abdominales",
         last_consultation_at: new Date().toISOString(),
         next_followup_at: new Date(Date.now() + 7 * 86400000).toISOString(),
         weight_kg: 64,
@@ -300,12 +309,18 @@ export async function GET() {
       .select("*")
       .single();
 
-    if (recordError || !createdRecord) {
-      return NextResponse.json(
-        { ok: false, error: "DEMO_RECORD_CREATE_FAILED" },
-        { status: 500 }
-      );
-    }
+      if (recordError || !createdRecord) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "DEMO_RECORD_CREATE_FAILED",
+            details: recordError?.message ?? null,
+            code: recordError?.code ?? null,
+            hint: recordError?.hint ?? null,
+          },
+          { status: 500 }
+        );
+      }
 
     return NextResponse.json({
       ok: true,

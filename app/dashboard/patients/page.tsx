@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PatientsDemoView from "./PatientsDemoView";
+import PatientsPageClient from "./PatientsPageClient";
 
 export default async function DashboardPatientsPage() {
   const isDev = process.env.NODE_ENV === "development";
@@ -56,16 +57,19 @@ export default async function DashboardPatientsPage() {
     cabinetAccountId = userRow.primary_company_id ?? null;
   }
 
-  if (!cabinetAccountId) {
+  if (!cabinetAccountId || !publicUserId) {
     return <PatientsDemoView />;
   }
 
   const admin = createAdminClient();
 
   const { count, error: countError } = await admin
-    .from("patient_contacts")
+    .from("patient_records")
     .select("*", { count: "exact", head: true })
-    .eq("cabinet_account_id", cabinetAccountId);
+    .eq("cabinet_account_id", cabinetAccountId)
+    .eq("public_user_id", publicUserId)
+    .eq("is_demo", false)
+    .eq("record_status", "active");
 
   const hasRealPatients = !countError && (count ?? 0) > 0;
 
@@ -73,9 +77,5 @@ export default async function DashboardPatientsPage() {
     return <PatientsDemoView />;
   }
 
-  return (
-    <div style={{ padding: "32px", color: "white" }}>
-      Vue patients réelle à brancher
-    </div>
-  );
+  return <PatientsPageClient />;
 }

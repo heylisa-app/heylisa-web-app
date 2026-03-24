@@ -128,7 +128,8 @@ export async function POST(request: Request) {
         cabinet_account_id,
         file_name,
         mime_type,
-        analysis_status
+        analysis_status,
+        updated_at
       `)
       .eq("id", documentId)
       .single();
@@ -147,19 +148,63 @@ export async function POST(request: Request) {
       );
     }
 
-    if (documentRow.analysis_status === "pending") {
+    const normalizedAnalysisStatus = String(
+      documentRow.analysis_status ?? "not_started"
+    )
+      .trim()
+      .toLowerCase();
+    
+    const blockingStatuses = new Set(["pending", "processing", "done"]);
+    const relaunchAllowedStatuses = new Set(["not_started", "failed", ""]);
+    
+    if (blockingStatuses.has(normalizedAnalysisStatus)) {
+      const errorCode =
+        normalizedAnalysisStatus === "done"
+          ? "ANALYSIS_ALREADY_DONE"
+          : "ANALYSIS_ALREADY_PENDING";
+    
       return NextResponse.json(
-        { ok: false, error: "ANALYSIS_ALREADY_PENDING" },
+        {
+          ok: false,
+          error: errorCode,
+          details: {
+            current_status: normalizedAnalysisStatus,
+            document_id: documentId,
+            updated_at: documentRow.updated_at ?? null,
+          },
+        },
         { status: 409 }
       );
     }
+    
+    if (!relaunchAllowedStatuses.has(normalizedAnalysisStatus)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "ANALYSIS_STATUS_NOT_SUPPORTED",
+          details: {
+            current_status: normalizedAnalysisStatus,
+            document_id: documentId,
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log("[patient-documents/analyze] relaunch accepted", {
+      documentId,
+      previous_status: normalizedAnalysisStatus,
+    });
 
     const { error: pendingError } = await admin
-      .from("patient_documents")
-      .update({
-        analysis_status: "pending",
-      })
-      .eq("id", documentId);
+    .from("patient_documents")
+    .update({
+      analysis_status: "pending",
+      analysis_text: null,
+      analysis_json: null,
+    })
+    .eq("id", documentId)
+    .eq("cabinet_account_id", cabinetAccountId);
 
     if (pendingError) {
       return NextResponse.json(
@@ -210,7 +255,7 @@ export async function POST(request: Request) {
           id: documentId,
           analysis_status: "pending",
           analysis_text: null,
-          analysis_result: null,
+          analysis_json: null,
         },
       });
   } catch (error) {

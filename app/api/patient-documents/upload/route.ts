@@ -125,8 +125,36 @@ export async function POST(request: Request) {
     const patientIdRaw = String(formData.get("patientId") ?? "").trim();
     const isDemoRaw = String(formData.get("isDemo") ?? "false").trim();
 
-    const patientId = patientIdRaw || null;
+    const requestedPatientId = patientIdRaw || null;
     const isDemo = isDemoRaw === "true";
+
+    let resolvedPatientContactId: string | null = null;
+
+    if (requestedPatientId) {
+      const { data: patientRecord, error: patientRecordError } = await admin
+        .from("patient_records")
+        .select("id, patient_contact_id")
+        .eq("id", requestedPatientId)
+        .eq("cabinet_account_id", cabinetAccountId)
+        .eq("public_user_id", publicUserId)
+        .single();
+
+      if (patientRecordError || !patientRecord) {
+        return NextResponse.json(
+          { ok: false, error: "PATIENT_RECORD_NOT_FOUND" },
+          { status: 404 }
+        );
+      }
+
+      if (!patientRecord.patient_contact_id) {
+        return NextResponse.json(
+          { ok: false, error: "PATIENT_CONTACT_MISSING" },
+          { status: 400 }
+        );
+      }
+
+      resolvedPatientContactId = patientRecord.patient_contact_id;
+    }
 
     if (!(file instanceof File)) {
       return NextResponse.json(
@@ -204,7 +232,7 @@ export async function POST(request: Request) {
     const { data: documentRow, error: insertError } = await admin
       .from("patient_documents")
       .insert({
-        patient_id: patientId,
+        patient_id: resolvedPatientContactId,
         cabinet_account_id: cabinetAccountId,
         public_user_id: publicUserId,
         is_demo: isDemo,
