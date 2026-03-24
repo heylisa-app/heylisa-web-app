@@ -59,7 +59,7 @@ type PatientContactRow = {
 type PatientNoteRow = {
   id: string;
   note_type: "text" | "audio";
-  interaction_type: "consultation" | "exam" | "operation";
+  interaction_type: "consultation" | "exam" | "operation" | "lisa_followup";
   raw_text: string | null;
   clean_text: string | null;
   audio_storage_bucket: string | null;
@@ -76,7 +76,7 @@ type PatientNoteRow = {
     | "failed";
   followup_email_subject: string | null;
   followup_email_body: string | null;
-  detected_intent: "consultation" | "exam" | "operation" | null;
+  detected_intent: "consultation" | "exam" | "operation" | "lisa_followup" | null;
   risk_flag: boolean;
   risk_summary: string | null;
   risk_items: string[] | null;
@@ -459,11 +459,13 @@ function pickFollowupSuggestions(record: PatientRecordRow) {
   }));
 }
 
-function buildNoteTitle(interactionType: PatientNoteRow["interaction_type"]) {
-  if (interactionType === "consultation") return "Post consultation";
-  if (interactionType === "exam") return "Post examen";
-  return "Post opération";
-}
+function buildNoteTitle(interactionType: string | null | undefined) {
+    if (interactionType === "consultation") return "Post consultation";
+    if (interactionType === "exam") return "Post examen";
+    if (interactionType === "operation") return "Post opération";
+    if (interactionType === "lisa_followup") return "Point de suivi Lisa";
+    return "Note";
+  }
 
 function buildNoteSummary(text: string) {
   const cleaned = text.replace(/\s+/g, " ").trim();

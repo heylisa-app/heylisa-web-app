@@ -2372,6 +2372,13 @@ function getInteractionTitle(interactionType: string | null | undefined) {
                                             >
                                             Actualiser le brouillon
                                         </button>
+                                        <button
+                                        type="button"
+                                        className={styles.noteDetailMenuItem}
+                                        disabled
+                                        >
+                                        Compte-rendu médecin traitant
+                                        </button>
 
                                         <button
                                             type="button"
