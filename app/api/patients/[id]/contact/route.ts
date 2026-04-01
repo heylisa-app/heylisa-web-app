@@ -111,6 +111,8 @@ export async function PATCH(
     const phone = normalizeNullableString(body?.phone);
     const email = normalizeNullableString(body?.email);
     const primaryDoctorName = normalizeNullableString(body?.primaryDoctorName);
+    const primaryDoctorPhone = normalizeNullableString(body?.primaryDoctorPhone);
+    const primaryDoctorEmail = normalizeNullableString(body?.primaryDoctorEmail);
     const trustedContactName = normalizeNullableString(body?.trustedContactName);
     const trustedContactPhone = normalizeNullableString(body?.trustedContactPhone);
     const trustedContactEmail = normalizeNullableString(body?.trustedContactEmail);
@@ -169,6 +171,8 @@ export async function PATCH(
       .from("patient_records")
       .update({
         primary_doctor_name: primaryDoctorName,
+        primary_doctor_phone: primaryDoctorPhone,
+        primary_doctor_email: primaryDoctorEmail,
         trusted_contact_name: trustedContactName,
         trusted_contact_phone: trustedContactPhone,
         trusted_contact_email: trustedContactEmail,

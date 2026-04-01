@@ -25,6 +25,25 @@ type PatientRecordRow = {
   updated_at: string;
 };
 
+type CreatePatientBody = {
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  email?: string;
+  phone?: string;
+  context?: string;
+};
+
+type CreatePatientContactRow = {
+  id: string;
+  full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  date_of_birth: string | null;
+};
+
 async function resolvePatientContext() {
   const isDev = process.env.NODE_ENV === "development";
   const devPublicUserId = process.env.DEV_PUBLIC_USER_ID;
@@ -88,6 +107,70 @@ async function resolvePatientContext() {
     publicUserId: userRow.id,
     cabinetAccountId: userRow.primary_company_id ?? null,
     admin: createAdminClient(),
+  };
+}
+
+function normalizeText(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function normalizeEmail(value: unknown) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function normalizePhone(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function isValidBirthDate(value: string) {
+  if (!value) return false;
+
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime());
+}
+
+function buildCreatePatientFullName(firstName: string, lastName: string) {
+  return `${firstName} ${lastName}`.trim();
+}
+
+
+function parseCreatePatientBody(body: CreatePatientBody) {
+  const firstName = normalizeText(body.firstName);
+  const lastName = normalizeText(body.lastName);
+  const birthDate = normalizeText(body.birthDate);
+  const email = normalizeEmail(body.email);
+  const phone = normalizePhone(body.phone);
+  const contextText = normalizeText(body.context);
+
+  const hasDiscriminant = Boolean(birthDate || email || phone);
+
+  if (!firstName) {
+    return { ok: false as const, error: "FIRST_NAME_REQUIRED" };
+  }
+
+  if (!lastName) {
+    return { ok: false as const, error: "LAST_NAME_REQUIRED" };
+  }
+
+  if (!hasDiscriminant) {
+    return { ok: false as const, error: "PATIENT_DISCRIMINANT_REQUIRED" };
+  }
+
+  if (birthDate && !isValidBirthDate(birthDate)) {
+    return { ok: false as const, error: "INVALID_BIRTH_DATE" };
+  }
+
+  return {
+    ok: true as const,
+    data: {
+      firstName,
+      lastName,
+      birthDate: birthDate || null,
+      email: email || null,
+      phone: phone || null,
+      fullName: buildCreatePatientFullName(firstName, lastName),
+      contextText: contextText || null,
+    },
   };
 }
 
@@ -330,6 +413,159 @@ export async function GET() {
       mode: "live",
       patients,
       selectedPatientId: patients[0]?.id ?? null,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : "UNKNOWN_ERROR",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const context = await resolvePatientContext();
+
+    if (!context.ok) {
+      return NextResponse.json(
+        { ok: false, error: context.error },
+        { status: context.status }
+      );
+    }
+
+    const { admin, cabinetAccountId, publicUserId } = context;
+
+    if (!cabinetAccountId) {
+      return NextResponse.json(
+        { ok: false, error: "CABINET_NOT_FOUND" },
+        { status: 400 }
+      );
+    }
+
+    const rawBody = (await request.json()) as CreatePatientBody;
+    const parsed = parseCreatePatientBody(rawBody);
+
+    if (!parsed.ok) {
+      return NextResponse.json(
+        { ok: false, error: parsed.error },
+        { status: 400 }
+      );
+    }
+
+    const { firstName, lastName, birthDate, email, phone, fullName, contextText } = parsed.data;
+
+    const { data: patientContact, error: patientContactError } = await admin
+      .from("patient_contacts")
+      .insert({
+        cabinet_id: cabinetAccountId,
+        first_name: firstName,
+        last_name: lastName,
+        full_name: fullName,
+        email,
+        phone,
+        date_of_birth: birthDate,
+        email_normalized: email || null,
+        phone_normalized: phone || null,
+        is_demo: false,
+      })
+      .select(`
+        id,
+        full_name,
+        first_name,
+        last_name,
+        email,
+        phone,
+        date_of_birth
+      `)
+      .single();
+
+    if (patientContactError || !patientContact?.id) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "PATIENT_CONTACT_CREATE_FAILED",
+          details: patientContactError?.message ?? null,
+        },
+        { status: 500 }
+      );
+    }
+
+    const interactionContent = [
+      `Création manuelle d'une fiche patient.`,
+      `Nom : ${fullName}`,
+      birthDate ? `Date de naissance : ${birthDate}` : null,
+      email ? `Email : ${email}` : null,
+      phone ? `Téléphone : ${phone}` : null,
+      contextText ? `Contexte : ${contextText}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const { error: interactionError } = await admin
+      .from("patient_interactions")
+      .insert({
+        cabinet_account_id: cabinetAccountId,
+        patient_id: patientContact.id,
+        source_kind: "manual",
+        source_subtype: "patient_created",
+        direction: "internal",
+        status: "received",
+        actor_name: "Cabinet",
+        actor_email: null,
+        title: "Création manuelle de fiche patient",
+        content_text: interactionContent,
+        content_excerpt: "Création manuelle de fiche patient",
+        category: "patient_creation",
+        urgency: "normal",
+        needs_human_review: false,
+        payload_json: {
+          event: "patient_contact_created",
+          created_from: "patients_sidebar_modal",
+          public_user_id: publicUserId,
+          patient_contact: {
+            id: patientContact.id,
+            full_name: patientContact.full_name,
+            first_name: patientContact.first_name,
+            last_name: patientContact.last_name,
+            email: patientContact.email,
+            phone: patientContact.phone,
+            date_of_birth: patientContact.date_of_birth,
+          },
+          context: contextText,
+        },
+        attachments_json: [],
+        detected_at: new Date().toISOString(),
+      });
+
+    if (interactionError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "PATIENT_INTERACTION_CREATE_FAILED",
+          details: interactionError.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      patientContact: {
+        id: patientContact.id,
+        fullName: patientContact.full_name,
+        firstName: patientContact.first_name,
+        lastName: patientContact.last_name,
+        email: patientContact.email,
+        phone: patientContact.phone,
+        birthDate: patientContact.date_of_birth,
+      },
+      processing: {
+        status: "queued",
+        message: "Fiche patient créée. Le traitement aval va maintenant prendre le relais.",
+      },
     });
   } catch (error) {
     return NextResponse.json(

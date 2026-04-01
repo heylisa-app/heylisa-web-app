@@ -8,6 +8,7 @@ import { insertUserMessage } from "@/lib/chat/messages";
 import { streamChatIntro, streamChatMessage, type SseEvent } from "@/lib/chat/api";
 import { parseLisaMessage } from "@/lib/chat/lisaFormat";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+import { useAudioRecorder } from "@/lib/chat/useAudioRecorder";
 
 type ChatStatus = "idle" | "connecting" | "streaming" | "error";
 
@@ -517,6 +518,27 @@ export default function DashboardChatPage() {
   const [hasBootstrappedIntro, setHasBootstrappedIntro] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
+  const {
+    isSupported: isAudioRecorderSupported,
+    status: recorderStatus,
+    error: recorderError,
+    durationMs: recorderDurationMs,
+    audioBlob,
+    audioUrl,
+    isArming,
+    isRecording,
+    start: startRecording,
+    cancel: cancelRecording,
+    confirm: confirmRecording,
+  } = useAudioRecorder({
+    armDelayMs: 2000,
+  });
+
+  const [pendingAudioUrl, setPendingAudioUrl] = useState<string | null>(null);
+  const [pendingAudioDurationMs, setPendingAudioDurationMs] = useState(0);
+  const [pendingAudioBlob, setPendingAudioBlob] = useState<Blob | null>(null);
+  const [isAudioTranscribing, setIsAudioTranscribing] = useState(false);
+  const [audioTranscriptionError, setAudioTranscriptionError] = useState<string | null>(null);
   const [publicUserId, setPublicUserId] = useState("");
   const [conversationId, setConversationId] = useState("");
   const [chatContextLoaded, setChatContextLoaded] = useState(false);
@@ -593,12 +615,14 @@ export default function DashboardChatPage() {
   }, [supabase]);
 
   const isSending = status === "connecting" || status === "streaming";
-  const hasText = input.trim().length > 0;
-  const isSendActive = hasText && !isSending;
+  const isVoiceBusy = isArming || isRecording;
+  const composerValue = input.trim().length > 0 ? input : "";
+  const hasText = composerValue.trim().length > 0;
+  const isSendActive = hasText && !isSending && !isVoiceBusy;
   const shouldShowInitialThinking =
-  !historyLoaded &&
-  messages.length === 0 &&
-  !hasBootstrappedIntro;
+    !historyLoaded &&
+    messages.length === 0 &&
+    !hasBootstrappedIntro;
 
   function autoResizeTextarea() {
     const el = textareaRef.current;
@@ -1086,6 +1110,38 @@ export default function DashboardChatPage() {
     };
   }, []);
 
+
+  const [, forceRecorderTick] = useState(0);
+
+  useEffect(() => {
+    if (!isRecording) return;
+
+    const interval = window.setInterval(() => {
+      forceRecorderTick((prev) => prev + 1);
+    }, 250);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [isRecording]);
+
+  useEffect(() => {
+    if (recorderStatus !== "review") return;
+    if (!audioUrl || !audioBlob) return;
+  
+    setPendingAudioUrl(audioUrl);
+    setPendingAudioBlob(audioBlob);
+    setPendingAudioDurationMs(recorderDurationMs);
+    setAudioTranscriptionError(null);
+  }, [recorderStatus, audioUrl, audioBlob, recorderDurationMs]);
+
+  useEffect(() => {
+    if (!pendingAudioUrl || !pendingAudioBlob) return;
+    if (isAudioTranscribing) return;
+  
+    handleTranscribePendingAudio();
+  }, [pendingAudioUrl, pendingAudioBlob]);
+
   const sendIconSrc = useMemo(() => {
     return isSendActive ? SEND_ON : SEND_OFF;
   }, [isSendActive]);
@@ -1167,6 +1223,84 @@ export default function DashboardChatPage() {
       handleSendMessage();
     }
   }
+
+  function formatRecorderDuration(durationMs: number) {
+    const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  function handleConfirmRecording() {
+    if (!isRecording) return;
+    confirmRecording();
+  }
+
+  function handleDiscardPendingAudio() {
+    setPendingAudioUrl(null);
+    setPendingAudioBlob(null);
+    setPendingAudioDurationMs(0);
+    setAudioTranscriptionError(null);
+    setIsAudioTranscribing(false);
+  }
+
+  async function handleTranscribePendingAudio() {
+    if (!pendingAudioBlob) return;
+    if (isAudioTranscribing) return;
+  
+    try {
+      setIsAudioTranscribing(true);
+      setAudioTranscriptionError(null);
+  
+      const formData = new FormData();
+      formData.append("file", pendingAudioBlob, "voice-message.webm");
+  
+      const response = await fetch("/api/chat/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+  
+      const payload = await response.json();
+  
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || "AUDIO_TRANSCRIPTION_FAILED");
+      }
+  
+      const transcript = String(payload?.text ?? "").trim();
+  
+      if (!transcript) {
+        throw new Error("EMPTY_AUDIO_TRANSCRIPTION");
+      }
+  
+      setInput((prev) => {
+        const base = prev.trim();
+        return base ? `${base} ${transcript}` : transcript;
+      });
+  
+      setPendingAudioUrl(null);
+      setPendingAudioBlob(null);
+      setPendingAudioDurationMs(0);
+      setAudioTranscriptionError(null);
+  
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+      });
+    } catch (error) {
+      console.error("[HL Chat] audio transcription error:", error);
+      setAudioTranscriptionError("Impossible de transcrire l’audio pour le moment.");
+    } finally {
+      setIsAudioTranscribing(false);
+    }
+  }
+
+  async function handleStartRecording() {
+    if (isSending) return;
+    await startRecording();
+  }
+
+  
+
 
   return (
     <div className={styles.chatView}>
@@ -1293,49 +1427,157 @@ export default function DashboardChatPage() {
         <div className={styles.chatComposerWrap}>
           <form className={styles.chatComposer} onSubmit={handleSubmit}>
             <div className={styles.chatComposerInner}>
-              <button
-                type="button"
-                className={styles.chatPlusBtn}
-                aria-label="Ajouter une pièce jointe"
-              >
-                <span className={styles.chatPlusIcon} />
-              </button>
-
-              <div className={styles.chatInputWrap}>
-                <textarea
-                  id="hlChatInput"
-                  ref={textareaRef}
-                  className={styles.chatInput}
-                  placeholder="Posez une question, créez, recherchez, @ pour mentionner"
-                  rows={1}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleTextareaKeyDown}
-                  disabled={isSending}
-                />
-              </div>
-
-              <div className={styles.chatComposerActions}>
+            {(isArming || isRecording) ? (
+              <div className={styles.voiceRecordingBar}>
                 <button
                   type="button"
-                  className={styles.chatMicBtn}
-                  aria-label="Message vocal"
+                  className={styles.voiceRecordingGhostBtn}
+                  onClick={cancelRecording}
+                  aria-label="Annuler l’enregistrement"
                 >
-                  <img src="/imgs/mic-notes.png" alt="" />
+                  ✕
                 </button>
 
+                <div className={styles.voiceRecordingCenter}>
+                  <div className={styles.voiceRecordingTimer}>
+                    {isArming ? "00:00" : formatRecorderDuration(recorderDurationMs)}
+                  </div>
+
+                  <div className={styles.voiceRecordingHint}>
+                    {isArming ? "Prépare-toi à parler…" : "Enregistrement en cours"}
+                  </div>
+                </div>
+
                 <button
-                  type="submit"
-                  id="hlChatSendBtn"
-                  className={`${styles.chatSendBtn} ${isSendActive ? styles.isActive : styles.isDisabled}`}
-                  aria-label="Envoyer"
-                  disabled={!isSendActive}
+                  type="button"
+                  className={styles.voiceRecordingConfirmBtn}
+                  onClick={handleConfirmRecording}
+                  aria-label="Valider l’enregistrement"
+                  disabled={!isRecording}
                 >
-                  <img id="hlChatSendIcon" src={sendIconSrc} alt="" />
+                  ✓
                 </button>
               </div>
+            ) : pendingAudioUrl ? (
+              <div className={styles.voicePendingBar}>
+                <button
+                  type="button"
+                  className={styles.voicePendingPlayBtn}
+                  aria-label={
+                    isAudioTranscribing ? "Transcription en cours" : "Lire l’audio"
+                  }
+                  disabled={isAudioTranscribing}
+                >
+                  {isAudioTranscribing ? (
+                    <span className={styles.voicePendingInlineSpinner} />
+                  ) : (
+                    "▶"
+                  )}
+                </button>
+
+                <div className={styles.voicePendingWaveWrap}>
+                  <div className={styles.voicePendingWave} />
+                  {isAudioTranscribing && (
+                    <div className={styles.voicePendingInlineText}>
+                      Transcription en cours…
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.voicePendingMeta}>
+                  {formatRecorderDuration(pendingAudioDurationMs)}
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.voicePendingDeleteBtn}
+                  onClick={handleDiscardPendingAudio}
+                  aria-label="Supprimer l’audio"
+                  disabled={isAudioTranscribing}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className={styles.chatPlusBtn}
+                  aria-label="Ajouter une pièce jointe"
+                >
+                  <span className={styles.chatPlusIcon} />
+                </button>
+
+                <div className={styles.chatInputWrap}>
+                  <textarea
+                    id="hlChatInput"
+                    ref={textareaRef}
+                    className={styles.chatInput}
+                    placeholder="Posez une question, créez, recherchez, @ pour mentionner"
+                    rows={1}
+                    value={input}
+                    onChange={(e) => {
+                      if (isVoiceBusy) return;
+                      setInput(e.target.value);
+                    }}
+                    disabled={isSending || isVoiceBusy || isAudioTranscribing}
+                    onKeyDown={handleTextareaKeyDown}
+                  />
+                </div>
+
+                <div className={styles.chatComposerActions}>
+                  <button
+                    type="button"
+                    className={styles.chatMicBtn}
+                    aria-label={
+                      !isAudioRecorderSupported
+                        ? "Enregistrement vocal non disponible"
+                        : isVoiceBusy
+                        ? "Enregistrement en cours"
+                        : "Enregistrer un message vocal"
+                    }
+                    onClick={handleStartRecording}
+                    disabled={!isAudioRecorderSupported || isSending || isVoiceBusy || isAudioTranscribing}
+                    title={
+                      !isAudioRecorderSupported
+                        ? "Enregistrement vocal non disponible sur ce navigateur"
+                        : isVoiceBusy
+                        ? "Enregistrement en cours"
+                        : "Enregistrer un message vocal"
+                    }
+                  >
+                    <img
+                      src="/imgs/mic-notes.png"
+                      alt=""
+                      style={{
+                        opacity: !isAudioRecorderSupported || isSending || isAudioTranscribing ? 0.35 : 1,
+                        filter:
+                          isArming || isRecording
+                            ? "brightness(0) saturate(100%) invert(27%) sepia(89%) saturate(3280%) hue-rotate(343deg) brightness(103%) contrast(93%)"
+                            : "none",
+                      }}
+                    />
+                  </button>
+
+                  <button
+                    type="submit"
+                    id="hlChatSendBtn"
+                    className={`${styles.chatSendBtn} ${isSendActive ? styles.isActive : styles.isDisabled}`}
+                    aria-label="Envoyer"
+                    disabled={!isSendActive}
+                  >
+                    <img id="hlChatSendIcon" src={sendIconSrc} alt="" />
+                  </button>
+                </div>
+              </>
+            )}
             </div>
           </form>
+          {audioTranscriptionError && (
+            <div className={styles.voicePendingError}>
+              {audioTranscriptionError}
+            </div>
+          )}
         </div>
       </section>
     </div>

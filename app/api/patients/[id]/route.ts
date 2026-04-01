@@ -108,6 +108,28 @@ type PatientDocumentRow = {
     created_at: string;
     storage_path: string | null;
     storage_bucket: string | null;
+    document_family: string | null;
+    is_official_medical_document: boolean | null;
+    is_shareable_with_patient: boolean | null;
+    is_shareable_with_doctor: boolean | null;
+    sharing_guard_reason: string | null;
+  };
+
+  type CabinetTaskRow = {
+    id: string;
+    cabinet_id: string;
+    patient_id: string | null;
+    created_by: string | null;
+    task_type: string | null;
+    title: string | null;
+    description: string | null;
+    status: string | null;
+    priority: string | null;
+    metadata: JsonObject | null;
+    due_at: string | null;
+    completed_at: string | null;
+    created_at: string | null;
+    updated_at: string | null;
   };
 
 async function resolvePatientContext() {
@@ -387,11 +409,49 @@ function pickAnatomyState(record: PatientRecordRow) {
   };
 }
 
-function pickTasks(record: PatientRecordRow) {
-  const structuredData = asObject(record.structured_data);
-  const rawPayload = asObject(record.raw_payload);
-  const analysis = asObject(rawPayload.last_record_analysis);
+function mapCabinetTasks(rows: CabinetTaskRow[]) {
+  return rows.map((task) => ({
+    id: task.id,
+    label: task.title ?? "Tâche",
+    reason: task.description ?? "",
+    priority: task.priority ?? "normal",
+    taskType: task.task_type ?? "general",
+    status: task.status ?? "pending",
+    dueAt: task.due_at,
+    completedAt: task.completed_at,
+    createdAt: task.created_at,
+    source:
+      typeof task.metadata?.source === "string"
+        ? String(task.metadata.source)
+        : "unknown",
+    createdBy:
+      typeof task.metadata?.created_by_label === "string"
+        ? String(task.metadata.created_by_label)
+        : null,
+  }));
+}
 
+function normalizeTaskText(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function buildTaskFingerprint(task: {
+  label?: string;
+  reason?: string;
+  task_type?: string;
+}) {
+  return [
+    normalizeTaskText(task.label),
+    normalizeTaskText(task.reason),
+    normalizeTaskText(task.task_type),
+  ].join("||");
+}
+
+function extractLisaPendingTasks(record: PatientRecordRow) {
+  const structuredData = asObject(record.structured_data);
   const direct = asArray<{
     label?: string;
     reason?: string;
@@ -400,29 +460,18 @@ function pickTasks(record: PatientRecordRow) {
   }>(structuredData.pending_tasks);
 
   if (direct.length > 0) {
-    return direct.map((item, index) => ({
-      id: `task-${index + 1}`,
-      label: item.label ?? "Tâche",
-      reason: item.reason ?? "",
-      priority: item.priority ?? "medium",
-      taskType: item.task_type ?? "general",
-    }));
+    return direct;
   }
 
-  const fallback = asArray<{
+  const rawPayload = asObject(record.raw_payload);
+  const analysis = asObject(rawPayload.last_record_analysis);
+
+  return asArray<{
     label?: string;
     reason?: string;
     priority?: string;
     task_type?: string;
   }>(analysis.pending_tasks);
-
-  return fallback.map((item, index) => ({
-    id: `task-${index + 1}`,
-    label: item.label ?? "Tâche",
-    reason: item.reason ?? "",
-    priority: item.priority ?? "medium",
-    taskType: item.task_type ?? "general",
-  }));
 }
 
 function pickFollowupSuggestions(record: PatientRecordRow) {
@@ -505,6 +554,13 @@ function mapNotes(rows: PatientNoteRow[]) {
       transcriptionStatus: note.transcription_status,
     };
   });
+}
+
+function buildDefaultDueAtIso() {
+  const now = new Date();
+  const dueAt = new Date(now);
+  dueAt.setHours(23, 59, 0, 0);
+  return dueAt.toISOString();
 }
 
 export async function GET(
@@ -662,7 +718,12 @@ export async function GET(
       analysis_json,
       created_at,
       storage_path,
-      storage_bucket
+      storage_bucket,
+      document_family,
+      is_official_medical_document,
+      is_shareable_with_patient,
+      is_shareable_with_doctor,
+      sharing_guard_reason
     `)
     .eq("patient_id", record.patient_contact_id)
     .order("created_at", { ascending: false });
@@ -703,9 +764,131 @@ export async function GET(
         analysisStatus: doc.analysis_status,
         analysisText: doc.analysis_text,
         analysisJson: doc.analysis_json,
+        documentFamily: doc.document_family,
+        isOfficialMedicalDocument: doc.is_official_medical_document,
+        isShareableWithPatient: doc.is_shareable_with_patient,
+        isShareableWithDoctor: doc.is_shareable_with_doctor,
+        sharingGuardReason: doc.sharing_guard_reason,
       }));
 
-    const tasks = pickTasks(record as PatientRecordRow);
+      const lisaPendingTasks = extractLisaPendingTasks(record as PatientRecordRow);
+
+      if (record.patient_contact_id && lisaPendingTasks.length > 0) {
+        const { data: existingLisaTasks, error: existingLisaTasksError } = await admin
+          .from("cabinet_tasks")
+          .select(`
+            id,
+            metadata
+          `)
+          .eq("cabinet_id", cabinetAccountId)
+          .eq("patient_id", record.patient_contact_id);
+  
+        if (existingLisaTasksError) {
+          return NextResponse.json(
+            {
+              ok: false,
+              error: "CABINET_TASKS_SYNC_READ_FAILED",
+              details: existingLisaTasksError.message,
+            },
+            { status: 500 }
+          );
+        }
+  
+        const existingFingerprints = new Set(
+          ((existingLisaTasks ?? []) as Array<{ id: string; metadata: JsonObject | null }>)
+            .map((task) => {
+              const metadata = asObject(task.metadata);
+              return typeof metadata.fingerprint === "string"
+                ? metadata.fingerprint
+                : null;
+            })
+            .filter(Boolean) as string[]
+        );
+  
+        const tasksToInsert = lisaPendingTasks
+          .map((task) => {
+            const fingerprint = buildTaskFingerprint(task);
+  
+            return {
+              task,
+              fingerprint,
+            };
+          })
+          .filter(({ task, fingerprint }) => {
+            if (!task.label?.trim()) return false;
+            if (!fingerprint) return false;
+            return !existingFingerprints.has(fingerprint);
+          })
+          .map(({ task, fingerprint }) => ({
+            cabinet_id: cabinetAccountId,
+            patient_id: record.patient_contact_id,
+            created_by: null,
+            task_type: task.task_type ?? "general",
+            title: task.label?.trim() ?? "Tâche",
+            description: task.reason?.trim() ?? "",
+            status: "pending",
+            priority: task.priority?.trim() || "normal",
+            due_at: buildDefaultDueAtIso(),
+            metadata: {
+              source: "lisa",
+              created_by_label: "Lisa",
+              fingerprint,
+              source_record_id: record.id,
+            },
+          }));
+  
+        if (tasksToInsert.length > 0) {
+          const { error: insertTasksError } = await admin
+            .from("cabinet_tasks")
+            .insert(tasksToInsert);
+  
+          if (insertTasksError) {
+            return NextResponse.json(
+              {
+                ok: false,
+                error: "CABINET_TASKS_SYNC_INSERT_FAILED",
+                details: insertTasksError.message,
+              },
+              { status: 500 }
+            );
+          }
+        }
+      }
+
+      const { data: cabinetTasksData, error: cabinetTasksError } = await admin
+      .from("cabinet_tasks")
+      .select(`
+        id,
+        cabinet_id,
+        patient_id,
+        created_by,
+        task_type,
+        title,
+        description,
+        status,
+        priority,
+        metadata,
+        due_at,
+        completed_at,
+        created_at,
+        updated_at
+      `)
+      .eq("cabinet_id", cabinetAccountId)
+      .eq("patient_id", record.patient_contact_id)
+      .order("created_at", { ascending: false });
+
+    if (cabinetTasksError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "CABINET_TASKS_FETCH_FAILED",
+          details: cabinetTasksError.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    const tasks = mapCabinetTasks((cabinetTasksData ?? []) as CabinetTaskRow[]);
     const followupSuggestions = pickFollowupSuggestions(record as PatientRecordRow);
     const attentionPoints = pickAttentionPoints(record as PatientRecordRow);
     const medicalDetails = pickMedicalDetails(record as PatientRecordRow);
@@ -715,6 +898,7 @@ export async function GET(
       ok: true,
       patient: {
         id: record.id,
+        cabinetAccountId: record.cabinet_account_id,
         patientCode: record.patient_code,
         fullName: buildFullName(record as PatientRecordRow, contact),
         firstName: record.first_name,

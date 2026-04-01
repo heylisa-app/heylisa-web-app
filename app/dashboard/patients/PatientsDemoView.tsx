@@ -242,6 +242,10 @@ export default function PatientsDemoView() {
   const [isFollowupRequestModalOpen, setIsFollowupRequestModalOpen] = useState(false);
   const [isRequestingFollowup, setIsRequestingFollowup] = useState(false);
   const [followupRequestError, setFollowupRequestError] = useState<string | null>(null);
+  const [isBulkProcessOpen, setIsBulkProcessOpen] = useState(false);
+  const [bulkSelectedIntent, setBulkSelectedIntent] = useState<string>("");
+
+
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const noteAudioInputRef = useRef<HTMLInputElement | null>(null);
@@ -375,6 +379,73 @@ export default function PatientsDemoView() {
       )
     );
   };
+
+  const bulkActionOptions = [
+    {
+      id: "records",
+      label: "Créer / mettre à jour des dossiers patients",
+      icon: "↓",
+    },
+    {
+      id: "colleague_letters",
+      label: "Préparer comptes-rendus pour confrères",
+      icon: "⟳",
+    },
+    {
+      id: "pathology_review",
+      label: "Analyser dossier pathologique",
+      icon: "◔",
+    },
+    {
+      id: "patient_letters",
+      label: "Rédiger courrier patients",
+      icon: "⌘",
+    },
+  ] as const;
+  
+  const patientLetterSubOptions = [
+    "ANAPATH",
+    "Biologie",
+    "Imagerie",
+  ];
+  
+  const bulkHelperTextByIntent: Record<string, string> = {
+    records:
+      "Je vais analyser les documents chargés pour identifier les patients concernés, créer les dossiers manquants et enrichir ceux déjà existants. Vous pouvez préciser ici toute consigne particulière.",
+    colleague_letters:
+      "Je vais préparer des comptes-rendus structurés à destination des confrères à partir des documents chargés. Vous pouvez préciser ici le ton, la longueur ou les éléments à mettre en avant.",
+    pathology_review:
+      "Je vais analyser les dossiers pathologiques transmis, en structurant les éléments utiles au suivi médical. Vous pouvez ajouter ici des consignes d’analyse ou de restitution.",
+    patient_letters:
+      "Je vais rédiger des courriers patients à partir des documents chargés. Sélectionnez si besoin un type de courrier ci-dessus et ajoutez ici vos instructions complémentaires.",
+  };
+  
+  const bulkDefaultHelperText =
+    "Choisissez l’action que vous souhaitez que j’effectue et n’hésitez pas à me communiquer toute information complémentaire que vous jugerez utile en me glissant un message ici.";
+  
+  const [bulkInstructions, setBulkInstructions] = useState("");
+  const [bulkSelectedSubOptions, setBulkSelectedSubOptions] = useState<string[]>([]);
+  
+  const bulkHelperText =
+    bulkSelectedIntent && bulkHelperTextByIntent[bulkSelectedIntent]
+      ? bulkHelperTextByIntent[bulkSelectedIntent]
+      : bulkDefaultHelperText;
+  
+  function handleSelectBulkIntent(intent: string) {
+    setBulkSelectedIntent(intent);
+  
+    if (intent !== "patient_letters") {
+      setBulkSelectedSubOptions([]);
+    }
+  }
+  
+  function handleToggleBulkSubOption(option: string) {
+    setBulkSelectedSubOptions((prev) =>
+      prev.includes(option)
+        ? prev.filter((item) => item !== option)
+        : [...prev, option]
+    );
+  }
   
   const notes: PatientNoteItem[] = [
     ...demoNotes.map((note) => {
@@ -1942,28 +2013,36 @@ export default function PatientsDemoView() {
             </div>
 
             <div className={styles.patientHeaderActions}>
-              <button type="button" className={styles.patientActionBtn}>
-                <img
-                  src="/imgs/Lisa_Avatar-min.webp"
-                  alt=""
-                  className={styles.patientActionIconAvatar}
-                />
-                <span className={styles.patientActionText}>Demander à Lisa</span>
-              </button>
+            <button type="button" className={styles.patientActionBtn}>
+              <img
+                src="/imgs/Lisa_Avatar-min.webp"
+                alt=""
+                className={styles.patientActionIconAvatar}
+              />
+              <span className={styles.patientActionText}>Demander à Lisa</span>
+            </button>
 
-              <button
-                type="button"
-                className={styles.patientActionBtn}
-                onClick={() => setIsNoteModalOpen(true)}
-              >
-                <img
-                  src="/imgs/mic-notes.png"
-                  alt=""
-                  className={styles.patientActionIcon}
-                />
-                <span className={styles.patientActionText}>Laisser une note</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.patientActionBtn}
+              onClick={() => setIsNoteModalOpen(true)}
+            >
+              <img
+                src="/imgs/mic-notes.png"
+                alt=""
+                className={styles.patientActionIcon}
+              />
+              <span className={styles.patientActionText}>Laisser une note</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${styles.patientActionBtn} ${styles.patientActionBtnWhite}`}
+              onClick={() => setIsBulkProcessOpen(true)}
+            >
+              <span className={styles.patientActionText}>Traiter des dossiers</span>
+            </button>
+          </div>
           </header>
 
           <div
@@ -3251,6 +3330,134 @@ export default function PatientsDemoView() {
           </div>
         </div>
       )}
+
+{isBulkProcessOpen && (
+  <div
+    className={styles.bulkProcessOverlay}
+    onClick={() => setIsBulkProcessOpen(false)}
+  >
+    <div
+      className={styles.bulkProcessModal}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        className={styles.bulkProcessClose}
+        aria-label="Fermer"
+        onClick={() => setIsBulkProcessOpen(false)}
+      >
+        ×
+      </button>
+
+      <div className={styles.bulkProcessLayout}>
+        <div className={styles.bulkProcessCommandPanel}>
+        <div className={styles.bulkProcessStep}>ÉTAPE 1 SUR 3</div>
+<h2 className={styles.bulkProcessTitle}>Traiter des dossiers</h2>
+
+<div className={styles.bulkProcessSectionLabel}>Commandes</div>
+
+<div className={styles.bulkIntentCommandList}>
+  {bulkActionOptions.map((option) => (
+    <button
+      key={option.id}
+      type="button"
+      className={`${styles.bulkIntentCommandItem} ${
+        bulkSelectedIntent === option.id ? styles.isBulkIntentActive : ""
+      }`}
+      onClick={() => handleSelectBulkIntent(option.id)}
+    >
+      <span className={styles.bulkIntentCommandLeft}>
+        <span className={styles.bulkIntentCommandIcon}>{option.icon}</span>
+        <span className={styles.bulkIntentCommandLabel}>{option.label}</span>
+      </span>
+
+      <span className={styles.bulkIntentCommandRadio}>
+        {bulkSelectedIntent === option.id ? "●" : "○"}
+      </span>
+    </button>
+  ))}
+</div>
+
+<div className={styles.bulkCommandComposer}>
+
+  {bulkSelectedIntent === "patient_letters" && (
+    <div className={styles.bulkSubOptionsRow}>
+      {patientLetterSubOptions.map((option) => (
+        <button
+          key={option}
+          type="button"
+          className={`${styles.bulkSubOptionBadge} ${
+            bulkSelectedSubOptions.includes(option)
+              ? styles.isBulkSubOptionActive
+              : ""
+          }`}
+          onClick={() => handleToggleBulkSubOption(option)}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <div className={styles.bulkCommandInputWrap}>
+  <img
+  src="/imgs/Lisa_Avatar-min.webp"
+  alt="Lisa"
+  className={styles.bulkCommandAvatarImage}
+/>
+
+    <textarea
+      className={styles.bulkCommandTextarea}
+      value={bulkInstructions}
+      onChange={(e) => setBulkInstructions(e.target.value)}
+      placeholder={bulkHelperText}
+    />
+  </div>
+</div>
+        </div>
+
+        <div className={styles.bulkProcessUploadPanel}>
+          <div className={styles.bulkProcessUploadInner}>
+          <div className={styles.bulkProcessStepCenter}>ÉTAPE 2 SUR 3</div>
+          <h3 className={styles.bulkUploadTitle}>Chargez les fichiers à traiter</h3>
+
+            <div className={styles.bulkUploadHint}>
+              Déposez vos documents ici ou parcourez votre ordinateur.
+            </div>
+
+            <div className={styles.bulkUploadDropzone}>
+              <div className={styles.bulkUploadDropzoneText}>
+                Glisser-déposer des fichiers ici, ou parcourir
+              </div>
+            </div>
+
+            <div className={styles.bulkUploadFormats}>
+              Formats pris en charge : PDF, JPG, JPEG, PNG, WEBP
+            </div>
+          </div>
+
+          <div className={styles.bulkProcessFooter}>
+            <button
+              type="button"
+              className={styles.bulkProcessBackBtn}
+              onClick={() => setIsBulkProcessOpen(false)}
+            >
+              Retour
+            </button>
+
+            <button
+              type="button"
+              className={styles.bulkProcessNextBtn}
+              disabled={!bulkSelectedIntent}
+            >
+              Suivant →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {isNoteModalOpen && (
         <div

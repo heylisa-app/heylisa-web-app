@@ -270,20 +270,42 @@ export async function POST(request: Request) {
       )
       .single();
 
-    if (insertError || !documentRow) {
-      // rollback storage si insert DB KO
-      await admin.storage.from("patient-documents").remove([storagePath]);
-
-      return NextResponse.json(
-        { ok: false, error: insertError?.message || "DOCUMENT_INSERT_FAILED" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      ok: true,
-      document: documentRow,
-    });
+      if (insertError || !documentRow) {
+        // rollback storage si insert DB KO
+        await admin.storage.from("patient-documents").remove([storagePath]);
+  
+        return NextResponse.json(
+          { ok: false, error: insertError?.message || "DOCUMENT_INSERT_FAILED" },
+          { status: 500 }
+        );
+      }
+  
+      const qualificationWebhookPayload = [
+        {
+          document_id: documentRow.id,
+          cabinet_account_id: documentRow.cabinet_account_id,
+          patient_id: documentRow.patient_id,
+          file_name: documentRow.file_name,
+          mime_type: documentRow.mime_type,
+          storage_bucket: documentRow.storage_bucket,
+          storage_path: documentRow.storage_path,
+        },
+      ];
+  
+      void fetch("https://n8n.heylisa.io/webhook/qualify-shareable-document", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(qualificationWebhookPayload),
+      }).catch((error) => {
+        console.error("[HL Upload] qualify-shareable-document webhook failed:", error);
+      });
+  
+      return NextResponse.json({
+        ok: true,
+        document: documentRow,
+      });
   } catch (error) {
     return NextResponse.json(
       {
