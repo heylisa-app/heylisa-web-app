@@ -549,6 +549,7 @@ export default function DashboardChatPage() {
   const introBootstrapStartedRef = useRef(false);
   const streamedMessageIdsRef = useRef<Set<string>>(new Set());
   const knownMessageIdsRef = useRef<Set<string>>(new Set());
+  const messagesStateRef = useRef<Message[]>([]);
   const supabase = useMemo(() => createSupabaseClient(), []);
 
   useEffect(() => {
@@ -1042,11 +1043,25 @@ export default function DashboardChatPage() {
           }
         ) => {
           const row = payload.new;
-          upsertFinalMessageFromDb(row);
-
-          // 👉 condition notif
           const isLisa = row.role === "assistant" || row.sender_type === "lisa";
-
+    
+          const hasActiveLocalLisaPlaceholder = messagesStateRef.current.some(
+            (msg) =>
+              msg.sender === "lisa" &&
+              (
+                msg.status === "thinking" ||
+                msg.status === "typing" ||
+                msg.status === "streaming"
+              )
+          );
+    
+          if (isLisa && hasActiveLocalLisaPlaceholder) {
+            console.log("[HL Chat realtime] skip lisa insert during local stream:", row.id);
+            return;
+          }
+    
+          upsertFinalMessageFromDb(row);
+    
           if (isLisa && !isPageVisibleRef.current) {
             triggerLisaNotification(row.content ?? "");
           }
@@ -1082,6 +1097,7 @@ export default function DashboardChatPage() {
 
   useEffect(() => {
     knownMessageIdsRef.current = new Set(messages.map((msg) => msg.id));
+    messagesStateRef.current = messages;
   }, [messages]);
 
   useEffect(() => {

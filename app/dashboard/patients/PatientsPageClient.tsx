@@ -171,6 +171,17 @@ type PatientDetailResponse = {
     riskFlag?: boolean;
     riskSummary?: string;
     riskItems?: string[];
+    sources?: Array<{
+      type: string | null;
+      label: string | null;
+      interactionId: string | null;
+      sourceRef: string | null;
+      fileName: string | null;
+      mimeType: string | null;
+      storageBucket: string | null;
+      storagePath: string | null;
+      summary: string | null;
+    }>;
     audioStoragePath?: string | null;
     audioStorageBucket?: string | null;
     audioMimeType?: string | null;
@@ -239,6 +250,27 @@ export default function PatientsPageClient() {
   const [createTaskPriority, setCreateTaskPriority] = useState<"low" | "medium" | "high">("medium");
   const [createTaskError, setCreateTaskError] = useState<string | null>(null);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
+
+  const [previewSource, setPreviewSource] = useState<{
+    type: string | null;
+    label: string | null;
+    interactionId: string | null;
+    sourceRef: string | null;
+    fileName: string | null;
+    mimeType: string | null;
+    storageBucket: string | null;
+    storagePath: string | null;
+    summary: string | null;
+  } | null>(null);
+  
+  const [emailSourcePreview, setEmailSourcePreview] = useState<{
+    title: string | null;
+    senderName: string | null;
+    senderEmail: string | null;
+    datetime: string | null;
+    content: string | null;
+    summary: string | null;
+  } | null>(null);
 
   const [isBulkProcessOpen, setIsBulkProcessOpen] = useState(false);
   const [bulkSelectedIntent, setBulkSelectedIntent] = useState<string>("");
@@ -1031,6 +1063,42 @@ const rejectReason =
     }
   }
 
+  function getDocumentExtension(doc: PatientDocumentItem) {
+    const rawFromType = String(doc.type ?? "").trim().toLowerCase();
+    if (rawFromType) return rawFromType;
+
+    const rawFromMime = String(doc.mimeType ?? "").trim().toLowerCase();
+
+    if (rawFromMime === "application/pdf") return "pdf";
+    if (rawFromMime === "image/jpeg") return "jpeg";
+    if (rawFromMime === "image/jpg") return "jpg";
+    if (rawFromMime === "image/png") return "png";
+    if (rawFromMime === "image/webp") return "webp";
+
+    const fileName = String(doc.title ?? "").trim().toLowerCase();
+    const extension = fileName.includes(".")
+      ? fileName.split(".").pop()?.toLowerCase() ?? ""
+      : "";
+
+    return extension;
+  }
+
+  function isPdfDocument(doc: PatientDocumentItem) {
+    const extension = getDocumentExtension(doc);
+    return extension === "pdf";
+  }
+
+  function getDocumentDisplayType(doc: PatientDocumentItem) {
+    const extension = getDocumentExtension(doc);
+
+    if (extension === "pdf") return "PDF";
+    if (extension === "jpg" || extension === "jpeg") return "Image";
+    if (extension === "png") return "Image";
+    if (extension === "webp") return "Image";
+
+    return doc.type || "Fichier";
+  }
+
   const anatomyMap: Record<
   string,
   {
@@ -1677,6 +1745,7 @@ function getInteractionTitle(interactionType: string | null | undefined) {
       riskFlag: note.riskFlag === true,
       riskSummary: note.riskSummary ?? "",
       riskItems: Array.isArray(note.riskItems) ? note.riskItems : [],
+      sources: Array.isArray((note as any).sources) ? (note as any).sources : [],
       audioStoragePath: note.audioStoragePath ?? null,
       audioStorageBucket: note.audioStorageBucket ?? null,
       audioMimeType: note.audioMimeType ?? null,
@@ -1699,12 +1768,14 @@ function getInteractionTitle(interactionType: string | null | undefined) {
     ? ""
     : "Veuillez ajouter le mail du patient pour activer cette fonctionnalité";
   
-const documentsForDisplay = patientDocuments.map((doc) => ({
-        ...doc,
-        displayDate: formatDocumentDate(doc.date),
-        showShareIcons:
-          doc.isShareableWithPatient === true || doc.isShareableWithDoctor === true,
-      }));
+    const documentsForDisplay = patientDocuments.map((doc) => ({
+      ...doc,
+      displayDate: formatDocumentDate(doc.date),
+      displayType: getDocumentDisplayType(doc),
+      isPdf: isPdfDocument(doc),
+      showShareIcons:
+        doc.isShareableWithPatient === true || doc.isShareableWithDoctor === true,
+    }));
 
   const selectedAnatomy =
   anatomyMap[selectedDetailId] ??
@@ -2227,6 +2298,73 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
     }
   }
 
+  async function handleOpenNoteSource(source: NonNullable<PatientNoteItem["sources"]>[number]) {
+    if (!source) return;
+  
+    const normalizedType = String(source.type ?? "").trim().toLowerCase();
+    const isDocumentSource =
+      normalizedType === "pdf" ||
+      normalizedType === "image" ||
+      (!!source.storageBucket && !!source.storagePath);
+  
+    if (isDocumentSource && source.storageBucket && source.storagePath) {
+      const syntheticDocument: PatientDocumentItem = {
+        id: `source-${source.interactionId ?? source.fileName ?? Date.now()}`,
+        title: source.fileName || source.label || "Document",
+        type:
+          normalizedType === "pdf"
+            ? "PDF"
+            : normalizedType === "image"
+            ? "Image"
+            : "Document",
+        date: selectedNote?.datetime || new Date().toISOString(),
+        status: "Source",
+        isUploaded: true,
+        mimeType:
+          source.mimeType ||
+          (normalizedType === "pdf"
+            ? "application/pdf"
+            : normalizedType === "image"
+            ? "image/jpeg"
+            : "application/octet-stream"),
+        storagePath: source.storagePath,
+        storageBucket: source.storageBucket,
+        analysisStatus: null,
+        analysisText: null,
+        analysisJson: null,
+        documentFamily: null,
+        isOfficialMedicalDocument: null,
+        isShareableWithPatient: null,
+        isShareableWithDoctor: null,
+        sharingGuardReason: null,
+      };
+  
+      setPreviewSource(source);
+      setEmailSourcePreview(null);
+      await handleOpenPreview(syntheticDocument);
+      return;
+    }
+  
+    if (normalizedType === "email") {
+      setPreviewDocument(null);
+      setPreviewUrl(null);
+      setIsPreviewLoading(false);
+      setPreviewSource(source);
+  
+      setEmailSourcePreview({
+        title: source.subject || "Email",
+        senderName: source.senderName || "Expéditeur inconnu",
+        senderEmail: source.senderEmail || null,
+        datetime: source.date || null,
+        content: source.contentText || source.contentHtml || "Contenu indisponible.",
+        summary: source.summary || null,
+      });
+  
+      return;
+    }
+  }
+
+
   async function handleOpenPreview(doc: PatientDocumentItem) {
     setPreviewDocument(doc);
   
@@ -2261,6 +2399,8 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
     setPreviewDocument(null);
     setPreviewUrl(null);
     setIsPreviewLoading(false);
+    setPreviewSource(null);
+    setEmailSourcePreview(null);
   }
 
   function resetEditContactModalState() {
@@ -3592,7 +3732,39 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
 
                                     <div className={styles.noteDetailMeta}>
                                         {selectedNote.author} · {selectedNote.datetime}
-                                    </div>
+                                      </div>
+
+                                      {Array.isArray(selectedNote?.sources) && selectedNote.sources.length > 0 && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            gap: 8,
+                                            flexWrap: "wrap",
+                                            marginTop: 8,
+                                          }}
+                                        >
+                                          {selectedNote.sources.map((source, index) => (
+                                            <button
+                                              key={`${source.label ?? "source"}-${index}`}
+                                              type="button"
+                                              onClick={() => handleOpenNoteSource(source)}
+                                              style={{
+                                                border: "1px solid rgba(255,255,255,0.10)",
+                                                background: "rgba(255,255,255,0.04)",
+                                                color: "rgba(255,255,255,0.78)",
+                                                borderRadius: 999,
+                                                padding: "4px 10px",
+                                                fontSize: 11,
+                                                fontWeight: 600,
+                                                letterSpacing: "0.02em",
+                                                cursor: "pointer",
+                                              }}
+                                            >
+                                              {source.label || "SOURCE"}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
                                     </div>
 
                                     <div
@@ -3906,7 +4078,7 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
                                     </td>
 
                                     <td>
-                                    <span className={styles.documentsTypeText}>{doc.type}</span>
+                                    <span className={styles.documentsTypeText}>{doc.displayType}</span>
                                     </td>
 
                                     <td>
@@ -6406,7 +6578,7 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
                   {previewDocument.title}
                 </h3>
                 <p className={styles.documentPreviewSubtitle}>
-                {previewDocument.type} · {formatDocumentDate(previewDocument.date)}
+                {getDocumentDisplayType(previewDocument)} · {formatDocumentDate(previewDocument.date)}
                 </p>
               </div>
 
@@ -6436,7 +6608,7 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
                     Aperçu indisponible
                   </div>
                 </div>
-              ) : previewDocument.mimeType === "application/pdf" ? (
+              ) : isPdfDocument(previewDocument) ? (
                 <iframe
                   src={previewUrl}
                   className={styles.documentPreviewFrame}
@@ -6453,6 +6625,84 @@ const documentsForDisplay = patientDocuments.map((doc) => ({
           </div>
         </div>
       )}
+{emailSourcePreview && (
+  <div
+    className={styles.documentPreviewOverlay}
+    onClick={closePreviewModal}
+  >
+    <div
+      className={styles.documentPreviewModal}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className={styles.documentPreviewHeader}>
+        <div>
+          <h3 className={styles.documentPreviewTitle}>
+            {emailSourcePreview.title || "Email"}
+          </h3>
+          <p className={styles.documentPreviewSubtitle}>
+            Mail reçu
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className={styles.documentPreviewClose}
+          onClick={closePreviewModal}
+          aria-label="Fermer"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className={styles.documentPreviewBody}>
+  <div className={styles.emailPreviewShell}>
+    <div className={styles.emailPreviewCard}>
+      <div className={styles.emailPreviewTop}>
+        <div className={styles.emailPreviewSubject}>
+          {emailSourcePreview.title || "Email"}
+        </div>
+
+        <div className={styles.emailPreviewRow}>
+          <div className={styles.emailPreviewLabel}>De</div>
+          <div className={styles.emailPreviewValue}>
+            {emailSourcePreview.senderName || "Expéditeur inconnu"}
+            {emailSourcePreview.senderEmail
+              ? ` <${emailSourcePreview.senderEmail}>`
+              : ""}
+          </div>
+        </div>
+
+        <div className={styles.emailPreviewRow}>
+          <div className={styles.emailPreviewLabel}>Date</div>
+          <div className={styles.emailPreviewValue}>
+            {emailSourcePreview.datetime || "—"}
+          </div>
+        </div>
+      </div>
+
+      {emailSourcePreview.summary && (
+        <div className={styles.emailPreviewSummary}>
+          {emailSourcePreview.summary}
+        </div>
+      )}
+
+      {emailSourcePreview.content?.includes("<") &&
+      emailSourcePreview.content?.includes(">") ? (
+        <div
+          className={styles.emailPreviewBodyHtml}
+          dangerouslySetInnerHTML={{ __html: emailSourcePreview.content }}
+        />
+      ) : (
+        <div className={styles.emailPreviewBody}>
+          {emailSourcePreview.content || "Contenu indisponible."}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+)}
       {analysisDocument && (
         <div
           className={styles.documentAnalysisOverlay}

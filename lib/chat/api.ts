@@ -27,6 +27,15 @@ function getApiBaseUrl() {
   return url.replace(/\/+$/, "");
 }
 
+function isLocalDev() {
+  return (
+    process.env.NODE_ENV === "development" &&
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1")
+  );
+}
+
 async function getAccessToken() {
   const supabase = createSupabaseClient();
 
@@ -134,6 +143,49 @@ export async function streamChatIntro(
   conversationId: string,
   onEvent: (event: SseEvent) => void
 ) {
+  if (isLocalDev()) {
+    const response = await fetch("/api/dev/chat/intro", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+      },
+      body: JSON.stringify({
+        conversation_id: conversationId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    if (!response.body) {
+      throw new Error("Response body is empty");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const parsed = parseSseChunk(buffer);
+      buffer = parsed.rest;
+
+      for (const event of parsed.events) {
+        onEvent(event);
+      }
+    }
+
+    return;
+  }
+
   return streamPost(
     "/v1/chat/intro",
     { conversation_id: conversationId },
@@ -146,6 +198,50 @@ export async function streamChatMessage(
   userMessageId: string,
   onEvent: (event: SseEvent) => void
 ) {
+  if (isLocalDev()) {
+    const response = await fetch("/api/dev/chat/message-stream", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+      },
+      body: JSON.stringify({
+        conversation_id: conversationId,
+        user_message_id: userMessageId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    if (!response.body) {
+      throw new Error("Response body is empty");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const parsed = parseSseChunk(buffer);
+      buffer = parsed.rest;
+
+      for (const event of parsed.events) {
+        onEvent(event);
+      }
+    }
+
+    return;
+  }
+
   return streamPost(
     "/v1/chat/message",
     {

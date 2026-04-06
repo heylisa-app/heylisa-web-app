@@ -56,6 +56,26 @@ type PatientContactRow = {
   notes: string | null;
 };
 
+type PatientNoteSourceRow = {
+  type?: string | null;
+  label?: string | null;
+  interaction_id?: string | null;
+  source_ref?: string | null;
+  file_name?: string | null;
+  mime_type?: string | null;
+  storage_bucket?: string | null;
+  storage_path?: string | null;
+  summary?: string | null;
+
+  subject?: string | null;
+  date?: string | null;
+  content_text?: string | null;
+  content_html?: string | null;
+  sender_name?: string | null;
+  sender_email?: string | null;
+};
+
+
 type PatientNoteRow = {
   id: string;
   note_type: "text" | "audio";
@@ -80,7 +100,18 @@ type PatientNoteRow = {
   risk_flag: boolean;
   risk_summary: string | null;
   risk_items: string[] | null;
+  sources_json: PatientNoteSourceRow[] | null;
   created_at: string;
+};
+
+type PatientInteractionEmailRow = {
+  id: string;
+  title: string | null;
+  actor_name: string | null;
+  actor_email: string | null;
+  content_text: string | null;
+  content_html: string | null;
+  created_at: string | null;
 };
 
 type PatientDocumentRow = {
@@ -522,6 +553,38 @@ function buildNoteSummary(text: string) {
   return `${cleaned.slice(0, 120).trim()}...`;
 }
 
+function normalizeNoteSources(value: unknown) {
+  const rows = asArray<PatientNoteSourceRow>(value);
+
+  return rows
+    .filter((item) => item && typeof item === "object")
+    .map((item) => ({
+      type: typeof item.type === "string" ? item.type : null,
+      label: typeof item.label === "string" ? item.label : null,
+      interactionId:
+        typeof item.interaction_id === "string" ? item.interaction_id : null,
+      sourceRef: typeof item.source_ref === "string" ? item.source_ref : null,
+      fileName: typeof item.file_name === "string" ? item.file_name : null,
+      mimeType: typeof item.mime_type === "string" ? item.mime_type : null,
+      storageBucket:
+        typeof item.storage_bucket === "string" ? item.storage_bucket : null,
+      storagePath:
+        typeof item.storage_path === "string" ? item.storage_path : null,
+      summary: typeof item.summary === "string" ? item.summary : null,
+
+      subject: typeof item.subject === "string" ? item.subject : null,
+      date: typeof item.date === "string" ? item.date : null,
+      contentText:
+        typeof item.content_text === "string" ? item.content_text : null,
+      contentHtml:
+        typeof item.content_html === "string" ? item.content_html : null,
+      senderName:
+        typeof item.sender_name === "string" ? item.sender_name : null,
+      senderEmail:
+        typeof item.sender_email === "string" ? item.sender_email : null,
+    }));
+}
+
 function mapNotes(rows: PatientNoteRow[]) {
   return rows.map((note) => {
     const content =
@@ -548,6 +611,7 @@ function mapNotes(rows: PatientNoteRow[]) {
       riskFlag: note.risk_flag === true,
       riskSummary: note.risk_summary ?? "",
       riskItems: Array.isArray(note.risk_items) ? note.risk_items : [],
+      sources: normalizeNoteSources(note.sources_json),
       audioStoragePath: note.audio_storage_path,
       audioStorageBucket: note.audio_storage_bucket,
       audioMimeType: note.audio_mime_type,
@@ -687,6 +751,7 @@ export async function GET(
         risk_flag,
         risk_summary,
         risk_items,
+        sources_json,
         created_at
       `)
       .eq("patient_id", record.id)
@@ -702,6 +767,82 @@ export async function GET(
         },
         { status: 500 }
       );
+    }
+
+    const notesWithHydratedSources = ((noteRows ?? []) as PatientNoteRow[]).map((note) => ({
+      ...note,
+      sources_json: Array.isArray(note.sources_json) ? [...note.sources_json] : [],
+    }));
+
+    const emailInteractionIds = Array.from(
+      new Set(
+        notesWithHydratedSources
+          .flatMap((note) =>
+            Array.isArray(note.sources_json)
+              ? note.sources_json
+                  .map((source) =>
+                    source?.type === "email" && typeof source?.interaction_id === "string"
+                      ? source.interaction_id
+                      : null
+                  )
+                  .filter(Boolean)
+              : []
+          )
+      )
+    ) as string[];
+
+    let interactionEmailMap = new Map<string, PatientInteractionEmailRow>();
+
+    if (emailInteractionIds.length > 0) {
+      const { data: interactionRows, error: interactionsError } = await admin
+        .from("patient_interactions")
+        .select(`
+          id,
+          title,
+          actor_name,
+          actor_email,
+          content_text,
+          content_html,
+          created_at
+        `)
+        .in("id", emailInteractionIds);
+
+      if (interactionsError) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "PATIENT_INTERACTIONS_FETCH_FAILED",
+            details: interactionsError.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      interactionEmailMap = new Map(
+        ((interactionRows ?? []) as PatientInteractionEmailRow[]).map((row) => [row.id, row])
+      );
+
+      for (const note of notesWithHydratedSources) {
+        note.sources_json = (note.sources_json ?? []).map((source) => {
+          if (!source || source.type !== "email" || !source.interaction_id) {
+            return source;
+          }
+
+          const interaction = interactionEmailMap.get(source.interaction_id);
+
+          if (!interaction) return source;
+
+          return {
+            ...source,
+            subject: interaction.title ?? source.subject ?? null,
+            date: interaction.created_at ?? source.date ?? null,
+            content_text: interaction.content_text ?? source.content_text ?? null,
+            content_html: interaction.content_html ?? source.content_html ?? null,
+            sender_name: interaction.actor_name ?? source.sender_name ?? null,
+            sender_email: interaction.actor_email ?? source.sender_email ?? null,
+          };
+        });
+      }
     }
 
     const { data: documentsData, error: documentsError } = await admin
@@ -931,7 +1072,7 @@ export async function GET(
         medicalDetails,
         anatomyState,
       },
-      notes: mapNotes((noteRows ?? []) as PatientNoteRow[]),
+      notes: mapNotes(notesWithHydratedSources),
       documents,
       tasks,
       followupSuggestions,
