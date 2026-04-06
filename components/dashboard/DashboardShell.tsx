@@ -1,3 +1,5 @@
+//components/dashboard/DashboardShell.tsx
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -230,9 +232,14 @@ export default function DashboardShell({
               </div>
 
               <div className={styles.topbarRight}>
-                <button className={styles.microBtn} type="button" aria-label="Ajouter une note vocale">
-                  <img src="/imgs/mic-notes.png" alt="" />
-                </button>
+              <button
+                className={styles.microBtn}
+                type="button"
+                aria-label="Ajouter une note vocale"
+                onClick={() => router.push("/dashboard/chat?mic=1")}
+              >
+                <img src="/imgs/mic-notes.png" alt="" />
+              </button>
 
                 <div className={styles.profileMenuWrap} ref={profileMenuRef}>
                   <button

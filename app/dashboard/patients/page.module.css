@@ -5309,6 +5309,8 @@
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -5318,6 +5320,8 @@
   margin: 0 auto;
   padding-top: 10px;
   min-width: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -5709,6 +5713,8 @@
   justify-content: space-between;
   gap: 12px;
   padding-top: 10px;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .bulkProcessBackBtn {
@@ -5806,6 +5812,8 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(10px);
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .bulkReviewCardTop {
@@ -5894,6 +5902,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 14px;
+  align-items: start;
 }
 
 .bulkPreviewCard {
@@ -5975,20 +5984,30 @@
   box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.12) inset;
 }
 
+
 .bulkPreviewBody {
   min-height: 220px;
-  max-height: 320px;
-  overflow: auto;
-  border-radius: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 14px;
   background: rgba(0, 0, 0, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.04);
   padding: 12px;
 }
 
 .bulkPreviewHtml {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.88);
+}
+
+.bulkPreviewHtml p {
+  margin: 0 0 10px;
+}
+
+.bulkPreviewHtml p:last-child {
+  margin-bottom: 0;
 }
 
 .bulkPreviewHtml p {
@@ -6889,4 +6908,25 @@
 
 .emailPreviewBodyHtml br {
   line-height: 1.75;
+}
+
+
+.bulkReviewModalOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px;
+  background: rgba(10, 10, 14, 0.28);
+  backdrop-filter: blur(4px);
+}
+
+.bulkReviewModal {
+  position: relative;
+  width: min(980px, calc(100% - 40px));
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  border-radius: 24px;
 }

@@ -9,6 +9,7 @@ import { streamChatIntro, streamChatMessage, type SseEvent } from "@/lib/chat/ap
 import { parseLisaMessage } from "@/lib/chat/lisaFormat";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { useAudioRecorder } from "@/lib/chat/useAudioRecorder";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type ChatStatus = "idle" | "connecting" | "streaming" | "error";
 
@@ -542,6 +543,10 @@ export default function DashboardChatPage() {
   const [publicUserId, setPublicUserId] = useState("");
   const [conversationId, setConversationId] = useState("");
   const [chatContextLoaded, setChatContextLoaded] = useState(false);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const autoMicTriggeredRef = useRef(false);
   
 
   const messagesRef = useRef<HTMLDivElement | null>(null);
@@ -1314,6 +1319,74 @@ export default function DashboardChatPage() {
     if (isSending) return;
     await startRecording();
   }
+
+  useEffect(() => {
+    const shouldOpenMic = searchParams.get("mic") === "1";
+
+    if (!shouldOpenMic) return;
+    if (autoMicTriggeredRef.current) return;
+    if (!isAudioRecorderSupported) return;
+    if (isSending || isVoiceBusy || isAudioTranscribing) return;
+
+    autoMicTriggeredRef.current = true;
+
+    const timer = window.setTimeout(async () => {
+      try {
+        let canAutoStart = false;
+
+        if (
+          typeof navigator !== "undefined" &&
+          "permissions" in navigator &&
+          navigator.permissions?.query
+        ) {
+          try {
+            const permissionStatus = await navigator.permissions.query({
+              name: "microphone" as PermissionName,
+            });
+
+            canAutoStart = permissionStatus.state === "granted";
+          } catch (permissionError) {
+            console.warn("[HL Chat] microphone permission query failed:", permissionError);
+          }
+        }
+
+        if (canAutoStart) {
+          await handleStartRecording();
+        } else {
+          console.log("[HL Chat] auto mic skipped: permission not granted yet");
+        }
+      } catch (error) {
+        console.error("[HL Chat] auto mic start error:", error);
+      } finally {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("mic");
+
+        const nextUrl = params.toString()
+          ? `/dashboard/chat?${params.toString()}`
+          : "/dashboard/chat";
+
+        router.replace(nextUrl);
+      }
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [
+    searchParams,
+    router,
+    isAudioRecorderSupported,
+    isSending,
+    isVoiceBusy,
+    isAudioTranscribing,
+  ]);
+
+
+  useEffect(() => {
+    if (searchParams.get("mic") !== "1") {
+      autoMicTriggeredRef.current = false;
+    }
+  }, [searchParams]);
 
   
 

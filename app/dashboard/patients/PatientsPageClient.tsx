@@ -376,8 +376,16 @@ const [createPatientContext, setCreatePatientContext] = useState("");
   ? bulkProcessingResult.results
   : [];
 
-  const currentBulkReviewItem = bulkReviewItems[0] ?? null;
-
+  const [bulkJobId, setBulkJobId] = useState<string | null>(null);
+  const [bulkPollingError, setBulkPollingError] = useState<string | null>(null);
+  
+  const [selectedBulkReviewIndex, setSelectedBulkReviewIndex] = useState<number | null>(null);
+  
+  const currentBulkReviewItem =
+  selectedBulkReviewIndex === null
+    ? null
+    : bulkReviewItems[selectedBulkReviewIndex] ?? null;
+  
   const currentPatientEmail = currentBulkReviewItem?.patient_email ?? null;
   const currentColleagueLetter = currentBulkReviewItem?.colleague_letter ?? null;
   const currentRisk = currentBulkReviewItem?.risk ?? null;
@@ -832,6 +840,20 @@ const rejectReason =
       window.clearInterval(interval);
     };
   }, [optimisticPatients.length]);
+
+  useEffect(() => {
+    if (!Array.isArray(bulkReviewItems) || bulkReviewItems.length === 0) {
+      setSelectedBulkReviewIndex(null);
+      return;
+    }
+  
+    if (
+      selectedBulkReviewIndex !== null &&
+      selectedBulkReviewIndex > bulkReviewItems.length - 1
+    ) {
+      setSelectedBulkReviewIndex(null);
+    }
+  }, [bulkReviewItems, selectedBulkReviewIndex]);
 
 
   const searchedPatients = useMemo(() => {
@@ -2606,28 +2628,58 @@ function getInteractionTitle(interactionType: string | null | undefined) {
   
     const files = Array.from(fileList);
   
-    const firstValidFile = files.find((file) => {
+    const validFiles: File[] = [];
+    const rejectedFiles: string[] = [];
+  
+    for (const file of files) {
       const fileName = file.name.toLowerCase();
       const hasValidMime = allowedMimeTypes.includes(file.type);
       const hasValidExtension = allowedExtensions.some((ext) =>
         fileName.endsWith(ext)
       );
   
-      return hasValidMime || hasValidExtension;
-    });
+      const isValidType = hasValidMime || hasValidExtension;
+      const isValidSize = file.size <= 15 * 1024 * 1024;
   
-    if (!firstValidFile) {
-      setBulkUploadError("Format non pris en charge. Utilisez un PDF, JPG, JPEG, PNG ou WEBP.");
+      if (!isValidType) {
+        rejectedFiles.push(`${file.name} (format non pris en charge)`);
+        continue;
+      }
+  
+      if (!isValidSize) {
+        rejectedFiles.push(`${file.name} (fichier trop volumineux)`);
+        continue;
+      }
+  
+      validFiles.push(file);
+    }
+  
+    if (validFiles.length === 0) {
+      setBulkUploadError(
+        "Aucun fichier exploitable. Utilisez des PDF, JPG, JPEG, PNG ou WEBP de 15 MB maximum."
+      );
       return;
     }
   
-    if (files.length > 1) {
-      setBulkUploadError("Un seul fichier peut être traité à la fois pour le moment.");
+    const dedupedFiles = [...bulkSelectedFiles, ...validFiles].filter(
+      (file, index, array) =>
+        array.findIndex(
+          (candidate) =>
+            candidate.name === file.name &&
+            candidate.size === file.size &&
+            candidate.lastModified === file.lastModified
+        ) === index
+    );
+  
+    setBulkSelectedFiles(dedupedFiles);
+  
+    if (rejectedFiles.length > 0) {
+      setBulkUploadError(
+        `Certains fichiers ont été ignorés : ${rejectedFiles.join(", ")}`
+      );
     } else {
       setBulkUploadError(null);
     }
-  
-    setBulkSelectedFiles([firstValidFile]);
   }
   
   function handleRemoveBulkFile(fileToRemove: File) {
@@ -2690,6 +2742,33 @@ function getInteractionTitle(interactionType: string | null | undefined) {
     return value;
   }
 
+  async function fetchBulkJob(jobId: string) {
+    const response = await fetch(`/api/bulk-jobs/${jobId}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+  
+    const rawText = await response.text();
+  
+    if (!response.ok) {
+      throw new Error(rawText || "BULK_JOB_FETCH_FAILED");
+    }
+  
+    let parsed: any = null;
+  
+    try {
+      parsed = JSON.parse(rawText);
+    } catch {
+      throw new Error("INVALID_BULK_JOB_RESPONSE");
+    }
+  
+    if (!parsed?.ok || !parsed?.job) {
+      throw new Error("INVALID_BULK_JOB_PAYLOAD");
+    }
+  
+    return parsed;
+  }
+
   async function handleLaunchBulkProcess() {
     try {
       if (!patientDetail?.cabinetAccountId) {
@@ -2710,83 +2789,131 @@ function getInteractionTitle(interactionType: string | null | undefined) {
       setIsBulkSubmitting(true);
       setBulkUploadError(null);
       setBulkSubmitError(null);
+      setBulkPollingError(null);
       setBulkProcessingResult(null);
+      setBulkJobId(null);
       setBulkRightPanelMode("processing");
-
-      const buildBulkFormData = () => {
-        const fd = new FormData();
-        fd.append("intent", bulkSelectedIntent);
-        fd.append("instructions", bulkInstructions || "");
-        fd.append("sub_options", JSON.stringify(bulkSelectedSubOptions));
-        fd.append("cabinet_account_id", patientDetail.cabinetAccountId);
-
-        bulkSelectedFiles.forEach((file) => {
-          fd.append("files", file, file.name);
-        });
-
-        return fd;
-      };
   
-      const processFormData = buildBulkFormData();
-
+      const fd = new FormData();
+      fd.append("intent", bulkSelectedIntent);
+      fd.append("instructions", bulkInstructions || "");
+      fd.append("sub_options", JSON.stringify(bulkSelectedSubOptions));
+      fd.append("cabinet_account_id", patientDetail.cabinetAccountId);
+  
+      bulkSelectedFiles.forEach((file) => {
+        fd.append("files", file, file.name);
+      });
+  
       const response = await fetch("https://n8n.heylisa.io/webhook/bulk-process", {
         method: "POST",
-        body: processFormData,
+        body: fd,
       });
   
       const rawText = await response.text();
-
-      console.log("🟡 Bulk raw response text:", rawText);
-      
+  
+      console.log("🟡 Bulk ACK raw response text:", rawText);
+  
       if (!response.ok) {
-        console.error("🔴 Bulk HTTP error:", response.status, rawText);
-        throw new Error(rawText || "BULK_PROCESS_FAILED");
+        console.error("🔴 Bulk ACK HTTP error:", response.status, rawText);
+        throw new Error(rawText || "BULK_PROCESS_ACK_FAILED");
       }
-      
-      let parsedPayload: any = null;
-      
+  
+      let ackPayload: any = null;
+  
       try {
-        parsedPayload = JSON.parse(rawText);
-        console.log("🟢 Bulk parsed payload:", parsedPayload);
+        ackPayload = JSON.parse(rawText);
+        console.log("🟢 Bulk ACK parsed payload:", ackPayload);
       } catch (error) {
-        console.error("🔴 Réponse webhook non JSON :", rawText);
-        throw new Error("INVALID_BULK_REVIEW_PAYLOAD");
+        console.error("🔴 Réponse ACK non JSON :", rawText);
+        throw new Error("INVALID_BULK_ACK_PAYLOAD");
       }
-      
-      const normalizedPayload = normalizeBulkWebhookResponse(parsedPayload);
-      
-      console.log("🟣 Bulk normalized payload:", normalizedPayload);
-      
-      if (!normalizedPayload) {
-        console.error("🔴 normalizeBulkWebhookResponse a renvoyé null/undefined");
-        throw new Error("INVALID_BULK_REVIEW_PAYLOAD");
-      }
-      
-      if (!Array.isArray(normalizedPayload.results) || normalizedPayload.results.length === 0) {
-        console.error("🔴 normalizedPayload.results vide ou invalide:", normalizedPayload);
-        setBulkUploadError("Le traitement est terminé mais aucun résultat exploitable n’a été renvoyé.");
-        setBulkRightPanelMode("confirm");
-        return;
-      }
-      
-      console.log("✅ Avant setState review:", {
-        mode_before: bulkRightPanelMode,
-        results_count: normalizedPayload.results.length,
-        first_result: normalizedPayload.results[0],
-      });
-      
-      setBulkProcessingResult(normalizedPayload);
+  
+      const jobId = String(ackPayload?.job_id ?? "").trim();
 
-      const firstResult = normalizedPayload.results?.[0] ?? null;
-      const isDirectPatientRecordSuccess =
-        firstResult?.source_branch === "patient_record" &&
-        firstResult?.review_status === "processed_directly" &&
-        firstResult?.send_to_processing === true;
+      if (!jobId) {
+        console.warn("🟠 ACK sans job_id, tentative de lecture en réponse directe :", ackPayload);
       
-      setBulkRightPanelMode(isDirectPatientRecordSuccess ? "done" : "review");
+        const directPayload = normalizeBulkWebhookResponse(ackPayload);
+      
+        if (
+          directPayload &&
+          Array.isArray(directPayload.results) &&
+          directPayload.results.length > 0
+        ) {
+          console.log("🟢 Réponse directe legacy détectée :", directPayload);
+      
+          setBulkProcessingResult(directPayload);
+          setSelectedBulkReviewIndex(null);
+          setBulkRightPanelMode("review");
+          return;
+        }
+      
+        console.error("🔴 Réponse sans job_id et sans résultats exploitables :", ackPayload);
+        throw new Error("BULK_JOB_ID_MISSING");
+      }
+      
+      setBulkJobId(jobId);
+      
+      const maxAttempts = 120; // ~2 min si intervalle 1s
+      const delayMs = 1000;
+      
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        const jobPayload = await fetchBulkJob(jobId);
+  
+        console.log(`🔵 Poll bulk job ${jobId} attempt ${attempt}:`, jobPayload);
+  
+        const job = jobPayload.job;
+        const items = Array.isArray(jobPayload.items) ? jobPayload.items : [];
+  
+        if (job.status === "failed") {
+          throw new Error(job.errorMessage || "BULK_JOB_FAILED");
+        }
+  
+        if (job.status === "completed") {
+          const results = items
+            .map((item: any) => item?.resultPayload)
+            .filter(Boolean);
+  
+          if (results.length === 0) {
+            setBulkUploadError("Le traitement est terminé mais aucun résultat exploitable n’a été renvoyé.");
+            setBulkRightPanelMode("confirm");
+            return;
+          }
+  
+          const normalizedPayload = normalizeBulkWebhookResponse({
+            ok: true,
+            count: results.length,
+            results,
+          });
+  
+          console.log("🟣 Bulk normalized payload from polling:", normalizedPayload);
+  
+          if (!normalizedPayload) {
+            throw new Error("INVALID_BULK_REVIEW_PAYLOAD");
+          }
+  
+          setBulkProcessingResult(normalizedPayload);
+  
+          const firstResult = normalizedPayload.results?.[0] ?? null;
+          const isDirectPatientRecordSuccess =
+            firstResult?.source_branch === "patient_record" &&
+            firstResult?.review_status === "processed_directly" &&
+            firstResult?.send_to_processing === true;
+  
+          setBulkRightPanelMode(isDirectPatientRecordSuccess ? "done" : "review");
+          return;
+        }
+  
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+  
+      throw new Error("BULK_JOB_TIMEOUT");
     } catch (error) {
       console.error("❌ Bulk process failed:", error);
-      setBulkUploadError("Impossible de lancer le traitement pour le moment.");
+      setBulkPollingError(
+        error instanceof Error ? error.message : "BULK_POLLING_FAILED"
+      );
+      setBulkUploadError("Impossible de lancer ou suivre le traitement pour le moment.");
       setBulkRightPanelMode("confirm");
     } finally {
       setIsBulkSubmitting(false);
@@ -2840,6 +2967,41 @@ function getInteractionTitle(interactionType: string | null | undefined) {
       raw: payload,
     };
   }
+
+
+  function markBulkReviewItemAsCompleted(
+    itemIndex: number,
+    sendResult: any
+  ) {
+    setBulkProcessingResult((prev: any) => {
+      if (!prev || !Array.isArray(prev.results)) return prev;
+  
+      const nextResults = [...prev.results];
+      const current = nextResults[itemIndex];
+  
+      if (!current) return prev;
+  
+      nextResults[itemIndex] = {
+        ...current,
+        send_status: "sent",
+        send_completed: true,
+        ui: {
+          ...(current.ui ?? {}),
+          badge: "Envoyé",
+          summary:
+            sendResult?.ui?.summary ||
+            "Courrier envoyé.",
+        },
+        send_result: sendResult ?? null,
+      };
+  
+      return {
+        ...prev,
+        results: nextResults,
+      };
+    });
+  }
+
 
   async function handleCreatePatient() {
     if (!canSubmitCreatePatient) {
@@ -3051,8 +3213,12 @@ function getInteractionTitle(interactionType: string | null | undefined) {
     
     console.log("🟣 Normalized bulk send result:", normalizedSendResult);
     
-    setBulkProcessingResult(normalizedSendResult);
-      setBulkRightPanelMode("done");
+    if (selectedBulkReviewIndex !== null) {
+      markBulkReviewItemAsCompleted(selectedBulkReviewIndex, normalizedSendResult);
+    }
+    
+    setSelectedBulkReviewIndex(null);
+    setBulkRightPanelMode("review");
     } catch (error) {
       console.error("❌ Bulk send failed:", error);
       setBulkSubmitError("Impossible d’envoyer les courriers pour le moment.");
@@ -4394,10 +4560,11 @@ function getInteractionTitle(interactionType: string | null | undefined) {
     onClick={(e) => e.stopPropagation()}
     onMouseDown={(e) => e.stopPropagation()}
     >
-    <input
+  <input
     id="bulk-process-file-input"
     ref={bulkFileInputRef}
     type="file"
+    multiple
     accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
     className={styles.bulkHiddenInput}
     onChange={(e) => {
@@ -4686,6 +4853,17 @@ function getInteractionTitle(interactionType: string | null | undefined) {
         <div className={styles.bulkProcessingSubtext}>
           Lisa croise le document, le dossier patient et les règles du cabinet.
         </div>
+        {bulkJobId && (
+          <div className={styles.bulkProcessingSubtext}>
+            Job : {bulkJobId}
+          </div>
+        )}
+
+        {bulkPollingError && (
+          <div className={styles.bulkUploadError}>
+            {bulkPollingError}
+          </div>
+        )}
       </div>
     )}
 
@@ -4786,22 +4964,158 @@ function getInteractionTitle(interactionType: string | null | undefined) {
 
     {bulkRightPanelMode === "review" && (
       <div className={`${styles.bulkStepWorkspace} ${bulkEditOpen ? styles.isEditOpen : ""}`}>
-        <div className={styles.bulkStepWorkspaceMain}>
+        <div
+  className={styles.bulkStepWorkspaceMain}
+  style={{ position: "relative" }}
+>
+        {bulkReviewItems.length > 0 && (
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+      gap: 16,
+      marginBottom: 24,
+    }}
+  >
+    {bulkReviewItems.map((item, index) => {
+      const isActive = index === selectedBulkReviewIndex;
+
+      const patientName =
+        item?.patient?.full_name ||
+        item?.ui?.patient_status_label ||
+        "Patient à confirmer";
+
+      const badge =
+        item?.ui?.badge ||
+        item?.review_status ||
+        "À consulter";
+
+      const shortSummary =
+        item?.ui?.summary ||
+        item?.document?.summary ||
+        "Aucun résumé disponible.";
+
+      const fileName =
+        item?.raw?.trace?.file_name ||
+        item?.original_file_name ||
+        item?.document?.label ||
+        `Document ${index + 1}`;
+
+
+      return (
+        <button
+          key={item?.result_id || `bulk-review-${index}`}
+          type="button"
+          onClick={() => setSelectedBulkReviewIndex(index)}
+          style={{
+            textAlign: "left",
+            borderRadius: 16,
+            padding: 14,
+            border: isActive
+              ? "1px solid rgba(255,255,255,0.26)"
+              : "1px solid rgba(255,255,255,0.08)",
+            background: isActive
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(255,255,255,0.03)",
+            cursor: "pointer",
+            display: "grid",
+            gap: 10,
+          }}
+        >
+        <div
+          style={{
+            height: 180,
+            borderRadius: 12,
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 14,
+            color: "rgba(255,255,255,0.78)",
+            fontSize: 13,
+            fontWeight: 600,
+            lineHeight: 1.35,
+            textAlign: "center",
+          }}
+        >
+          {fileName}
+        </div>
+
+          <div style={{ display: "grid", gap: 6 }}>
+          <div
+            style={{
+              color: "white",
+              fontSize: 14,
+              fontWeight: 600,
+              lineHeight: 1.35,
+            }}
+          >
+            {item?.ui?.title || "Résultat document patient"}
+          </div>
+
+            <div
+              style={{
+                color: "rgba(255,255,255,0.68)",
+                fontSize: 12,
+                lineHeight: 1.4,
+              }}
+            >
+              {patientName}
+            </div>
+
+            <div
+              style={{
+                display: "inline-flex",
+                width: "fit-content",
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "white",
+                fontSize: 11,
+                fontWeight: 600,
+              }}
+            >
+              {badge}
+            </div>
+
+            <div
+              style={{
+                color: "rgba(255,255,255,0.62)",
+                fontSize: 12,
+                lineHeight: 1.45,
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {shortSummary}
+            </div>
+          </div>
+        </button>
+      );
+    })}
+  </div>
+)}
           <div className={styles.bulkReviewState}>
-            {bulkReviewItems.length === 0 || !currentBulkReviewItem ? (
-              <div className={styles.bulkProcessingState}>
-                <div className={styles.bulkProcessingHeadline}>Aucun résultat reçu.</div>
-                <div className={styles.bulkProcessingSubline}>
-                  Le traitement est terminé mais aucun élément exploitable n’a été renvoyé.
-                </div>
-              </div>
-) : (
+          {bulkReviewItems.length === 0 ? (
+  <div className={styles.bulkProcessingState}>
+    <div className={styles.bulkProcessingHeadline}>Aucun résultat reçu.</div>
+    <div className={styles.bulkProcessingSubline}>
+      Le traitement est terminé mais aucun élément exploitable n’a été renvoyé.
+    </div>
+  </div>
+) : !currentBulkReviewItem ? null : (
     isRejectedDocument ? (
-      <div
-        className={`${styles.bulkRejectedCard} ${
-          isManualReviewDocument ? styles.bulkManualReviewCard : ""
-        }`}
-      >
+    <div
+      className={`${styles.bulkRejectedCard} ${
+        isManualReviewDocument ? styles.bulkManualReviewCard : ""
+      }`}
+    >
+
         <div className={styles.bulkReviewCardTop}>
           <div>
             <div className={styles.bulkReviewEyebrow}>RELECTURE</div>
@@ -4838,13 +5152,13 @@ function getInteractionTitle(interactionType: string | null | undefined) {
   
         <div className={styles.bulkReviewFooter}>
           <div className={styles.bulkReviewFooterLeft}>
-            <button
-              type="button"
-              className={styles.bulkProcessBackBtn}
-              onClick={() => setBulkStep(2)}
-            >
-              Retour
-            </button>
+          <button
+            type="button"
+            className={styles.bulkProcessBackBtn}
+            onClick={() => setSelectedBulkReviewIndex(null)}
+          >
+            Fermer
+          </button>
           </div>
   
           <div className={styles.bulkReviewFooterRight} />
@@ -5100,243 +5414,291 @@ function getInteractionTitle(interactionType: string | null | undefined) {
         </button>
       </div>
     </div>
-  ) : (
-      <div className={styles.bulkReviewCard}>
-        <div className={styles.bulkReviewCardTop}>
-          <div>
-            <div className={styles.bulkReviewEyebrow}>RELECTURE</div>
-            <h3 className={styles.bulkReviewTitle}>
-              {currentBulkReviewItem?.ui?.title ||
-                currentBulkReviewItem?.requested_action?.goal ||
-                "Résultat prêt à relire"}
-            </h3>
-          </div>
-  
-          <div className={styles.bulkReviewBadge}>
-            {currentBulkReviewItem?.ui?.badge || "Prêt"}
-          </div>
-        </div>
-  
-        <div className={styles.bulkReviewSection}>
-          <div className={styles.bulkReviewLabel}>Résumé</div>
-          <div className={styles.bulkReviewText}>
-            {currentBulkReviewItem?.ui?.summary ||
-              currentBulkReviewItem?.document?.summary ||
-              "Aucun résumé disponible."}
-          </div>
-        </div>
-  
-        <div className={styles.bulkReviewGrid}>
-          <div className={styles.bulkReviewInfoBox}>
-            <div className={styles.bulkReviewLabel}>Patient</div>
-            <div className={styles.bulkReviewText}>
-              {currentBulkReviewItem?.patient?.full_name || "Patient non identifié"}
-            </div>
-          </div>
-  
-          <div className={styles.bulkReviewInfoBox}>
-            <div className={styles.bulkReviewLabel}>Statut patient</div>
-            <div className={styles.bulkReviewText}>
-              {currentBulkReviewItem?.ui?.patient_status_label ||
-                currentBulkReviewItem?.patient?.status_label ||
-                (currentBulkReviewItem?.patient?.matched
-                  ? "Dossier à mettre à jour"
-                  : currentBulkReviewItem?.patient?.identified
-                  ? "Dossier à créer"
-                  : "Patient à confirmer")}
-            </div>
-          </div>
-  
-          <div className={styles.bulkReviewInfoBox}>
-            <div className={styles.bulkReviewLabel}>Action</div>
-            <div className={styles.bulkReviewText}>
-              {currentBulkReviewItem?.ui?.action_label ||
-                currentBulkReviewItem?.requested_action?.display_label ||
-                currentBulkReviewItem?.document?.label ||
-                "—"}
-            </div>
-          </div>
-  
-          <div className={styles.bulkReviewInfoBox}>
-            <div className={styles.bulkReviewLabel}>Confiance</div>
-            <div className={styles.bulkReviewText}>
-              {typeof currentBulkReviewItem?.document?.confidence === "number"
-                ? `${Math.round(currentBulkReviewItem.document.confidence * 100)}%`
-                : "—"}
-            </div>
-          </div>
-        </div>
-  
-        <div className={styles.bulkReviewPreviewGrid}>
-          <div className={styles.bulkPreviewCard}>
-            <div className={styles.bulkPreviewCardHeader}>
-              <div className={styles.bulkPreviewCardTitleRow}>
-                <div
-                  className={`${styles.bulkCheck} ${sendPatient ? styles.isChecked : ""}`}
-                  onClick={() => setSendPatient((prev) => !prev)}
-                >
-                  {sendPatient && <span className={styles.bulkCheckIcon}>✓</span>}
-                </div>
-                <div>
-                  <div className={styles.bulkReviewLabel}>Courrier patient</div>
-                  <div className={styles.bulkPreviewSubject}>
-                    {patientPreview?.subject || "Aucun courrier patient"}
-                  </div>
-                </div>
-              </div>
-  
-              <button
-                className={styles.bulkPreviewEditBtn}
-                onClick={() => {
-                  setBulkEditTarget("patient");
-                  setBulkEditOpen(true);
-                }}
-              >
-                Éditer
-              </button>
-            </div>
-  
-            <div className={styles.bulkPreviewRecipientBlock}>
-              <div className={styles.bulkReviewLabel}>Destinataire</div>
-              <input
-                type="text"
-                value={currentBulkReviewItem?.patient?.full_name || ""}
-                readOnly
-                className={styles.bulkPreviewRecipientInput}
-              />
-  
-              <div className={styles.bulkReviewLabel}>Email d’envoi</div>
-              <input
-                type="text"
-                value={patientEmail}
-                onChange={(e) => setPatientEmail(e.target.value)}
-                placeholder="Ajouter l’email du patient"
-                className={`${styles.bulkPreviewRecipientInput} ${
-                  !isPatientMatched ? styles.isFieldAttention : ""
-                }`}
-              />
-            </div>
-  
-            <div className={styles.bulkPreviewBody}>
-              {patientPreview?.body ? (
-                <div
-                  className={styles.bulkPreviewHtml}
-                  dangerouslySetInnerHTML={{ __html: patientPreview.body }}
-                />
-              ) : (
-                <div className={styles.bulkPreviewEmpty}>
-                  Aucun contenu patient disponible.
-                </div>
-              )}
-            </div>
-          </div>
-  
-          <div className={styles.bulkPreviewCard}>
-            <div className={styles.bulkPreviewCardHeader}>
-              <div className={styles.bulkPreviewCardTitleRow}>
-                <div
-                  className={`${styles.bulkCheck} ${sendColleague ? styles.isChecked : ""}`}
-                  onClick={() => setSendColleague((prev) => !prev)}
-                >
-                  {sendColleague && <span className={styles.bulkCheckIcon}>✓</span>}
-                </div>
-                <div>
-                  <div className={styles.bulkReviewLabel}>Courrier médecin</div>
-                  <div className={styles.bulkPreviewSubject}>
-                    {colleaguePreview?.subject || "Aucun courrier confrère"}
-                  </div>
-                </div>
-              </div>
-  
-              <button
-                className={styles.bulkPreviewEditBtn}
-                onClick={() => {
-                  setBulkEditTarget("doctor");
-                  setBulkEditOpen(true);
-                }}
-              >
-                Éditer
-              </button>
-            </div>
-  
-            <div className={styles.bulkPreviewRecipientBlock}>
-              <div className={styles.bulkReviewLabel}>Destinataire</div>
-              <input
-                type="text"
-                value={currentBulkReviewItem?.patient?.doctor_name || ""}
-                readOnly
-                className={styles.bulkPreviewRecipientInput}
-              />
-  
-              <div className={styles.bulkReviewLabel}>Email d’envoi</div>
-              <input
-                type="text"
-                value={colleagueEmail}
-                onChange={(e) => setColleagueEmail(e.target.value)}
-                placeholder="Ajouter email du médecin"
-                className={`${styles.bulkPreviewRecipientInput} ${
-                  !colleagueEmail ? styles.isFieldAttention : ""
-                }`}
-              />
-            </div>
-  
-            <div className={styles.bulkPreviewBody}>
-              {colleaguePreview?.body ? (
-                <div
-                  className={styles.bulkPreviewHtml}
-                  dangerouslySetInnerHTML={{ __html: colleaguePreview.body }}
-                />
-              ) : (
-                <div className={styles.bulkPreviewEmpty}>
-                  Aucun contenu médecin disponible.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-  
-        <div className={styles.bulkReviewRiskBlock}>
-          <div className={styles.bulkReviewRiskHeader}>
-            <div className={styles.bulkReviewLabel}>Alertes / points de vigilance</div>
-          </div>
-  
-          {hasRiskItems ? (
-            <>
-              {riskPreview?.summary && (
-                <div className={styles.bulkReviewRiskSummary}>{riskPreview.summary}</div>
-              )}
-  
-              {Array.isArray(riskPreview?.items) && riskPreview.items.length > 0 && (
-                <div className={styles.bulkReviewRiskList}>
-                  {riskPreview.items.map((item: string, index: number) => (
-                    <div key={`${item}-${index}`} className={styles.bulkReviewRiskItem}>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className={styles.bulkPreviewEmpty}>
-              Aucun point de vigilance détecté.
-            </div>
-          )}
-        </div>
-  
-        <div className={styles.bulkReviewFooter}>
-        <button
+) : (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 1400,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "32px 40px",
+      pointerEvents: "none",
+    }}
+  >
+    <div
+      className={styles.bulkReviewCard}
+      style={{
+        width: "min(1040px, calc(100vw - 160px))",
+        maxHeight: "calc(100vh - 40px)",
+        overflowY: "auto",
+        position: "relative",
+        pointerEvents: "auto",
+        margin: 0,
+      }}
+    >
+      <button
         type="button"
-        disabled={!canValidate || isBulkSubmitting}
-        className={`${styles.bulkReviewValidateBtn} ${
-            !canValidate || isBulkSubmitting ? styles.isDisabled : ""
-        }`}
-        onClick={handleValidateBulkSend}
+        onClick={() => setSelectedBulkReviewIndex(null)}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          width: 36,
+          height: 36,
+          borderRadius: 999,
+          border: "1px solid rgba(255,255,255,0.10)",
+          background: "rgba(255,255,255,0.06)",
+          color: "white",
+          cursor: "pointer",
+          fontSize: 18,
+          lineHeight: 1,
+          zIndex: 30,
+        }}
+      >
+        ×
+      </button>
+
+      <div className={styles.bulkReviewCardTop}>
+        <div>
+          <div className={styles.bulkReviewEyebrow}>RELECTURE</div>
+          <h3 className={styles.bulkReviewTitle}>
+            {currentBulkReviewItem?.ui?.title ||
+              currentBulkReviewItem?.requested_action?.goal ||
+              "Résultat prêt à relire"}
+          </h3>
+        </div>
+
+        <div
+          className={styles.bulkReviewBadge}
+          style={{ marginRight: 56 }}
         >
-        {isBulkSubmitting ? "Envoi..." : "Valider l’envoi"}
-        </button>
+          {currentBulkReviewItem?.ui?.badge || "Prêt"}
         </div>
       </div>
-    )
+
+      <div className={styles.bulkReviewSection}>
+        <div className={styles.bulkReviewLabel}>Résumé</div>
+        <div className={styles.bulkReviewText}>
+          {currentBulkReviewItem?.ui?.summary ||
+            currentBulkReviewItem?.document?.summary ||
+            "Aucun résumé disponible."}
+        </div>
+      </div>
+
+      <div className={styles.bulkReviewGrid}>
+        <div className={styles.bulkReviewInfoBox}>
+          <div className={styles.bulkReviewLabel}>Patient</div>
+          <div className={styles.bulkReviewText}>
+            {currentBulkReviewItem?.patient?.full_name || "Patient non identifié"}
+          </div>
+        </div>
+
+        <div className={styles.bulkReviewInfoBox}>
+          <div className={styles.bulkReviewLabel}>Statut patient</div>
+          <div className={styles.bulkReviewText}>
+            {currentBulkReviewItem?.ui?.patient_status_label ||
+              currentBulkReviewItem?.patient?.status_label ||
+              (currentBulkReviewItem?.patient?.matched
+                ? "Dossier à mettre à jour"
+                : currentBulkReviewItem?.patient?.identified
+                ? "Dossier à créer"
+                : "Patient à confirmer")}
+          </div>
+        </div>
+
+        <div className={styles.bulkReviewInfoBox}>
+          <div className={styles.bulkReviewLabel}>Action</div>
+          <div className={styles.bulkReviewText}>
+            {currentBulkReviewItem?.ui?.action_label ||
+              currentBulkReviewItem?.requested_action?.display_label ||
+              currentBulkReviewItem?.document?.label ||
+              "—"}
+          </div>
+        </div>
+
+        <div className={styles.bulkReviewInfoBox}>
+          <div className={styles.bulkReviewLabel}>Confiance</div>
+          <div className={styles.bulkReviewText}>
+            {typeof currentBulkReviewItem?.document?.confidence === "number"
+              ? `${Math.round(currentBulkReviewItem.document.confidence * 100)}%`
+              : "—"}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.bulkReviewPreviewGrid}>
+        <div className={styles.bulkPreviewCard}>
+          <div className={styles.bulkPreviewCardHeader}>
+            <div className={styles.bulkPreviewCardTitleRow}>
+              <div
+                className={`${styles.bulkCheck} ${sendPatient ? styles.isChecked : ""}`}
+                onClick={() => setSendPatient((prev) => !prev)}
+              >
+                {sendPatient && <span className={styles.bulkCheckIcon}>✓</span>}
+              </div>
+              <div>
+                <div className={styles.bulkReviewLabel}>Courrier patient</div>
+                <div className={styles.bulkPreviewSubject}>
+                  {patientPreview?.subject || "Aucun courrier patient"}
+                </div>
+              </div>
+            </div>
+
+            <button
+              className={styles.bulkPreviewEditBtn}
+              onClick={() => {
+                setBulkEditTarget("patient");
+                setBulkEditOpen(true);
+              }}
+            >
+              Éditer
+            </button>
+          </div>
+
+          <div className={styles.bulkPreviewRecipientBlock}>
+            <div className={styles.bulkReviewLabel}>Destinataire</div>
+            <input
+              type="text"
+              value={currentBulkReviewItem?.patient?.full_name || ""}
+              readOnly
+              className={styles.bulkPreviewRecipientInput}
+            />
+
+            <div className={styles.bulkReviewLabel}>Email d’envoi</div>
+            <input
+              type="text"
+              value={patientEmail}
+              onChange={(e) => setPatientEmail(e.target.value)}
+              placeholder="Ajouter l’email du patient"
+              className={`${styles.bulkPreviewRecipientInput} ${
+                !isPatientMatched ? styles.isFieldAttention : ""
+              }`}
+            />
+          </div>
+
+          <div className={styles.bulkPreviewBody}>
+            {patientPreview?.body ? (
+              <div
+                className={styles.bulkPreviewHtml}
+                dangerouslySetInnerHTML={{ __html: patientPreview.body }}
+              />
+            ) : (
+              <div className={styles.bulkPreviewEmpty}>
+                Aucun contenu patient disponible.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.bulkPreviewCard}>
+          <div className={styles.bulkPreviewCardHeader}>
+            <div className={styles.bulkPreviewCardTitleRow}>
+              <div
+                className={`${styles.bulkCheck} ${sendColleague ? styles.isChecked : ""}`}
+                onClick={() => setSendColleague((prev) => !prev)}
+              >
+                {sendColleague && <span className={styles.bulkCheckIcon}>✓</span>}
+              </div>
+              <div>
+                <div className={styles.bulkReviewLabel}>Courrier médecin</div>
+                <div className={styles.bulkPreviewSubject}>
+                  {colleaguePreview?.subject || "Aucun courrier confrère"}
+                </div>
+              </div>
+            </div>
+
+            <button
+              className={styles.bulkPreviewEditBtn}
+              onClick={() => {
+                setBulkEditTarget("doctor");
+                setBulkEditOpen(true);
+              }}
+            >
+              Éditer
+            </button>
+          </div>
+
+          <div className={styles.bulkPreviewRecipientBlock}>
+            <div className={styles.bulkReviewLabel}>Destinataire</div>
+            <input
+              type="text"
+              value={currentBulkReviewItem?.patient?.doctor_name || ""}
+              readOnly
+              className={styles.bulkPreviewRecipientInput}
+            />
+
+            <div className={styles.bulkReviewLabel}>Email d’envoi</div>
+            <input
+              type="text"
+              value={colleagueEmail}
+              onChange={(e) => setColleagueEmail(e.target.value)}
+              placeholder="Ajouter email du médecin"
+              className={`${styles.bulkPreviewRecipientInput} ${
+                !colleagueEmail ? styles.isFieldAttention : ""
+              }`}
+            />
+          </div>
+
+          <div className={styles.bulkPreviewBody}>
+            {colleaguePreview?.body ? (
+              <div
+                className={styles.bulkPreviewHtml}
+                dangerouslySetInnerHTML={{ __html: colleaguePreview.body }}
+              />
+            ) : (
+              <div className={styles.bulkPreviewEmpty}>
+                Aucun contenu médecin disponible.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.bulkReviewRiskBlock}>
+        <div className={styles.bulkReviewRiskHeader}>
+          <div className={styles.bulkReviewLabel}>Alertes / points de vigilance</div>
+        </div>
+
+        {hasRiskItems ? (
+          <>
+            {riskPreview?.summary && (
+              <div className={styles.bulkReviewRiskSummary}>{riskPreview.summary}</div>
+            )}
+
+            {Array.isArray(riskPreview?.items) && riskPreview.items.length > 0 && (
+              <div className={styles.bulkReviewRiskList}>
+                {riskPreview.items.map((item: string, index: number) => (
+                  <div key={`${item}-${index}`} className={styles.bulkReviewRiskItem}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className={styles.bulkPreviewEmpty}>
+            Aucun point de vigilance détecté.
+          </div>
+        )}
+      </div>
+
+      <div className={styles.bulkReviewFooter}>
+        <button
+          type="button"
+          disabled={!canValidate || isBulkSubmitting}
+          className={`${styles.bulkReviewValidateBtn} ${
+            !canValidate || isBulkSubmitting ? styles.isDisabled : ""
+          }`}
+          onClick={handleValidateBulkSend}
+        >
+          {isBulkSubmitting ? "Envoi..." : "Valider l’envoi"}
+        </button>
+      </div>
+    </div>
+  </div>
+)
   )}
           </div>
         </div>

@@ -210,15 +210,35 @@ export async function POST(request: Request) {
       );
     }
 
-    const webhookPayload = {
-      noteId,
-      interactionType: noteRow.interaction_type,
-      noteText,
-      prepareOnly: mode === "draft" || mode === "refresh_draft",
-      send: mode === "with_validation" || mode === "without_validation",
-      noValidation: mode === "without_validation",
-      source: "patients_ui",
-    };
+    const normalizedInteractionType =
+    noteRow.interaction_type === "lisa_followup"
+      ? "consultation"
+      : noteRow.interaction_type;
+  
+  if (!["consultation", "exam", "operation"].includes(String(normalizedInteractionType))) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "INVALID_INTERACTION_TYPE",
+        debug: {
+          originalInteractionType: noteRow.interaction_type,
+          normalizedInteractionType,
+          noteId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+  
+  const webhookPayload = {
+    noteId,
+    interactionType: normalizedInteractionType,
+    noteText,
+    prepareOnly: mode === "draft" || mode === "refresh_draft",
+    send: mode === "with_validation" || mode === "without_validation",
+    noValidation: mode === "without_validation",
+    source: "patients_ui",
+  };
 
     try {
       await fetch("https://n8n.heylisa.io/webhook/followup-email", {
