@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import PlanPageClient from "./PlanPageClient";
 
 type BillingStatus =
+  | "new_account"
   | "trial_active"
   | "trial_contacted"
   | "trial_expired_waiting_response"
@@ -14,11 +15,21 @@ type BillingStatus =
   | "closed"
   | null;
 
+type PlanPageData = {
+  billingStatus: BillingStatus;
+  billingCycle: "monthly" | "annual" | null;
+  stripePriceId: string | null;
+};
+
 export default async function DashboardPlanPage() {
   const isDev = process.env.NODE_ENV === "development";
   const devPublicUserId = process.env.DEV_PUBLIC_USER_ID;
 
-  let billingStatus: BillingStatus = null;
+  let pageData: PlanPageData = {
+    billingStatus: null,
+    billingCycle: null,
+    stripePriceId: null,
+  };
 
   // -----------------------------
   // DEV MODE
@@ -28,24 +39,35 @@ export default async function DashboardPlanPage() {
 
     const { data: billingRow, error: billingError } = await admin
       .from("user_billing_status")
-      .select("billing_status")
+      .select("billing_status, billing_cycle, stripe_price_id")
       .eq("public_user_id", devPublicUserId)
       .maybeSingle();
 
     console.log("[HL Plan server][DEV]", {
       devPublicUserId,
       billingStatus: billingRow?.billing_status ?? null,
+      billingCycle: billingRow?.billing_cycle ?? null,
+      stripePriceId: billingRow?.stripe_price_id ?? null,
       billingError: billingError?.message ?? null,
     });
 
-    billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
+    pageData = {
+      billingStatus: (billingRow?.billing_status as BillingStatus) ?? null,
+      billingCycle:
+        billingRow?.billing_cycle === "monthly" || billingRow?.billing_cycle === "annual"
+          ? billingRow.billing_cycle
+          : null,
+      stripePriceId:
+        typeof billingRow?.stripe_price_id === "string" && billingRow.stripe_price_id.trim()
+          ? billingRow.stripe_price_id.trim()
+          : null,
+    };
 
-    return <PlanPageClient billingStatus={billingStatus} />;
+    return <PlanPageClient {...pageData} />;
   }
 
   // -----------------------------
   // NORMAL MODE
-  // session auth -> users.id -> billing.public_user_id
   // -----------------------------
   const supabase = await createClient();
 
@@ -72,14 +94,11 @@ export default async function DashboardPlanPage() {
     redirect("https://heylisa.io/signup");
   }
 
-  // IMPORTANT:
-  // lookup billing via service role pour éviter qu'une policy RLS
-  // fasse remonter null alors que la ligne existe bien
   const admin = createAdminClient();
 
   const { data: billingRow, error: billingError } = await admin
     .from("user_billing_status")
-    .select("billing_status")
+    .select("billing_status, billing_cycle, stripe_price_id")
     .eq("public_user_id", userRow.id)
     .maybeSingle();
 
@@ -87,10 +106,22 @@ export default async function DashboardPlanPage() {
     authUserId: authUser.id,
     publicUserId: userRow.id,
     billingStatus: billingRow?.billing_status ?? null,
+    billingCycle: billingRow?.billing_cycle ?? null,
+    stripePriceId: billingRow?.stripe_price_id ?? null,
     billingError: billingError?.message ?? null,
   });
 
-  billingStatus = (billingRow?.billing_status as BillingStatus) ?? null;
+  pageData = {
+    billingStatus: (billingRow?.billing_status as BillingStatus) ?? null,
+    billingCycle:
+      billingRow?.billing_cycle === "monthly" || billingRow?.billing_cycle === "annual"
+        ? billingRow.billing_cycle
+        : null,
+    stripePriceId:
+      typeof billingRow?.stripe_price_id === "string" && billingRow.stripe_price_id.trim()
+        ? billingRow.stripe_price_id.trim()
+        : null,
+  };
 
-  return <PlanPageClient billingStatus={billingStatus} />;
+  return <PlanPageClient {...pageData} />;
 }

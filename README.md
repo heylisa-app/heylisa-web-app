@@ -43,11 +43,9 @@ Dans Cursor / VS Code :
 Terminal → Split Terminal
 À gauche :
 cd ~/dev/heylisa-backend
-
-
-puis : 
 source .venv/bin/activate
 LOG_LEVEL=DEBUG python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 
 3. À droite :
 cd ~/dev/heylisa-mobile

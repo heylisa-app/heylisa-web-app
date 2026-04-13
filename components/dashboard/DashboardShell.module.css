@@ -693,3 +693,2964 @@
     font-size: 13px;
     cursor: pointer;
   }
+
+  /* =========================================================
+   ONBOARDING SHELL BLUR TEST
+   ========================================================= */
+
+   .dashboardShellBlurred {
+    filter: blur(5px) saturate(0.88) brightness(0.92);
+    transform: scale(1.008);
+    transform-origin: center center;
+    transition: filter 0.18s ease, transform 0.18s ease;
+  }
+
+/* =========================================================
+   ONBOARDING MODAL
+   ========================================================= */
+
+   .onboardingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px;
+  }
+  
+  .onboardingBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 10, 18, 0.30);
+  }
+  
+  .onboardingModal {
+    position: relative;
+    z-index: 1;
+    width: min(980px, calc(100vw - 72px));
+    min-height: 620px;
+    max-height: calc(100vh - 72px);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #0d1524 0%, #10192a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow:
+      0 40px 120px rgba(0, 0, 0, 0.28),
+      0 16px 40px rgba(0, 0, 0, 0.16);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    padding: 28px 40px 28px;
+  }
+
+  .onboardingLoadingTop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 4px;
+  }
+  
+  .onboardingLoadingAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+  
+  .onboardingLoadingCenter {
+    width: 100%;
+    max-width: 620px;
+    margin: -28px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .onboardingLoadingTitle {
+    margin: 0;
+    font-size: clamp(2.3rem, 4.5vw, 3.7rem);
+    line-height: 1.02;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    color: rgba(255, 255, 255, 0.98);
+  }
+  
+  
+  .onboardingLoadingBarBlock {
+    width: 100%;
+    margin-top: 22px;
+  }
+  
+  .onboardingLoadingBarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  .onboardingLoadingBarTrack {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.10);
+    overflow: hidden;
+  }
+  
+  .onboardingLoadingBarFill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #73f0c3 0%, #58e7b9 100%);
+    transition: width 0.03s linear;
+  }
+  
+  .onboardingLoadingFooter {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 48px;
+    padding-bottom: 2px;
+  }
+  
+  .onboardingLaurelStat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 210px;
+  }
+  
+  .onboardingLaurelSide {
+    width: 22px;
+    height: 48px;
+    object-fit: contain;
+    display: block;
+    opacity: 0.86;
+  }
+  
+  .onboardingLaurelContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    text-align: center;
+  }
+  
+  .onboardingLaurelValue {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.98);
+  }
+  
+  .onboardingLaurelLabel {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+
+  .onboardingModalLight {
+    background: #f6f5f3;
+    border: 1px solid rgba(20, 20, 20, 0.08);
+    color: #111111;
+  }
+  
+  .onboardingStepProgress {
+    margin-top: 18px;
+    width: 100%;
+  }
+  
+  .onboardingStepProgressTrack {
+    width: 100%;
+    height: 2px;
+    background: rgba(17, 17, 17, 0.10);
+    overflow: hidden;
+  }
+  
+  .onboardingStepProgressFill {
+    height: 100%;
+    background: #111111;
+    transition: width 0.24s ease;
+  }
+
+/* =========================================================
+   ONBOARDING / PAIN POINTS / EXACT MOCKUP
+   ========================================================= */
+
+   .onboardingModalLight {
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+    border: 1px solid rgba(20, 20, 20, 0.08);
+    color: #111111;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .onboardingPainPointsScreen {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 44px minmax(0, 1fr) auto;
+    padding: 18px 22px 14px;
+  }
+  
+  .onboardingPainPointsHeader {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingPainPointsHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .onboardingPainPointsHeaderAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .onboardingPainPointsHeaderBrand {
+    font-size: 0.95rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+  
+  .onboardingPainPointsHeaderRight {
+    font-size: 0.92rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+  
+  .onboardingPainPointsMain {
+    min-height: 0;
+    width: 100%;
+    max-width: 760px;
+    margin: 18px 0 0 20px;
+    padding-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .onboardingPainPointsTitle {
+    margin: 0;
+    max-width: 760px;
+    font-size: clamp(1.85rem, 2.4vw, 2.55rem);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    color: #111111;
+  }
+  
+  .onboardingPainPointsSubtitle {
+    margin: 8px 0 0;
+    max-width: 760px;
+    font-size: 0.94rem;
+    line-height: 1.45;
+    font-weight: 400;
+    color: rgba(17, 17, 17, 0.46);
+  }
+  
+  .onboardingPainPointsGrid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, 148px);
+    gap: 14px 12px;
+    align-content: start;
+    align-items: start;
+    grid-auto-flow: row;
+  }
+  
+  .onboardingPainPointCard {
+    position: relative;
+    width: 148px;
+    min-height: 138px;
+    border-radius: 16px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background: #ffffff;
+    padding: 10px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      transform 0.16s ease,
+      border-color 0.16s ease,
+      box-shadow 0.16s ease,
+      background 0.16s ease;
+  }
+  
+  .onboardingPainPointCard:hover {
+    transform: translateY(-1px);
+    border-color: rgba(17, 17, 17, 0.14);
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.06);
+  }
+  
+  .onboardingPainPointRadio {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.18rem;
+    line-height: 1;
+    color: rgba(17, 17, 17, 0.30);
+  }
+  
+  .onboardingPainPointImageWrap {
+    width: 88px;
+    height: 72px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .onboardingPainPointImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .onboardingPainPointLabel {
+    margin-top: 10px;
+    font-size: 0.86rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #111111;
+    text-align: center;
+  }
+  
+  .onboardingPainPointsActions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  
+  .onboardingPainPointsPrimaryBtn {
+    min-width: 160px;
+    height: 42px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    transition: transform 0.16s ease, opacity 0.16s ease;
+  }
+  
+  .onboardingPainPointsPrimaryBtn:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+  }
+  
+  .onboardingPainPointsSkip {
+    border: 0;
+    background: transparent;
+    color: rgba(17, 17, 17, 0.28);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    cursor: pointer;
+  }
+  
+  .onboardingPainPointsSkip:hover {
+    color: rgba(17, 17, 17, 0.52);
+  }
+  
+  .onboardingPainPointsProgress {
+    flex: 0 0 auto;
+    margin-top: 14px;
+  }
+  
+  .onboardingPainPointsProgressTrack {
+    width: 100%;
+    height: 2px;
+    background: rgba(17, 17, 17, 0.08);
+    overflow: hidden;
+  }
+  
+  .onboardingPainPointsProgressFill {
+    height: 100%;
+    background: #111111;
+    transition: width 0.24s ease;
+  }
+
+  .onboardingPainPointsPrimaryBtn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .onboardingPainPointCardSelected {
+    border-color: #8fb3ff;
+    box-shadow:
+      0 0 0 1px rgba(111, 148, 255, 0.22),
+      0 10px 22px rgba(80, 116, 214, 0.10);
+    background: #ffffff;
+  }
+  
+  .onboardingPainPointCardSelected .onboardingPainPointRadio {
+    color: #5c7cff;
+  }
+
+  .onboardingPainPointItem {
+    position: relative;
+    width: 148px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .onboardingPainPointTooltip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
+    width: 220px;
+    border-radius: 12px;
+    background: #111111;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    text-align: left;
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.16);
+    z-index: 20;
+  }
+  
+  .onboardingPainPointTooltip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: #111111 transparent transparent transparent;
+  }
+
+  .onboardingPainPointMobileDetail {
+    display: none;
+    border-radius: 12px;
+    background: rgba(17, 17, 17, 0.06);
+    border: 1px solid rgba(17, 17, 17, 0.05);
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgba(17, 17, 17, 0.66);
+    text-align: left;
+  }
+
+  @media (max-width: 820px) {
+    .onboardingPainPointTooltip {
+      display: none;
+    }
+  
+    .onboardingPainPointMobileDetail {
+      display: block;
+    }
+  }
+
+
+/* =========================================================
+   ONBOARDING GENERATED FLOW
+   ========================================================= */
+
+   .onboardingGeneratedScreen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 14px;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+  
+  .onboardingGeneratedHeader {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingGeneratedHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .onboardingGeneratedHeaderAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .onboardingGeneratedHeaderBrand {
+    font-size: 0.95rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedHeaderRight {
+    font-size: 0.92rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedBody {
+    flex: 1;
+    width: 100%;
+    max-width: 760px;
+    margin: 18px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .onboardingGeneratedTitle {
+    margin: 0;
+    max-width: 760px;
+    font-size: clamp(1.9rem, 2.6vw, 2.8rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedSubtitle {
+    margin: 12px 0 0;
+    max-width: 620px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.58);
+  }
+  
+  .onboardingGeneratedActions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 40px;
+  }
+  
+  .onboardingGeneratedPrimaryBtn {
+    min-width: 170px;
+    height: 44px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 0.94rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    transition: transform 0.16s ease, opacity 0.16s ease;
+  }
+  
+  .onboardingGeneratedPrimaryBtn:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+  }
+  
+  .onboardingGeneratedPrimaryBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .onboardingGeneratedProgress {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .onboardingGeneratedProgressTrack {
+    width: 100%;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.08);
+    overflow: hidden;
+  }
+  
+  .onboardingGeneratedProgressFill {
+    height: 100%;
+    background: #111111;
+    transition: width 0.24s ease;
+  }
+
+
+/* =========================================================
+   ONBOARDING GENERATED / LOADING SEQUENCE
+   ========================================================= */
+
+   .onboardingGeneratedLoadingScreen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 26px 16px;
+    background: transparent;
+    color: #ffffff;
+  }
+  
+  .onboardingGeneratedLoadingBrand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingGeneratedLoadingBrandAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .onboardingGeneratedLoadingBrandText {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.98);
+  }
+  
+  .onboardingGeneratedLoadingBody {
+    flex: 1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 118px;
+  }
+  
+  .onboardingGeneratedLoadingTitle {
+    margin: 0;
+    max-width: 620px;
+    font-size: clamp(2.2rem, 3.2vw, 3.6rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: rgba(255, 255, 255, 0.98);
+  }
+  
+  .onboardingGeneratedLoadingPanel {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  
+  .onboardingGeneratedLoadingRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .onboardingGeneratedLoadingRowTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  .onboardingGeneratedLoadingRowTrack {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+  }
+  
+  .onboardingGeneratedLoadingRowFill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #73f0c3 0%, #58e7b9 100%);
+    transition: width 0.18s linear;
+  }
+  
+  .onboardingGeneratedLoadingRowFillSecondary {
+    background: linear-gradient(90deg, #73f0c3 0%, #58e7b9 100%);
+  }
+
+  .onboardingModalLoadingSequence {
+    padding: 0;
+    background: linear-gradient(180deg, #07101d 0%, #0a1730 100%);
+  }
+
+  .onboardingGeneratedOutcomeBodyTightChart {
+    padding-bottom: 16px;
+    max-width: 820px;
+  }
+
+
+/* =========================================================
+   ONBOARDING GENERATED / REASSURANCE
+   ========================================================= */
+
+   .onboardingGeneratedReassuranceScreen {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 44px minmax(0, 1fr) auto; /* 👈 EXACTEMENT comme setup */
+    padding: 18px 22px 14px;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+
+  .onboardingModalReassurance {
+    padding: 0;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+
+  .onboardingModalOutcome {
+    padding: 0;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+
+  .onboardingModalSetupQuestion {
+    padding: 0;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+  
+  .onboardingGeneratedReassuranceBody {
+    min-height: 0; /* 👈 CRUCIAL avec grid */
+  
+    width: 100%;
+    max-width: 760px;
+    margin: 18px auto 0;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* 👈 centre vertical */
+  
+    text-align: center;
+  }
+  
+  .onboardingGeneratedReassuranceTitle {
+    margin: 0;
+    max-width: 820px;
+    font-size: clamp(1.8rem, 2.35vw, 2.55rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    color: #111111;
+  }
+  
+.onboardingGeneratedReassuranceVisualWrap {
+  width: 100%;
+  max-width: 620px;
+  margin-top: 24px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+  
+.onboardingGeneratedReassuranceVisual {
+  width: 100%;
+  aspect-ratio: 1.9 / 1;
+  object-fit: cover;
+  display: block;
+}
+  
+  .onboardingGeneratedReassuranceFeatured {
+    margin-top: 22px;
+    font-size: 0.96rem;
+    line-height: 1.4;
+    color: rgba(17, 17, 17, 0.58);
+  }
+  
+  .onboardingGeneratedReassuranceLogos {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 520px;
+  
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 24px 18px;
+  }
+  
+  .onboardingGeneratedReassuranceLogoImage {
+    max-height: 28px;
+    max-width: 120px;
+  
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  
+    display: block;
+    opacity: 0.9;
+  }
+
+
+  .onboardingGeneratedSecondaryLink {
+    border: 0;
+    background: transparent;
+    color: rgba(17, 17, 17, 0.28);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    cursor: pointer;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .onboardingGeneratedSecondaryLink:hover {
+    color: rgba(17, 17, 17, 0.52);
+  }
+
+
+  .onboardingGeneratedBackBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(17,17,17,0.06);
+    color: #111;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .onboardingGeneratedHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .onboardingGeneratedHeaderProgress {
+    flex: 1;
+  }
+  
+  .onboardingGeneratedHeaderProgressTrack {
+    width: 100%;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(17,17,17,0.08);
+    overflow: hidden;
+  }
+  
+  .onboardingGeneratedHeaderProgressFill {
+    height: 100%;
+    background: #111;
+    transition: width 0.24s ease;
+  }
+
+  .onboardingGeneratedFooterTopRow {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+  }
+  
+  .onboardingGeneratedFooterBackSlot {
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+/* =========================================================
+   ONBOARDING GENERATED / SETUP QUESTION
+   ========================================================= */
+
+   .onboardingGeneratedSetupScreen {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 44px minmax(0, 1fr) auto;
+    padding: 18px 22px 14px;
+    background:
+      linear-gradient(180deg,
+        #DDE7F8 0%,
+        #E7EBF7 4%,
+        #F1EEF4 8%,
+        #FAF5F4 10%,
+        #FFFFFF 13%,
+        #FFFFFF 100%
+      );
+  }
+  
+  .onboardingGeneratedSetupBody {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 760px;
+    margin: 18px 0 0 20px;
+    padding-bottom: 60px; /* 👈 réserve l’espace du footer */
+    
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+  }
+  
+  .onboardingGeneratedSetupTitle {
+    margin: 0;
+    max-width: 760px;
+    font-size: clamp(1.8rem, 2.3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedSetupSubtitle {
+    margin: 10px 0 0;
+    max-width: 700px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: rgba(17, 17, 17, 0.48);
+  }
+  
+  .onboardingGeneratedSetupOptions {
+    width: 100%;
+    max-width: 620px;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .onboardingGeneratedSetupOption {
+    width: 100%;
+    min-height: 78px;
+    border-radius: 16px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background: #ffffff;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease,
+      background 0.16s ease,
+      transform 0.16s ease;
+  }
+  
+  .onboardingGeneratedSetupOption:hover {
+    transform: translateY(-1px);
+    border-color: rgba(17, 17, 17, 0.14);
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.05);
+  }
+  
+  .onboardingGeneratedSetupOptionSelected {
+    border-color: #8fb3ff;
+    box-shadow:
+      0 0 0 1px rgba(111, 148, 255, 0.22),
+      0 10px 22px rgba(80, 116, 214, 0.10);
+  }
+  
+  .onboardingGeneratedSetupOptionLabel {
+    font-size: 1rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedSetupOptionRadio {
+    flex: 0 0 auto;
+    font-size: 1.18rem;
+    line-height: 1;
+    color: rgba(17, 17, 17, 0.30);
+  }
+  
+  .onboardingGeneratedSetupOptionSelected .onboardingGeneratedSetupOptionRadio {
+    color: #5c7cff;
+  }
+  
+  .onboardingGeneratedSetupHelperBox {
+    width: 100%;
+    max-width: 620px;
+    margin-top: 12px;
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.05);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    padding: 14px 16px 16px;
+  }
+  
+  .onboardingGeneratedSetupHelperText {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.66);
+  }
+  
+  .onboardingGeneratedSetupInput {
+    width: 100%;
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid rgba(17, 17, 17, 0.10);
+    background: #ffffff;
+    padding: 0 14px;
+    font-size: 0.95rem;
+    color: #111111;
+    outline: none;
+  }
+  
+  .onboardingGeneratedSetupInput:focus {
+    border-color: rgba(92, 124, 255, 0.65);
+    box-shadow: 0 0 0 3px rgba(92, 124, 255, 0.10);
+  }
+  
+  .onboardingGeneratedSetupInput::placeholder {
+    color: rgba(17, 17, 17, 0.34);
+  }
+
+  .onboardingGeneratedSetupOptionContent {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+  }
+  
+  .onboardingGeneratedSetupOptionHelper {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    font-weight: 400;
+    color: rgba(17, 17, 17, 0.42);
+    text-align: left;
+    max-width: 460px;
+  }
+  
+  .onboardingGeneratedActionsDock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .onboardingGeneratedFooterDock {
+    width: 100%;
+    margin-top: auto;
+    padding: 18px 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+/* =========================================================
+   ONBOARDING GENERATED / ACTIVATION CTA
+   ========================================================= */
+   .onboardingModalActivation,
+   .onboardingModalOutcome {
+     background:
+       linear-gradient(180deg,
+         #DDE7F8 0%,
+         #E7EBF7 4%,
+         #F1EEF4 8%,
+         #FAF5F4 10%,
+         #FFFFFF 13%,
+         #FFFFFF 100%
+       );
+     padding: 0;
+   }
+   
+   .onboardingGeneratedActivationScreen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 14px;
+  }
+  
+  .onboardingGeneratedOutcomeScreen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 14px;
+    background: transparent;
+  }
+   
+   .onboardingGeneratedActivationBody {
+     flex: 1;
+     min-height: 0;
+     width: 100%;
+     max-width: 760px;
+     margin: 18px 0 0 20px;
+     padding-bottom: 90px;
+     display: flex;
+     flex-direction: column;
+     align-items: flex-start;
+     justify-content: flex-start;
+     text-align: left;
+   }
+   
+   .onboardingGeneratedOutcomeBody {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 860px;
+    margin: 18px auto 0;
+    padding: 0 0 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    gap: 18px;
+  }
+   
+   .onboardingGeneratedActivationTitle,
+   .onboardingGeneratedOutcomeTitle {
+    margin: 0;
+    max-width: 760px;
+    font-size: clamp(2rem, 2.8vw, 2.8rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    color: #111111;
+  }
+   
+   .onboardingGeneratedActivationSubtitle,
+   .onboardingGeneratedOutcomeSubtitle {
+    margin-top: 2px;
+    max-width: 640px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.52);
+  }
+   
+   .onboardingGeneratedActivationContentRow {
+     width: 100%;
+     max-width: 920px;
+     margin-top: 24px;
+     display: grid;
+     grid-template-columns: minmax(0, 540px) minmax(220px, 1fr);
+     gap: 24px;
+     align-items: start;
+   }
+   
+   .onboardingGeneratedActivationProviders {
+     width: 100%;
+     max-width: none;
+     margin-top: 0;
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+   }
+   
+   .onboardingGeneratedProviderCard {
+     width: 100%;
+     min-height: 84px;
+     padding: 16px 18px;
+     border-radius: 16px;
+     background: rgba(255, 255, 255, 0.72);
+     border: 1px solid rgba(17, 17, 17, 0.08);
+     display: flex;
+     align-items: center;
+     gap: 14px;
+     text-align: left;
+     cursor: pointer;
+     transition:
+       transform 0.16s ease,
+       border-color 0.16s ease,
+       background 0.16s ease,
+       box-shadow 0.16s ease;
+   }
+   
+   .onboardingGeneratedProviderCard:hover {
+     transform: translateY(-1px);
+     background: #ffffff;
+   }
+   
+   .onboardingGeneratedProviderCardSelected {
+     border-color: #8fb3ff;
+     box-shadow:
+       0 0 0 1px rgba(111, 148, 255, 0.22),
+       0 10px 22px rgba(80, 116, 214, 0.10);
+     background: #ffffff;
+   }
+   
+   .onboardingGeneratedProviderIconWrap {
+     width: 42px;
+     height: 42px;
+     border-radius: 12px;
+     flex: 0 0 42px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(255, 255, 255, 0.78);
+     border: 1px solid rgba(17, 17, 17, 0.06);
+   }
+   
+   .onboardingGeneratedProviderIcon {
+     width: 20px;
+     height: 20px;
+     object-fit: contain;
+     display: block;
+   }
+   
+   .onboardingGeneratedProviderContent {
+     min-width: 0;
+   }
+   
+   .onboardingGeneratedProviderTitle {
+     font-size: 0.98rem;
+     line-height: 1.2;
+     font-weight: 600;
+     color: rgba(17, 17, 17, 0.95);
+     margin-bottom: 4px;
+   }
+   
+   .onboardingGeneratedProviderText {
+     font-size: 0.82rem;
+     line-height: 1.4;
+     color: rgba(17, 17, 17, 0.46);
+   }
+   
+   .onboardingGeneratedProviderGmail {
+     box-shadow: inset 3px 0 0 #D85140;
+   }
+   
+   .onboardingGeneratedProviderOutlook {
+     box-shadow: inset 3px 0 0 #499FE3;
+   }
+   
+   .onboardingGeneratedProviderOther {
+     box-shadow: inset 3px 0 0 #55A271;
+   }
+   
+   .onboardingGeneratedActivationNoticeSide {
+     min-height: 120px;
+     display: flex;
+     align-items: flex-start;
+   }
+   
+   .onboardingGeneratedActivationNotice {
+     width: 100%;
+     border-radius: 14px;
+     background: rgba(17, 17, 17, 0.05);
+     border: 1px solid rgba(17, 17, 17, 0.06);
+     padding: 14px 16px;
+     font-size: 0.92rem;
+     line-height: 1.5;
+     color: rgba(17, 17, 17, 0.72);
+     text-align: left;
+   }
+   
+   .onboardingGeneratedActivationNotice strong {
+     color: #111111;
+     font-weight: 700;
+   }
+   
+   .onboardingGeneratedSecondaryLinkBlue {
+     border: 0;
+     background: transparent;
+     color: #5c7cff;
+     font-size: 0.84rem;
+     line-height: 1.35;
+     cursor: pointer;
+   }
+   
+   .onboardingGeneratedSecondaryLinkBlue:hover {
+     color: #4568f0;
+   }
+   
+   @media (max-width: 980px) {
+     .onboardingGeneratedActivationContentRow {
+       grid-template-columns: 1fr;
+     }
+   
+     .onboardingGeneratedActivationNoticeSide {
+       min-height: 0;
+     }
+   }
+   
+   /* =========================================================
+      ONBOARDING GENERATED / OUTCOME
+      ========================================================= */
+   
+   .onboardingGeneratedProtocolBtn {
+     margin-top: 16px;
+     border: 0;
+     background: transparent;
+     color: #5c7cff;
+     font-size: 0.92rem;
+     line-height: 1.35;
+     font-weight: 600;
+     cursor: pointer;
+   }
+   
+   .onboardingGeneratedProtocolBtn:hover {
+     color: #4568f0;
+   }
+   
+   .onboardingGeneratedOutcomeVisualWrap {
+     margin-top: 20px;
+     width: 100%;
+     max-width: 520px;
+     border: 0;
+     background: transparent;
+     padding: 0;
+     cursor: pointer;
+   }
+   
+   .onboardingGeneratedOutcomeVisual {
+     width: 100%;
+     height: 220px;
+     object-fit: cover;
+     border-radius: 18px;
+     display: block;
+     box-shadow: 0 14px 34px rgba(17, 17, 17, 0.10);
+   }
+   
+   .onboardingGeneratedBenefits {
+    margin-top: 24px;
+    width: 100%;
+    max-width: 760px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+    text-align: left;
+  }
+   
+   .onboardingGeneratedBenefitItem {
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.03);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+   
+   .onboardingGeneratedBenefitTitle {
+     font-size: 0.95rem;
+     line-height: 1.35;
+     font-weight: 700;
+     color: #111111;
+   }
+   
+   .onboardingGeneratedBenefitText {
+     margin-top: 6px;
+     font-size: 0.84rem;
+     line-height: 1.5;
+     color: rgba(17, 17, 17, 0.58);
+   }
+   
+   /* =========================================================
+      ONBOARDING PROTOCOL MODAL
+      ========================================================= */
+   
+   .onboardingProtocolOverlay {
+     position: fixed;
+     inset: 0;
+     z-index: 9800;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     padding: 32px;
+   }
+   
+   .onboardingProtocolBackdrop {
+     position: absolute;
+     inset: 0;
+     background: rgba(7, 10, 18, 0.46);
+     backdrop-filter: blur(8px);
+     -webkit-backdrop-filter: blur(8px);
+   }
+   
+   .onboardingProtocolModal {
+    position: relative;
+    z-index: 1;
+    width: min(980px, calc(100vw - 56px));
+    height: min(92vh, 1040px);
+    border-radius: 26px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.28),
+      0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+   
+   .onboardingProtocolClose {
+     position: absolute;
+     top: 18px;
+     right: 18px;
+     z-index: 2;
+     height: 38px;
+     padding: 0 16px;
+     border: 0;
+     border-radius: 999px;
+     background: rgba(17, 17, 17, 0.86);
+     color: #ffffff;
+     font-size: 0.84rem;
+     font-weight: 600;
+     cursor: pointer;
+   }
+   
+   .onboardingProtocolFrame {
+     width: 100%;
+     height: 100%;
+     border: 0;
+     display: block;
+   }
+   
+   @media (max-width: 820px) {
+     .onboardingGeneratedBenefits {
+       grid-template-columns: 1fr;
+     }
+   
+     .onboardingProtocolModal {
+       width: calc(100vw - 24px);
+       height: calc(100vh - 24px);
+       border-radius: 20px;
+     }
+   }
+
+
+   .onboardingGeneratedSetupOptionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .onboardingGeneratedSetupRecommendedBadge {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: rgba(92, 124, 255, 0.10);
+    color: #5c7cff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .onboardingGeneratedBeforeAfterBlock {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 28px;
+  }
+  
+  .onboardingGeneratedBeforeAfterCards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+  
+  .onboardingGeneratedBeforeAfterCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .onboardingGeneratedBeforeAfterImage {
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 0.72 / 1;
+    object-fit: cover;
+    border-radius: 22px;
+    display: block;
+    box-shadow: 0 16px 36px rgba(17, 17, 17, 0.12);
+    background: rgba(17, 17, 17, 0.04);
+  }
+  
+  .onboardingGeneratedBeforeAfterLabelMuted {
+    margin-top: 14px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    font-weight: 600;
+    color: rgba(17, 17, 17, 0.42);
+  }
+  
+  .onboardingGeneratedBeforeAfterLabelStrong {
+    margin-top: 14px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #5c7cff;
+  }
+  
+  .onboardingGeneratedBeforeAfterText {
+    margin-top: 6px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: rgba(17, 17, 17, 0.62);
+  }
+  
+  .onboardingGeneratedBeforeAfterTextStrong {
+    margin-top: 6px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  .onboardingGeneratedSingleVisualBlock {
+    width: 100%;
+    max-width: 820px;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  .onboardingGeneratedSingleVisualImage {
+    width: 100%;
+    max-width: 700px;
+    max-height: 360px;
+    border-radius: 0;
+    display: block;
+    object-fit: contain;
+    box-shadow: none;
+    background: transparent;
+  }
+  
+  .onboardingGeneratedTextCompare {
+    width: 100%;
+    max-width: 700px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  
+  .onboardingGeneratedTextCompareItem {
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.03);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    text-align: left;
+  }
+  
+  .onboardingGeneratedTextCompareText {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: rgba(17, 17, 17, 0.62);
+  }
+  
+  .onboardingGeneratedTextCompareTextStrong {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedTextCompareText {
+    margin-top: 8px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.62);
+  }
+  
+  .onboardingGeneratedTextCompareTextStrong {
+    margin-top: 8px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    font-weight: 700;
+    color: #111111;
+  }
+
+
+  .onboardingGeneratedOutcomeSplit {
+    width: 100%;
+    max-width: 980px;
+    margin-top: 14px;
+    margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(220px, 0.78fr);
+    gap: 14px;
+    align-items: center;
+  }
+  
+  .onboardingGeneratedOutcomeSplitVisual {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: -38px;
+  }
+  
+  .onboardingGeneratedOutcomeSplitImage {
+    width: 100%;
+    max-width: 860px;
+    max-height: 460px;
+    display: block;
+    object-fit: contain;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  
+  .onboardingGeneratedOutcomeSplitCompare {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .onboardingGeneratedTextCompareItem {
+    padding: 16px 16px 14px;
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.03);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    text-align: left;
+  }
+  
+  .onboardingGeneratedTextCompareLabelMuted {
+    font-size: 0.88rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: rgba(17, 17, 17, 0.46);
+  }
+  
+  .onboardingGeneratedTextCompareLabelStrong {
+    font-size: 0.88rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #5c7cff;
+  }
+  
+  .onboardingGeneratedTextCompareText {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: rgba(17, 17, 17, 0.66);
+  }
+  
+  .onboardingGeneratedTextCompareTextStrong {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  .onboardingGeneratedOutcomeBodyPostActeTight {
+    max-width: 980px;
+    padding-bottom: 18px;
+  }
+  
+  @media (max-width: 980px) {
+    .onboardingGeneratedOutcomeSplit {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  
+    .onboardingGeneratedOutcomeSplitVisual {
+      justify-content: center;
+    }
+  
+    .onboardingGeneratedOutcomeSplitImage {
+      max-width: 100%;
+      max-height: 340px;
+    }
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingGeneratedTextCompare {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  
+    .onboardingGeneratedSingleVisualImage {
+      border-radius: 20px;
+    }
+  }
+
+
+  @media (max-width: 820px) {
+    .onboardingGeneratedBenefits {
+      grid-template-columns: 1fr;
+    }
+  
+    .onboardingGeneratedBeforeAfterCards {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  
+    .onboardingGeneratedBeforeAfterImage {
+      max-width: 240px;
+    }
+  
+    .onboardingProtocolModal {
+      width: calc(100vw - 24px);
+      height: calc(100vh - 24px);
+      border-radius: 20px;
+    }
+  }
+
+
+/* =========================================================
+   ONBOARDING / PATIENT FILES SETUP QUESTION
+   ========================================================= */
+
+   .onboardingGeneratedSetupBodyCentered {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 760px;
+    margin: 18px auto 0;
+    padding: 0 0 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+  }
+  
+  .onboardingGeneratedSetupTitleCentered {
+    margin: 0;
+    max-width: 760px;
+    font-size: clamp(2rem, 2.7vw, 3rem);
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: #111111;
+  }
+  
+  .onboardingGeneratedSetupSubtitleCentered {
+    margin: 12px 0 0;
+    max-width: 720px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.52);
+  }
+  
+  .onboardingPatientFilesSliderBlock {
+    width: 100%;
+    max-width: 720px;
+    margin-top: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .onboardingPatientFilesSliderValue {
+    font-size: clamp(3.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    color: #111111;
+  }
+  
+  .onboardingPatientFilesSlider {
+    width: 100%;
+    margin-top: 26px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+  }
+  
+  .onboardingPatientFilesSlider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      #111111 0%,
+      #111111 var(--slider-progress, 0%),
+      rgba(17, 17, 17, 0.08) var(--slider-progress, 0%),
+      rgba(17, 17, 17, 0.08) 100%
+    );
+  }
+  
+  .onboardingPatientFilesSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 6px solid #111111;
+    margin-top: -13px;
+    box-shadow: 0 8px 18px rgba(17, 17, 17, 0.14);
+    cursor: pointer;
+  }
+  
+  .onboardingPatientFilesSlider::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      #111111 0%,
+      #111111 var(--slider-progress, 0%),
+      rgba(17, 17, 17, 0.08) var(--slider-progress, 0%),
+      rgba(17, 17, 17, 0.08) 100%
+    );
+  }
+  
+  .onboardingPatientFilesSlider::-moz-range-thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 6px solid #111111;
+    box-shadow: 0 8px 18px rgba(17, 17, 17, 0.14);
+    cursor: pointer;
+  }
+  
+  .onboardingPatientFilesSliderScale {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    line-height: 1;
+    color: rgba(17, 17, 17, 0.82);
+  }
+  
+  .onboardingPatientFilesInsightCard {
+    width: 100%;
+    max-width: 720px;
+    margin-top: 28px;
+    padding: 22px 24px;
+    border-radius: 24px;
+    background: rgba(17, 17, 17, 0.04);
+    border: 1px solid rgba(17, 17, 17, 0.05);
+    text-align: left;
+  }
+  
+  .onboardingPatientFilesInsightTitle {
+    font-size: 0.98rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #111111;
+  }
+  
+  .onboardingPatientFilesInsightText {
+    margin-top: 10px;
+    font-size: 1.02rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.68);
+  }
+  
+  .onboardingPatientFilesInsightText strong {
+    color: #111111;
+    font-weight: 700;
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingGeneratedSetupBodyCentered {
+      margin-top: 12px;
+      padding-bottom: 44px;
+    }
+  
+    .onboardingGeneratedSetupTitleCentered {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+    }
+  
+    .onboardingPatientFilesSliderBlock {
+      margin-top: 30px;
+    }
+  
+    .onboardingPatientFilesSliderValue {
+      font-size: clamp(3rem, 15vw, 4.5rem);
+    }
+  
+    .onboardingPatientFilesInsightCard {
+      padding: 18px 18px;
+      border-radius: 20px;
+    }
+  
+    .onboardingPatientFilesInsightText {
+      font-size: 0.96rem;
+    }
+  }
+
+
+/* =========================================================
+   ONBOARDING / PATIENT FILES VALUE SCREEN
+   ========================================================= */
+
+   .onboardingPatientFilesValueBody {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 900px;
+    margin: 18px auto 0;
+    padding: 0 0 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+  }
+  
+  .onboardingPatientFilesValueTitle {
+    margin: 0;
+    max-width: 780px;
+    font-size: clamp(2.1rem, 3vw, 3.3rem);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    color: #111111;
+  }
+  
+  .onboardingPatientFilesValueSubtitle {
+    margin: 12px 0 0;
+    max-width: 780px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(17, 17, 17, 0.56);
+  }
+  
+  .onboardingPatientFilesChartCard {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 28px;
+    padding: 24px 24px 20px;
+    border-radius: 30px;
+    background: linear-gradient(180deg, #f7f7f6 0%, #f1f1ef 100%);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.76),
+      0 18px 40px rgba(17, 17, 17, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .onboardingPatientFilesChartTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    text-align: left;
+  }
+  
+  .onboardingPatientFilesChartTopLabel {
+    font-size: 1rem;
+    line-height: 1.35;
+    font-weight: 600;
+    color: #111111;
+    max-width: 360px;
+  }
+  
+  .onboardingPatientFilesChartLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingPatientFilesChartLegendItem,
+  .onboardingPatientFilesChartLegendItemAlt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    line-height: 1.2;
+    color: rgba(17, 17, 17, 0.72);
+  }
+  
+  .onboardingPatientFilesChartLegendDot,
+  .onboardingPatientFilesChartLegendDotAlt {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingPatientFilesChartLegendDot {
+    background: #c96d68;
+  }
+  
+  .onboardingPatientFilesChartLegendDotAlt {
+    background: #17151f;
+  }
+  
+  .onboardingPatientFilesChartCanvas {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px 16px 0 10px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.42);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .onboardingPatientFilesChartFrame {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-rows: 280px auto;
+    column-gap: 10px;
+    row-gap: 10px;
+    align-items: stretch;
+  }
+  
+  .onboardingPatientFilesYAxis {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 10px 0 18px;
+    font-size: 0.82rem;
+    line-height: 1;
+    color: rgba(17, 17, 17, 0.44);
+  }
+  
+  .onboardingPatientFilesYAxis span {
+    display: block;
+  }
+  
+  .onboardingPatientFilesPlotArea {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    min-height: 280px;
+    border-left: 1.5px solid rgba(17, 17, 17, 0.16);
+    border-bottom: 1.5px solid rgba(17, 17, 17, 0.16);
+  }
+  
+  .onboardingPatientFilesChartSvg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  
+  .onboardingPatientFilesAxis {
+    stroke: rgba(17, 17, 17, 0.18);
+    stroke-width: 1.5;
+  }
+  
+  .onboardingPatientFilesGrid {
+    stroke: rgba(17, 17, 17, 0.1);
+    stroke-width: 1;
+    stroke-dasharray: 4 7;
+  }
+  
+  .onboardingPatientFilesCurvePrimary {
+    fill: none;
+    stroke: #c7776f;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.98;
+    filter: drop-shadow(0 3px 10px rgba(199, 119, 111, 0.12));
+  }
+  
+  .onboardingPatientFilesCurveSecondary {
+    fill: none;
+    stroke: #17151f;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 1;
+    filter: drop-shadow(0 3px 10px rgba(23, 21, 31, 0.12));
+  }
+  
+  .onboardingPatientFilesCurvePrimary,
+  .onboardingPatientFilesCurveSecondary {
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: drawLine 1.45s ease-out forwards;
+  }
+  
+  .onboardingPatientFilesCurveSecondary {
+    animation-delay: 0.18s;
+  }
+  
+  .onboardingPatientFilesXAxis {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 2px;
+    font-size: 0.84rem;
+    line-height: 1;
+    color: rgba(17, 17, 17, 0.56);
+  }
+  
+  .onboardingPatientFilesChartInsight {
+    margin-top: 18px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  
+  .onboardingPatientFilesInsightLogo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(17, 17, 17, 0.06);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: rgba(17, 17, 17, 0.52);
+  }
+  
+  .onboardingPatientFilesChartInsightText {
+    font-size: 0.96rem;
+    line-height: 1.55;
+    color: rgba(17, 17, 17, 0.72);
+  }
+  
+  .onboardingPatientFilesChartInsightText strong {
+    color: #111111;
+    font-weight: 700;
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingPatientFilesValueBody {
+      max-width: 100%;
+    }
+  
+    .onboardingPatientFilesValueTitle {
+      font-size: clamp(1.9rem, 8vw, 2.6rem);
+    }
+  
+    .onboardingPatientFilesValueSubtitle {
+      font-size: 0.94rem;
+    }
+  
+    .onboardingPatientFilesChartCard {
+      padding: 18px 16px 18px;
+      border-radius: 22px;
+    }
+  
+    .onboardingPatientFilesChartTop {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .onboardingPatientFilesChartCanvas {
+      padding: 12px 10px 0 6px;
+    }
+  
+    .onboardingPatientFilesChartFrame {
+      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-rows: 240px auto;
+      column-gap: 8px;
+    }
+  
+    .onboardingPatientFilesPlotArea {
+      min-height: 240px;
+    }
+  
+    .onboardingPatientFilesYAxis {
+      font-size: 0.76rem;
+      padding-bottom: 14px;
+    }
+  
+    .onboardingPatientFilesXAxis {
+      font-size: 0.76rem;
+    }
+  
+    .onboardingPatientFilesChartLegend {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+  
+    .onboardingPatientFilesChartInsight {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .onboardingPatientFilesChartInsightText {
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+  }
+  
+  @keyframes drawLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .onboardingPatientFilesInsightLogoBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingPatientFilesInsightLogoImage {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .onboardingPatientFilesInsightSourceBtn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    font-weight: 600;
+    color: #4f7cff;
+    cursor: pointer;
+  }
+  
+  .onboardingPatientFilesInsightSourceBtn:hover {
+    color: #345fe8;
+  }
+  
+  .onboardingPatientFilesXAxisLast {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .onboardingPatientFilesXAxisUnit {
+    font-size: 0.78rem;
+    line-height: 1;
+    font-weight: 600;
+    color: rgba(17, 17, 17, 0.48);
+    white-space: nowrap;
+  }
+
+  .onboardingPatientFilesCurvePrimaryArea {
+    fill: rgba(201, 109, 104, 0.08);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    animation: fadeInArea 0.8s ease-out forwards;
+    animation-delay: 0.45s;
+  }
+
+  @keyframes fadeInArea {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .onboardingPatientFilesCurveSecondary {
+    filter: drop-shadow(0 0 6px rgba(23, 21, 31, 0.18));
+  }
+
+  .onboardingPatientFilesFocusDot {
+    fill: #17151f;
+    stroke: #ffffff;
+    stroke-width: 2.5;
+  }
+  
+  .onboardingPatientFilesFocusDotPulse {
+    fill: rgba(23, 21, 31, 0.1);
+    opacity: 0;
+    animation: onboardingPatientFilesPulse 1.8s ease-out infinite;
+    animation-delay: 1.45s;
+  }
+  
+  @keyframes onboardingPatientFilesPulse {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    18% {
+      opacity: 0.22;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.2);
+    }
+  }
+
+
+
+  .onboardingGeneratedReassuranceSubtitleSimple {
+    margin: 14px 0 0;
+    max-width: 720px;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: rgba(17, 17, 17, 0.62);
+    text-align: center;
+  }
+  
+  .onboardingGeneratedReassurancePortraits {
+    margin-top: 42px;
+    margin-bottom: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .onboardingGeneratedAppointmentsProofWrap {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 34px;
+    margin-bottom: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .onboardingGeneratedAppointmentsProofImage {
+    width: 100%;
+    max-width: 700px;
+    max-height: 360px;
+    display: block;
+    object-fit: contain;
+    border-radius: 22px;
+    box-shadow: none;
+    background: transparent;
+  }
+  
+  .onboardingGeneratedReassurancePortrait {
+    width: 220px;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingGeneratedReassurancePortraits {
+      flex-direction: column;
+      gap: 14px;
+    }
+  
+    .onboardingGeneratedReassurancePortrait {
+      width: 100%;
+      max-width: 260px;
+      height: auto;
+    }
+  }
+
+
+  .onboardingDependencyScale {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+  }
+  
+  .onboardingDependencyScaleItem {
+    height: 58px;
+    border-radius: 14px;
+    border: 1px solid rgba(17, 17, 17, 0.1);
+    background: #ffffff;
+    color: rgba(17, 17, 17, 0.78);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  
+  .onboardingDependencyScaleItem:hover {
+    transform: translateY(-1px);
+    border-color: rgba(69, 108, 255, 0.35);
+  }
+  
+  .onboardingDependencyScaleItemActive {
+    background: #4f7cff;
+    border-color: #4f7cff;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(79, 124, 255, 0.2);
+  }
+  
+  .onboardingDependencyScaleLegend {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: rgba(17, 17, 17, 0.52);
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingDependencyScale {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  
+    .onboardingDependencyScaleItem {
+      height: 52px;
+      font-size: 0.94rem;
+    }
+  
+    .onboardingDependencyScaleLegend {
+      font-size: 0.82rem;
+      gap: 16px;
+    }
+  }
+
+  .onboardingStaffGrid {
+    width: 100%;
+    max-width: 720px;
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .onboardingStaffCard {
+    height: 110px;
+    border-radius: 18px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .onboardingStaffCard:hover {
+    transform: translateY(-2px);
+    border-color: rgba(79, 124, 255, 0.4);
+  }
+  
+  .onboardingStaffCardSelected {
+    border-color: #4f7cff;
+    background: rgba(79, 124, 255, 0.06);
+    box-shadow: 0 12px 30px rgba(79, 124, 255, 0.15);
+  }
+  
+  .onboardingStaffValue {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111;
+  }
+  
+  .onboardingStaffText {
+    font-size: 0.85rem;
+    color: rgba(17, 17, 17, 0.6);
+    text-align: center;
+    max-width: 140px;
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingStaffGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+/* =========================================================
+   ONBOARDING / SINGLE PERSON TESTIMONIAL SCREEN
+   ========================================================= */
+
+   .onboardingSinglePersonTestimonialCard {
+    width: 100%;
+    max-width: 760px;
+    margin: 22px auto 0;
+    padding: 24px 26px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    box-shadow:
+      0 10px 30px rgba(17, 17, 17, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    text-align: left;
+  }
+  
+  .onboardingSinglePersonTestimonialHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+  }
+  
+  .onboardingSinglePersonTestimonialAvatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+    flex: 0 0 auto;
+  }
+  
+  .onboardingSinglePersonTestimonialMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .onboardingSinglePersonTestimonialName {
+    font-size: 1rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #111111;
+  }
+  
+  .onboardingSinglePersonTestimonialRole {
+    font-size: 0.88rem;
+    line-height: 1.2;
+    color: rgba(17, 17, 17, 0.46);
+  }
+
+  .onboardingSinglePersonTestimonialStars {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-top: 2px;
+    font-size: 0.9rem;
+    line-height: 1;
+    color: #8ea2ff;
+    flex: 0 0 auto;
+  }
+
+  .onboardingSinglePersonTestimonialStars span {
+    display: inline-block;
+  }
+  
+  .onboardingSinglePersonTestimonialText {
+    margin-top: 18px;
+    font-size: 1rem;
+    line-height: 1.72;
+    color: rgba(17, 17, 17, 0.72);
+    font-style: italic;
+  }
+  .onboardingSinglePersonScenarioGrid {
+    width: 100%;
+    max-width: 760px;
+    margin: 22px auto 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .onboardingSinglePersonScenarioCard {
+    position: relative;
+    overflow: hidden;
+    padding: 22px 22px 20px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #fafafc 100%);
+    border: 1px solid rgba(17, 17, 17, 0.06);
+    box-shadow:
+      0 12px 30px rgba(17, 17, 17, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    text-align: left;
+  }
+
+  .onboardingSinglePersonScenarioCard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(
+      120deg,
+      rgba(142, 162, 255, 0.08),
+      transparent 40%
+    );
+    pointer-events: none;
+  }
+  
+  .onboardingSinglePersonScenarioTitle {
+    font-size: 1.02rem;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #111111;
+  }
+  
+  .onboardingSinglePersonMetrics {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .onboardingSinglePersonMetricBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .onboardingSinglePersonMetricLabel {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #111111;
+  }
+  
+  .onboardingSinglePersonMetricRows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .onboardingSinglePersonMetricRow {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .onboardingSinglePersonMetricRowTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.84rem;
+    line-height: 1.2;
+    color: rgba(17, 17, 17, 0.62);
+  }
+  
+  .onboardingSinglePersonMetricTrack {
+    width: 100%;
+    height: 9px;
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.06);
+    border: 1px solid rgba(17, 17, 17, 0.04);
+    overflow: hidden;
+  }
+  
+  .onboardingSinglePersonMetricBarMuted,
+  .onboardingSinglePersonMetricBarStrong {
+    height: 100%;
+    border-radius: 999px;
+    width: 0;
+  }
+  
+  .onboardingSinglePersonMetricBarMuted {
+    background: rgba(17, 17, 17, 0.32);
+  }
+  
+  .onboardingSinglePersonMetricBarStrong {
+    background: #8ea2ff;
+  }
+  
+  @media (max-width: 820px) {
+    .onboardingSinglePersonTestimonialCard {
+      padding: 18px 16px;
+      border-radius: 20px;
+    }
+  
+    .onboardingSinglePersonScenarioGrid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  
+    .onboardingSinglePersonScenarioCard {
+      padding: 18px 16px;
+      border-radius: 18px;
+    }
+  
+    .onboardingSinglePersonTestimonialText {
+      font-size: 0.94rem;
+      line-height: 1.58;
+    }
+  }
+
+  .onboardingSinglePersonMetricBarStrong {
+    background: #8ea2ff;
+  }
+
+  .onboardingSinglePersonMetricBarAnimated {
+    animation: onboardingSingleMetricGrow 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  
+  .onboardingSinglePersonMetricBarMuted.onboardingSinglePersonMetricBarAnimated {
+    animation-delay: 0.08s;
+  }
+  
+  .onboardingSinglePersonMetricBarStrong.onboardingSinglePersonMetricBarAnimated {
+    animation-delay: 0.18s;
+  }
+  
+  @keyframes onboardingSingleMetricGrow {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  .onboardingGeneratedEmojiRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .onboardingEmojiBtn {
+    flex: 1;
+    height: 64px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #fff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .onboardingEmojiBtn:hover {
+    transform: translateY(-2px);
+  }
+  
+  .onboardingEmojiBtnSelected {
+    border: 2px solid #000;
+    background: rgba(0,0,0,0.05);
+  }
+
+
+  .onboardingGeneratedEmojiWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-top: 20px;
+  }
+  
+  .onboardingGeneratedEmojiRow {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+  }
+  
+  .onboardingEmojiCard {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  
+  .onboardingEmojiCard:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0,0,0,0.2);
+  }
+  
+  .onboardingEmojiCardSelected {
+    border-color: black;
+    background: #f5f5f5;
+  }
+  
+  .onboardingGeneratedEmojiLegend {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(0,0,0,0.5);
+  }
+
+
+/* =========================
+   PEER REASSURANCE (ZEELY STYLE)
+   ========================= */
+
+   .onboardingGeneratedReassuranceSubtitleCentered {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 15px;
+    color: #6b6b6b;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+  
+  /* IMAGE LARGE */
+  
+  .onboardingGeneratedReassuranceVisualLandscape {
+    margin-top: 32px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .onboardingGeneratedReassuranceImageLandscape {
+    width: 100%;
+    max-width: 720px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* BENEFITS */
+  
+  .onboardingGeneratedReassuranceBenefits {
+    margin-top: 32px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .onboardingGeneratedReassuranceBenefit {
+    background: #f6f6f6;
+    border-radius: 16px;
+    padding: 18px 20px;
+    width: 280px;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+  
+  .onboardingGeneratedReassuranceBenefit:hover {
+    transform: translateY(-2px);
+    background: #f2f2f2;
+  }
+  
+  .onboardingGeneratedReassuranceBenefitTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 6px;
+  }
+  
+  .onboardingGeneratedReassuranceBenefitText {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+
+  .onboardingGeneratedCollabVisualWrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+  
+  .onboardingGeneratedCollabVisual {
+    width: 100%;
+    max-width: 440px;
+    max-height: 360px;
+    object-fit: contain;
+    border-radius: 18px;
+    display: block;
+  }
+
+  .onboardingGeneratedReassuranceSubtitleCentered {
+    max-width: 580px;
+    margin: 8px auto 0;
+    text-align: center;
+  }

@@ -1,3 +1,5 @@
+//app/dashboard/EmptyMailOnboarding.tsx
+
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -36,69 +38,69 @@ export default function EmptyMailOnboarding() {
         <div className={styles.separator} />
 
         <div className={styles.providers}>
-  <button
-    type="button"
-    className={`${styles.providerCard} ${styles.gmailCard}`}
-    onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
-  >
-    <div className={styles.providerIconWrap}>
-      <img
-        src="/imgs/placeholder-gmail.png"
-        alt=""
-        className={styles.providerIcon}
-      />
-    </div>
+          <button
+            type="button"
+            className={`${styles.providerCard} ${styles.gmailCard}`}
+            onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
+          >
+            <div className={styles.providerIconWrap}>
+              <img
+                src="/imgs/placeholder-gmail.png"
+                alt=""
+                className={styles.providerIcon}
+              />
+            </div>
 
-    <div className={styles.providerContent}>
-      <div className={styles.providerTitle}>Se connecter avec Gmail</div>
-        <div className={styles.providerText}>
-            Le mail du cabinet est hébergé chez Google
-        </div>
-        </div>
-    </button>
+            <div className={styles.providerContent}>
+              <div className={styles.providerTitle}>Se connecter avec Gmail</div>
+              <div className={styles.providerText}>
+                Le mail du cabinet est hébergé chez Google
+              </div>
+            </div>
+          </button>
 
-    <button
-        type="button"
-        className={`${styles.providerCard} ${styles.outlookCard}`}
-        onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
-    >
-        <div className={styles.providerIconWrap}>
-        <img
-            src="/imgs/placeholder-outlook.png"
-            alt=""
-            className={styles.providerIcon}
-        />
-        </div>
+          <button
+            type="button"
+            className={`${styles.providerCard} ${styles.outlookCard}`}
+            onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
+          >
+            <div className={styles.providerIconWrap}>
+              <img
+                src="/imgs/placeholder-outlook.png"
+                alt=""
+                className={styles.providerIcon}
+              />
+            </div>
 
-        <div className={styles.providerContent}>
-        <div className={styles.providerTitle}>Se connecter avec Outlook</div>
-        <div className={styles.providerText}>
-            Le mail du cabinet est hébergé chez Microsoft
-        </div>
-        </div>
-    </button>
+            <div className={styles.providerContent}>
+              <div className={styles.providerTitle}>Se connecter avec Outlook</div>
+              <div className={styles.providerText}>
+                Le mail du cabinet est hébergé chez Microsoft
+              </div>
+            </div>
+          </button>
 
-    <button
-        type="button"
-        className={`${styles.providerCard} ${styles.otherCard}`}
-        onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
-    >
-        <div className={styles.providerIconWrap}>
-        <img
-            src="/imgs/placeholder-other-mail.png"
-            alt=""
-            className={styles.providerIcon}
-        />
-        </div>
+          <button
+            type="button"
+            className={`${styles.providerCard} ${styles.otherCard}`}
+            onClick={() => window.open(mailSetupUrl, "_blank", "noopener,noreferrer")}
+          >
+            <div className={styles.providerIconWrap}>
+              <img
+                src="/imgs/placeholder-other-mail.png"
+                alt=""
+                className={styles.providerIcon}
+              />
+            </div>
 
-        <div className={styles.providerContent}>
-        <div className={styles.providerTitle}>Autre fournisseur Mail</div>
-        <div className={styles.providerText}>
-            Prendre rendez-vous avec le support HeyLisa
+            <div className={styles.providerContent}>
+              <div className={styles.providerTitle}>Autre fournisseur Mail</div>
+              <div className={styles.providerText}>
+                Prendre rendez-vous avec le support HeyLisa
+              </div>
+            </div>
+          </button>
         </div>
-        </div>
-    </button>
-    </div>
       </div>
     </div>
   );

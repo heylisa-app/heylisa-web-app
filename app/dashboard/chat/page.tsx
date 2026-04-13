@@ -1400,23 +1400,7 @@ export default function DashboardChatPage() {
           </div>
 
           <div className={styles.chatSidebarSection}>
-            <div className={styles.chatSidebarLabel}>Canaux</div>
-
-            <a href="#" className={styles.chatRoom}>
-              <span className={styles.chatRoomIcon}>
-                <span className={styles.chatRoomHash}>#</span>
-              </span>
-              <span className={styles.chatRoomName}>Général</span>
-            </a>
-
-            <button className={styles.chatSidebarAction} type="button">
-              <span className={styles.chatRoomPlus}>＋</span>
-              <span>Ajouter un canal</span>
-            </button>
-          </div>
-
-          <div className={`${styles.chatSidebarSection} ${styles.chatSidebarSectionPrivate}`}>
-            <div className={styles.chatSidebarLabel}>Messages privés</div>
+            <div className={styles.chatSidebarLabel}>Interne</div>
 
             <a href="#" className={`${styles.chatRoom} ${styles.chatRoomSelected}`}>
               <span className={`${styles.chatUserAvatar} ${styles.isOnline}`}>
@@ -1427,7 +1411,46 @@ export default function DashboardChatPage() {
 
             <button className={styles.chatSidebarAction} type="button">
               <span className={styles.chatRoomPlus}>＋</span>
-              <span>Nouveau message</span>
+              <span>Inviter un collègue</span>
+            </button>
+          </div>
+
+          <div className={`${styles.chatSidebarSection} ${styles.chatSidebarSectionPrivate}`}>
+            <div className={styles.chatSidebarLabel}>Confrères</div>
+
+            <button
+              className={`${styles.chatRoom} ${styles.chatRoomPlaceholder}`}
+              type="button"
+            >
+              <span className={styles.chatRoomIcon}>
+                <span className={styles.chatRoomDot} />
+              </span>
+              <span className={styles.chatRoomName}>Autour de moi</span>
+            </button>
+
+            <button
+              className={`${styles.chatRoom} ${styles.chatRoomPlaceholder}`}
+              type="button"
+            >
+              <span className={styles.chatRoomIcon}>
+                <span className={styles.chatRoomDot} />
+              </span>
+              <span className={styles.chatRoomName}>De ma spécialité</span>
+            </button>
+
+            <button
+              className={`${styles.chatRoom} ${styles.chatRoomPlaceholder}`}
+              type="button"
+            >
+              <span className={styles.chatRoomIcon}>
+                <span className={styles.chatRoomDot} />
+              </span>
+              <span className={styles.chatRoomName}>Mes échanges</span>
+            </button>
+
+            <button className={styles.chatSidebarAction} type="button">
+              <span className={styles.chatRoomPlus}>＋</span>
+              <span>Inviter un confrère</span>
             </button>
           </div>
         </div>

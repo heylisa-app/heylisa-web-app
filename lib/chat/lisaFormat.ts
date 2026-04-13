@@ -1,3 +1,5 @@
+//lib/chat/lisaFormat.ts
+
 export type LisaFormatType = "message" | "prescription" | "report";
 
 export type LisaBlock =
@@ -22,6 +24,30 @@ function cleanText(value: string): string {
   return value.replace(/\r\n/g, "\n").trim();
 }
 
+function detectImplicitFormat(text: string): LisaFormatType | null {
+  const value = String(text ?? "");
+
+  const hasPrescriptionSignals =
+    /\[\s*RX_META\s*\]/i.test(value) ||
+    /\[\s*RX\s*\]/i.test(value) ||
+    /\[\s*RX_NOTES\s*\]/i.test(value);
+
+  if (hasPrescriptionSignals) {
+    return "prescription";
+  }
+
+  const hasReportSignals =
+    /\[\s*REPORT_HEADER\s*\]/i.test(value) ||
+    /\[\s*KEY_POINTS\s*\]/i.test(value) ||
+    /\[\s*NEXT_STEP\s*\]/i.test(value);
+
+  if (hasReportSignals) {
+    return "report";
+  }
+
+  return null;
+}
+
 function parseListItems(content: string): string[] {
   return cleanText(content)
     .split("\n")
@@ -34,20 +60,39 @@ function parseListItems(content: string): string[] {
 function extractFormat(text: string): {
   format: LisaFormatType;
   body: string;
+  prefix: string;
 } {
-  const match = text.match(/^\s*\[FORMAT:(message|prescription|report)\]\s*/i);
+  const normalized = String(text ?? "");
 
-  if (!match) {
+  const explicitMatch = normalized.match(/\[FORMAT:(message|prescription|report)\]\s*/i);
+
+  if (explicitMatch && explicitMatch.index != null) {
+    const format = explicitMatch[1].toLowerCase() as LisaFormatType;
+    const start = explicitMatch.index;
+    const end = start + explicitMatch[0].length;
+
     return {
-      format: "message",
-      body: text.trim(),
+      format,
+      prefix: normalized.slice(0, start).trim(),
+      body: normalized.slice(end).trim(),
     };
   }
 
-  const format = match[1].toLowerCase() as LisaFormatType;
-  const body = text.slice(match[0].length).trim();
+  const implicitFormat = detectImplicitFormat(normalized);
 
-  return { format, body };
+  if (implicitFormat) {
+    return {
+      format: implicitFormat,
+      prefix: "",
+      body: normalized.trim(),
+    };
+  }
+
+  return {
+    format: "message",
+    body: normalized.trim(),
+    prefix: "",
+  };
 }
 
 type TokenMatch =
@@ -121,10 +166,16 @@ function pushParagraphs(blocks: LisaBlock[], content: string) {
 
 export function parseLisaMessage(raw: string): LisaParsedMessage {
   const source = typeof raw === "string" ? raw : "";
-  const { format, body } = extractFormat(source);
+  const { format, body, prefix } = extractFormat(source);
 
   const blocks: LisaBlock[] = [];
+
+  if (prefix) {
+    pushParagraphs(blocks, prefix);
+  }
+  
   let cursor = body;
+
 
   while (cursor.length > 0) {
     const token = getNextToken(cursor);

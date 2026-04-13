@@ -170,3 +170,42 @@
   .otherCard:hover {
     border-color: rgba(85, 162, 113, 0.34);
   }
+
+/* =========================================================
+   ONBOARDING MODAL / OVERLAY / BLUR
+   ========================================================= */
+
+   .onboardingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px;
+  }
+  
+  .onboardingBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 20, 0.25);
+  
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  
+    outline: 2px solid red;
+  }
+  
+  .onboardingModal {
+    position: relative;
+    z-index: 1;
+    width: min(980px, calc(100vw - 72px));
+    min-height: 620px;
+    max-height: calc(100vh - 72px);
+    border-radius: 18px;
+    background: #f6f5f3;
+    border: 1px solid rgba(20, 20, 20, 0.08);
+    box-shadow:
+      0 40px 120px rgba(0, 0, 0, 0.28),
+      0 16px 40px rgba(0, 0, 0, 0.16);
+  }

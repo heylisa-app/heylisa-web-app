@@ -1113,3 +1113,19 @@
       transform: rotate(360deg);
     }
   }
+
+  .chatRoomPlaceholder {
+    justify-content: flex-start;
+  }
+  
+  .chatRoomDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.28);
+  }
+  
+  .chatRoomPlaceholder:hover .chatRoomDot {
+    background: rgba(255, 255, 255, 0.42);
+  }

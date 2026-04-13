@@ -1,3 +1,5 @@
+//app/dashboard/page.tsx
+
 import DashboardHomeContent from "./DashboardHomeContent";
 import EmptyMailOnboarding from "./EmptyMailOnboarding";
 import { createClient } from "@/lib/supabase/server";

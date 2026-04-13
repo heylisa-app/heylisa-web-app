@@ -1,3 +1,5 @@
+//app/dashboard/layout.tsx
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DashboardShellWithSplash from "@/components/dashboard/DashboardShellWithSplash";
@@ -41,15 +43,21 @@ export default async function DashboardLayout({
 
       let cabinetName = "Mon cabinet";
 
+      let cabinetSpecialties: string[] = [];
+
       if (userRow.primary_company_id) {
         const { data: cabinetRow } = await supabase
           .from("cabinet_accounts")
-          .select("name")
+          .select("name, specialties")
           .eq("id", userRow.primary_company_id)
           .single();
-
+      
         if (cabinetRow?.name?.trim()) {
           cabinetName = cabinetRow.name.trim();
+        }
+      
+        if (Array.isArray(cabinetRow?.specialties)) {
+          cabinetSpecialties = cabinetRow.specialties.filter(Boolean);
         }
       }
 
@@ -78,6 +86,8 @@ export default async function DashboardLayout({
           userInitials={userInitials}
           cabinetName={cabinetName}
           publicUserId={userRow.id}
+          cabinetAccountId={userRow.primary_company_id ?? ""}
+          cabinetSpecialties={cabinetSpecialties}
           initialBillingStatus={initialBillingStatus}
           initialStripeUrl={initialStripeUrl}
         >
@@ -115,19 +125,24 @@ export default async function DashboardLayout({
     authUser.email ||
     "Utilisateur";
 
-  let cabinetName = "Mon cabinet";
-
-  if (userRow.primary_company_id) {
-    const { data: cabinetRow } = await supabase
-      .from("cabinet_accounts")
-      .select("name")
-      .eq("id", userRow.primary_company_id)
-      .single();
-
-    if (cabinetRow?.name?.trim()) {
-      cabinetName = cabinetRow.name.trim();
+    let cabinetName = "Mon cabinet";
+    let cabinetSpecialties: string[] = [];
+    
+    if (userRow.primary_company_id) {
+      const { data: cabinetRow } = await supabase
+        .from("cabinet_accounts")
+        .select("name, specialties")
+        .eq("id", userRow.primary_company_id)
+        .single();
+    
+      if (cabinetRow?.name?.trim()) {
+        cabinetName = cabinetRow.name.trim();
+      }
+    
+      if (Array.isArray(cabinetRow?.specialties)) {
+        cabinetSpecialties = cabinetRow.specialties.filter(Boolean);
+      }
     }
-  }
 
   let initialBillingStatus: string | null = null;
   let initialStripeUrl: string | null = "/dashboard/plan";
@@ -156,15 +171,17 @@ export default async function DashboardLayout({
   const userInitials = getInitials(displayName);
 
   return (
-      <DashboardShellWithSplash
-        userDisplayName={displayName}
-        userInitials={userInitials}
-        cabinetName={cabinetName}
-        publicUserId={userRow.id}
-        initialBillingStatus={initialBillingStatus}
-        initialStripeUrl={initialStripeUrl}
-      >
-        {children}
-      </DashboardShellWithSplash>
+    <DashboardShellWithSplash
+      userDisplayName={displayName}
+      userInitials={userInitials}
+      cabinetName={cabinetName}
+      publicUserId={userRow.id}
+      cabinetAccountId={userRow.primary_company_id ?? ""}
+      cabinetSpecialties={cabinetSpecialties}
+      initialBillingStatus={initialBillingStatus}
+      initialStripeUrl={initialStripeUrl}
+    >
+      {children}
+    </DashboardShellWithSplash>
   );
 }

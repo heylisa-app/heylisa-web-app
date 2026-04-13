@@ -3,6 +3,7 @@
 import styles from "./page.module.css";
 
 type BillingStatus =
+  | "new_account"
   | "trial_active"
   | "trial_contacted"
   | "trial_expired_waiting_response"
@@ -15,24 +16,80 @@ type BillingStatus =
 
 type PlanPageClientProps = {
   billingStatus: BillingStatus;
+  billingCycle: "monthly" | "annual" | null;
+  stripePriceId: string | null;
 };
 
-const TRIAL_STATUSES = new Set([
-  "trial_active",
-  "trial_contacted",
-  "trial_expired_waiting_response",
-]);
+const PRICE_LABELS: Record<
+  string,
+  {
+    planName: string;
+    invoiceAmount: string;
+    cadenceLabel: string;
+  }
+> = {
+  price_1TLmqIGWLgTu5X9jwNF6o3Nr: {
+    planName: "Lisa Standard",
+    invoiceAmount: "499€",
+    cadenceLabel: "Facturé mensuellement",
+  },
+  price_1TLmraGWLgTu5X9jNc3gjhTi: {
+    planName: "Lisa Standard",
+    invoiceAmount: "4 788€",
+    cadenceLabel: "Facturé annuellement",
+  },
+  price_1TLmslGWLgTu5X9jGbQ84RCT: {
+    planName: "Lisa Premium",
+    invoiceAmount: "799€",
+    cadenceLabel: "Facturé mensuellement",
+  },
+  price_1TLmtgGWLgTu5X9jkL3f64nC: {
+    planName: "Lisa Premium",
+    invoiceAmount: "7 668€",
+    cadenceLabel: "Facturé annuellement",
+  },
+};
 
-export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
-  const showTrialEmptyView =
-    billingStatus !== null && TRIAL_STATUSES.has(billingStatus);
+function getPlanDisplay(
+  stripePriceId: string | null,
+  billingCycle: "monthly" | "annual" | null
+) {
+  if (stripePriceId && PRICE_LABELS[stripePriceId]) {
+    return PRICE_LABELS[stripePriceId];
+  }
+
+  if (billingCycle === "annual") {
+    return {
+      planName: "Lisa Standard",
+      invoiceAmount: "4 788€",
+      cadenceLabel: "Facturé annuellement",
+    };
+  }
+
+  return {
+    planName: "Lisa Standard",
+    invoiceAmount: "499€",
+    cadenceLabel: "Facturé mensuellement",
+  };
+}
+
+export default function PlanPageClient({
+  billingStatus,
+  billingCycle,
+  stripePriceId,
+}: PlanPageClientProps) {
+  const hasBillingAccess = billingStatus !== null && billingStatus !== "new_account";
+  const planDisplay = getPlanDisplay(stripePriceId, billingCycle);
 
   console.log("[HL Plan client]", {
     billingStatus,
-    showTrialEmptyView,
+    billingCycle,
+    stripePriceId,
+    hasBillingAccess,
+    planDisplay,
   });
 
-  if (showTrialEmptyView) {
+  if (!hasBillingAccess) {
     return (
       <div className={styles.planView}>
         <div className={styles.planShell}>
@@ -44,23 +101,21 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
             />
 
             <h1 className={styles.planTrialTitle}>
-              Profitez de ma période d’essai gratuite
+              Activez votre facturation
             </h1>
 
             <p className={styles.planTrialSubtitle}>
-              Je suis à votre service gratuitement pendant toute cette période pour vous
-              soulager sur la gestion du cabinet.
+              Ajoutez un moyen de paiement pour accéder à votre espace de facturation.
             </p>
 
             <a href="/dashboard/chat" className={styles.planTrialButton}>
-              Discutons ensemble
+              Retour au chat
             </a>
           </div>
         </div>
       </div>
     );
   }
-  
 
   return (
     <div className={styles.planView}>
@@ -79,7 +134,7 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
                       alt="Lisa"
                       className={styles.lisaAvatar}
                     />
-                    <span className={styles.planName}>Chef de cabinet - Lisa</span>
+                    <span className={styles.planName}>{planDisplay.planName}</span>
                   </div>
 
                   <ul className={styles.planFeatureList}>
@@ -118,7 +173,7 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
               <div className={styles.invoiceCard}>
                 <div className={styles.invoiceRow}>
                   <span className={styles.invoiceLabel}>Montant de base</span>
-                  <span className={styles.invoiceValue}>499€</span>
+                  <span className={styles.invoiceValue}>{planDisplay.invoiceAmount}</span>
                 </div>
 
                 <div className={styles.invoiceDivider} />
@@ -128,16 +183,19 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
                   <span className={styles.invoiceValue}>0€</span>
                 </div>
               </div>
+              <div className={styles.invoiceCadenceLabel}>
+                {planDisplay.cadenceLabel}
+              </div>
             </section>
 
             <section className={styles.linkSection}>
               <div className={styles.linkBlock}>
-                <div className={styles.linkBlockTitle}>Gérer les infos de facturation</div>
+                <div className={styles.linkBlockTitle}>Gérer mon abonnement</div>
                 <div className={styles.linkBlockText}>
                   Mettre à jour les moyens de paiement, l’adresse de facturation ou les
                   informations de l’entreprise.
                 </div>
-                <a href="#" className={styles.sideLink}>
+                <a href="/api/billing/portal/invoices" className={styles.sideLink}>
                   Gérer mon profil →
                 </a>
               </div>
@@ -148,7 +206,7 @@ export default function PlanPageClient({ billingStatus }: PlanPageClientProps) {
                   Consulter et télécharger vos factures émises depuis votre espace de
                   facturation.
                 </div>
-                <a href="#" className={styles.sideLink}>
+                <a href="/api/billing/portal/invoices" className={styles.sideLink}>
                   Voir les factures →
                 </a>
               </div>
