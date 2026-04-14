@@ -181,6 +181,14 @@ type PatientDetailResponse = {
       storageBucket: string | null;
       storagePath: string | null;
       summary: string | null;
+    
+      // sources email
+      subject?: string | null;
+      senderName?: string | null;
+      senderEmail?: string | null;
+      date?: string | null;
+      contentText?: string | null;
+      contentHtml?: string | null;
     }>;
     audioStoragePath?: string | null;
     audioStorageBucket?: string | null;
@@ -372,7 +380,7 @@ const [createPatientContext, setCreatePatientContext] = useState("");
     "Génération d’une proposition exploitable…",
   ];
 
-  const bulkReviewItems = Array.isArray(bulkProcessingResult?.results)
+  const bulkReviewItems: any[] = Array.isArray(bulkProcessingResult?.results)
   ? bulkProcessingResult.results
   : [];
 
