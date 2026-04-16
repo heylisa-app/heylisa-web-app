@@ -64,17 +64,23 @@ export default async function DashboardLayout({
       let initialBillingStatus: string | null = null;
       let initialStripeUrl: string | null = "/dashboard/plan";
 
-      const { data: billingRow } = await supabase
-        .from("user_billing_status")
-        .select("billing_status, stripe_hosted_invoice_url, stripe_portal_url")
-        .eq("public_user_id", userRow.id)
-        .maybeSingle();
+      const { data: billingRow, error: billingError } = await supabase
+      .from("user_billing_status")
+      .select("billing_status, stripe_hosted_invoice_url")
+      .eq("public_user_id", userRow.id)
+      .maybeSingle();
+    
+    console.log("[HL billing layout][DEV]", {
+      devPublicUserId,
+      publicUserId: userRow.id,
+      billingStatus: billingRow?.billing_status ?? null,
+      billingError: billingError?.message ?? null,
+    });
 
       if (billingRow) {
         initialBillingStatus = billingRow.billing_status ?? null;
         initialStripeUrl =
           billingRow.stripe_hosted_invoice_url ||
-          billingRow.stripe_portal_url ||
           "/dashboard/plan";
       }
 
@@ -148,10 +154,10 @@ export default async function DashboardLayout({
   let initialStripeUrl: string | null = "/dashboard/plan";
 
   const { data: billingRow, error: billingError } = await admin
-    .from("user_billing_status")
-    .select("billing_status, stripe_hosted_invoice_url, stripe_portal_url")
-    .eq("public_user_id", userRow.id)
-    .maybeSingle();
+  .from("user_billing_status")
+  .select("billing_status, stripe_hosted_invoice_url")
+  .eq("public_user_id", userRow.id)
+  .maybeSingle();
 
   console.log("[HL billing layout][PROD]", {
     authUserId: authUser.id,
@@ -164,7 +170,6 @@ export default async function DashboardLayout({
     initialBillingStatus = billingRow.billing_status ?? null;
     initialStripeUrl =
       billingRow.stripe_hosted_invoice_url ||
-      billingRow.stripe_portal_url ||
       "/dashboard/plan";
   }
 

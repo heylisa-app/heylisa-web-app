@@ -1,3 +1,5 @@
+//app/api/billing/create-checkout-session/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
@@ -102,6 +104,20 @@ export async function POST(request: NextRequest) {
       .eq("public_user_id", publicUserId)
       .maybeSingle();
 
+      const billingStatus = billingRow?.billing_status ?? "new_account";
+
+      const hasAlreadyConsumedTrial =
+        !!billingRow?.trial_started_at ||
+        billingStatus === "trial_active" ||
+        billingStatus === "active_paid" ||
+        billingStatus === "grace_period" ||
+        billingStatus === "suspended" ||
+        billingStatus === "canceled" ||
+        billingStatus === "pending_payment";
+      
+      const shouldGrantTrial =
+        billingStatus === "new_account" && !hasAlreadyConsumedTrial;
+
     if (billingError) {
       return NextResponse.json({ error: billingError.message }, { status: 500 });
     }
@@ -162,6 +178,13 @@ export async function POST(request: NextRequest) {
 
     const appBaseUrl = process.env.APP_BASE_URL!;
 
+    console.log("[billing checkout route] trial decision", {
+      publicUserId,
+      billingStatus,
+      trialStartedAt: billingRow?.trial_started_at ?? null,
+      shouldGrantTrial,
+    });
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -173,13 +196,15 @@ export async function POST(request: NextRequest) {
         },
       ],
       subscription_data: {
-        trial_period_days: 7,
+        ...(shouldGrantTrial ? { trial_period_days: 7 } : {}),
         metadata: {
           public_user_id: publicUserId,
           cabinet_account_id: cabinetAccountId ?? "",
           plan_id: planId,
           billing_cycle: billingCycle,
-          source: "heylisa_webapp_onboarding",
+          source: shouldGrantTrial
+            ? "heylisa_webapp_onboarding"
+            : "heylisa_webapp_reactivation",
         },
       },
       metadata: {
@@ -187,7 +212,9 @@ export async function POST(request: NextRequest) {
         cabinet_account_id: cabinetAccountId ?? "",
         plan_id: planId,
         billing_cycle: billingCycle,
-        source: "heylisa_webapp_onboarding",
+        source: shouldGrantTrial
+          ? "heylisa_webapp_onboarding"
+          : "heylisa_webapp_reactivation",
       },
       client_reference_id: publicUserId,
       success_url: `${appBaseUrl}/dashboard/chat?stripe=success`,

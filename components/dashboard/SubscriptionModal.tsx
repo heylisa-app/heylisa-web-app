@@ -2,12 +2,14 @@
 
 import styles from "./SubscriptionModal.module.css";
 
+type SubscriptionModalMode = "hard" | "soft" | "reactivation";
+
 type SubscriptionModalProps = {
   isOpen: boolean;
-  mode?: "soft" | "hard";
-  onClose?: () => void;
-  onSelectAnnual?: () => void;
-  onSelectMonthly?: () => void;
+  mode?: SubscriptionModalMode;
+  onClose: () => void;
+  onSelectAnnual: () => void;
+  onSelectMonthly: () => void;
 };
 
 export default function SubscriptionModal({

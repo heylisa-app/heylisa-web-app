@@ -742,6 +742,53 @@ export default function DashboardChatPage() {
     });
   }, []);
 
+  const reconcileStreamingLisaWithDb = useCallback((dbMessage: {
+    id: string;
+    role: string;
+    sender_type: string;
+    content: string;
+    sent_at: string | null;
+  }) => {
+    const mapped = mapDbMessagesToUi([dbMessage])[0];
+    if (!mapped || mapped.sender !== "lisa") return;
+  
+    setMessages((prev) => {
+      const activeLisaIndex = [...prev]
+        .map((msg, index) => ({ msg, index }))
+        .reverse()
+        .find(
+          ({ msg }) =>
+            msg.sender === "lisa" &&
+            (
+              msg.status === "thinking" ||
+              msg.status === "typing" ||
+              msg.status === "streaming"
+            )
+        )?.index;
+  
+      if (activeLisaIndex == null) {
+        const alreadyExists = prev.some((msg) => msg.id === mapped.id);
+        if (alreadyExists) {
+          return prev.map((msg) => (msg.id === mapped.id ? mapped : msg));
+        }
+        return [...prev, mapped];
+      }
+  
+      const clone = [...prev];
+      clone[activeLisaIndex] = mapped;
+  
+      const seen = new Set<string>();
+      return clone.filter((msg) => {
+        if (seen.has(msg.id)) return false;
+        seen.add(msg.id);
+        return true;
+      });
+    });
+  
+    streamedMessageIdsRef.current.clear();
+    setStatus("idle");
+  }, []);
+
   function appendLisaDelta(messageId: string, delta: string) {
     setMessages((prev) => {
       const index = prev.findIndex((msg) => msg.id === messageId && msg.sender === "lisa");
@@ -1061,10 +1108,11 @@ export default function DashboardChatPage() {
           );
     
           if (isLisa && hasActiveLocalLisaPlaceholder) {
-            console.log("[HL Chat realtime] skip lisa insert during local stream:", row.id);
+            console.log("[HL Chat realtime] reconcile lisa insert with local placeholder:", row.id);
+            reconcileStreamingLisaWithDb(row);
             return;
           }
-    
+          
           upsertFinalMessageFromDb(row);
     
           if (isLisa && !isPageVisibleRef.current) {
@@ -1079,7 +1127,7 @@ export default function DashboardChatPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, upsertFinalMessageFromDb, conversationId]);
+  }, [supabase, upsertFinalMessageFromDb, reconcileStreamingLisaWithDb, conversationId]);
 
   useEffect(() => {
     if (!chatContextLoaded) return;

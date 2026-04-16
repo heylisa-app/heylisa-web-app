@@ -1029,7 +1029,9 @@ export default function DashboardShell({
     };
   }, []);
 
-  const showHardPaywall = billingLoaded && billingStatus === "suspended";
+  const showHardPaywall =
+  billingLoaded &&
+  (billingStatus === "suspended" || billingStatus === "canceled");
   console.log("[HL billing]", {
     billingLoaded,
     billingStatus,
@@ -1038,6 +1040,8 @@ export default function DashboardShell({
   });
 
   const shouldOpenOnboarding = billingStatus === "new_account";
+  const shouldOpenReactivationPaywall =
+  billingStatus === "suspended" || billingStatus === "canceled";
 
   console.log("[HL onboarding gate]", {
     publicUserId,
@@ -1053,8 +1057,32 @@ export default function DashboardShell({
   }, [isOnboardingModalOpen, pathname, shouldOpenOnboarding]);
 
   useEffect(() => {
-    if (showHardPaywall) {
-      setIsSubscriptionModalOpen(true);
+    if (shouldOpenReactivationPaywall) {
+      const runtimeSpecialties =
+        onboardingBootstrapData?.cabinetSpecialties?.length
+          ? onboardingBootstrapData.cabinetSpecialties
+          : normalizedSpecialties;
+  
+      const runtimePrimarySpecialty =
+        runtimeSpecialties[0] ?? primarySpecialty ?? undefined;
+  
+      const flow = buildOnboardingFlow([], runtimePrimarySpecialty, runtimeSpecialties);
+  
+      const paywallIndex = flow.findIndex((screen) => screen.id === "final_paywall");
+  
+      setGeneratedOnboardingFlow(flow);
+      setGeneratedOnboardingIndex(
+        paywallIndex >= 0 ? paywallIndex : flow.length - 1
+      );
+      setOnboardingStep("generated_flow");
+      setIsOnboardingModalOpen(true);
+      setIsSubscriptionModalOpen(false);
+  
+      console.log("[HL billing] forcing onboarding paywall for blocked account", {
+        billingStatus,
+        paywallIndex,
+      });
+  
       return;
     }
   
@@ -1063,7 +1091,14 @@ export default function DashboardShell({
     if (shouldOpenFromUrl) {
       setIsSubscriptionModalOpen(true);
     }
-  }, [showHardPaywall, searchParams]);
+  }, [
+    shouldOpenReactivationPaywall,
+    searchParams,
+    onboardingBootstrapData,
+    normalizedSpecialties,
+    primarySpecialty,
+    billingStatus,
+  ]);
 
   useEffect(() => {
     if (!isOnboardingModalOpen) return;
@@ -1701,6 +1736,38 @@ export default function DashboardShell({
       const isFinalPaywallScreen =
       currentGeneratedScreen?.type === "paywall" &&
       currentGeneratedScreen?.id === "final_paywall";
+
+      const isBlockedBillingState =
+      billingStatus === "suspended" || billingStatus === "canceled";
+    
+    const finalPaywallTitle =
+      billingStatus === "suspended"
+        ? "Votre accès est suspendu"
+        : billingStatus === "canceled"
+        ? "Réactivez votre abonnement"
+        : currentGeneratedScreen?.title ?? "Activez votre secrétaire médicale IA";
+    
+    const finalPaywallSubtitle =
+      billingStatus === "suspended"
+        ? "Votre abonnement est actuellement bloqué suite à un incident de paiement. Réactivez-le pour retrouver immédiatement l’accès à Lisa."
+        : billingStatus === "canceled"
+        ? "Votre abonnement n’est plus actif. Réactivez-le pour retrouver immédiatement l’accès à Lisa."
+        : currentGeneratedScreen?.subtitle ??
+          "Prenez appui sur Lisa pour libérer votre cabinet de l'administratif.";
+    
+    const finalPaywallPrimaryLabel =
+      isBlockedBillingState
+        ? "Réactiver mon abonnement"
+        : currentGeneratedScreen?.ctaLabel ?? "Démarrer mon essai gratuit";
+    
+    const finalPaywallSecondaryLabel =
+      isBlockedBillingState
+        ? "Onboarding indisponible pendant la suspension"
+        : currentGeneratedScreen?.ctaSecondaryLabel ?? "Reprendre l'onboarding";
+
+    const finalPaywallMicroCopy = isBlockedBillingState
+      ? "Le paiement est requis immédiatement pour réactiver votre accès à Lisa."
+      : "Annulable à tout moment. Aucun débit aujourd’hui. L’abonnement démarre après 7 jours.";
     
     const staffCountValue = setupAnswers.staff_count ?? "0";
     
@@ -2484,11 +2551,11 @@ export default function DashboardShell({
                           
                           {/* TITLE */}
                           <h2 className={styles.onboardingGeneratedOutcomeTitle}>
-                            {currentGeneratedScreen.title}
+                            {finalPaywallTitle}
                           </h2>
 
                           <p className={styles.onboardingGeneratedOutcomeSubtitle}>
-                            {currentGeneratedScreen.subtitle}
+                            {finalPaywallSubtitle}
                           </p>
 
                           {/* TOGGLE */}
@@ -2742,7 +2809,7 @@ export default function DashboardShell({
                             className={styles.onboardingGeneratedPrimaryBtn}
                             style={{ marginTop: 32 }}
                           >
-                            {isCreatingCheckout ? "Redirection vers Stripe..." : "Démarrer mon essai gratuit"}
+                            {isCreatingCheckout ? "Redirection vers Stripe..." : finalPaywallPrimaryLabel}
                           </button>
 
                           {/* MICRO COPY */}
@@ -2753,22 +2820,29 @@ export default function DashboardShell({
                               color: "rgba(0,0,0,0.5)",
                             }}
                           >
-                            Annulable à tout moment. Aucun débit aujourd’hui. L’abonnement démarre après 7 jours.
+                            {finalPaywallMicroCopy}
                           </div>
 
                           {/* SECONDARY ACTION */}
                           <button
-                            onClick={handleResumeOnboarding}
+                            onClick={isBlockedBillingState ? undefined : handleResumeOnboarding}
+                            disabled={isBlockedBillingState}
+                            title={
+                              isBlockedBillingState
+                                ? "Indisponible tant que l’abonnement n’est pas réactivé"
+                                : undefined
+                            }
                             style={{
                               marginTop: 12,
                               background: "none",
                               border: "none",
-                              color: "#5c7cff",
-                              cursor: "pointer",
+                              color: isBlockedBillingState ? "rgba(92,124,255,0.35)" : "#5c7cff",
+                              cursor: isBlockedBillingState ? "not-allowed" : "pointer",
                               fontSize: 13,
+                              opacity: isBlockedBillingState ? 0.7 : 1,
                             }}
                           >
-                            Reprendre l’onboarding
+                            {finalPaywallSecondaryLabel}
                           </button>
                         </div>
                       </div>
@@ -3795,8 +3869,8 @@ export default function DashboardShell({
         onClose={() => setIsInviteOpen(false)}
       />
       <SubscriptionModal
-        isOpen={isSubscriptionModalOpen}
-        mode={showHardPaywall ? "hard" : "soft"}
+        isOpen={isSubscriptionModalOpen && !shouldOpenReactivationPaywall}
+        mode="soft"
         onClose={handleCloseSubscriptionModal}
         onSelectAnnual={() => console.log("annual")}
         onSelectMonthly={() => console.log("monthly")}

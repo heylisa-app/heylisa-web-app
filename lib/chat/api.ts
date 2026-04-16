@@ -1,3 +1,5 @@
+//lib/chat/api.ts
+
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 export type SseEvent =
