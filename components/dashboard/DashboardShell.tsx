@@ -858,6 +858,14 @@ export default function DashboardShell({
     initialBillingStatus === "new_account"
   );
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const onboardingViewportRef = useRef<HTMLDivElement | null>(null);
+  const onboardingModalRef = useRef<HTMLDivElement | null>(null);
+  
+  const [onboardingDesktopScale, setOnboardingDesktopScale] = useState(1);
+  const [onboardingScaledBox, setOnboardingScaledBox] = useState({
+    width: 0,
+    height: 0,
+  });
   const billingStatus = initialBillingStatus;
   const stripeUrl = initialStripeUrl;
   const billingLoaded = true;
@@ -918,6 +926,8 @@ export default function DashboardShell({
   const [isProtocolPreviewOpen, setIsProtocolPreviewOpen] = useState(false);
   const [selectedMailProvider, setSelectedMailProvider] = useState<string | null>(null);
   const onboardingWelcomeName = formatDoctorWelcomeName(userDisplayName);
+
+
 
   useEffect(() => {
     if (!onboardingBootstrapData) return;
@@ -1842,6 +1852,91 @@ export default function DashboardShell({
     const estimatedWeeklyTimeSaved = estimateWeeklyTimeSavedHours(patientFilesDailyVolume);
     const patientFilesRiskTrend = getPatientFilesRiskTrend(patientFilesDailyVolume);
 
+
+    useEffect(() => {
+      if (!isOnboardingModalOpen) return;
+    
+      let frameId = 0;
+      let resizeObserver: ResizeObserver | null = null;
+    
+      const updateDesktopOnboardingScale = () => {
+        if (typeof window === "undefined") return;
+    
+        const isDesktop = window.innerWidth > 820;
+        const viewportEl = onboardingViewportRef.current;
+        const modalEl = onboardingModalRef.current;
+    
+        if (!viewportEl || !modalEl) return;
+    
+        if (!isDesktop) {
+          setOnboardingDesktopScale(1);
+          setOnboardingScaledBox({ width: 0, height: 0 });
+          return;
+        }
+    
+        const viewportWidth = viewportEl.clientWidth;
+        const viewportHeight = viewportEl.clientHeight;
+    
+        const modalWidth = modalEl.scrollWidth;
+        const modalHeight = modalEl.scrollHeight;
+    
+        if (!modalWidth || !modalHeight || !viewportWidth || !viewportHeight) {
+          setOnboardingDesktopScale(1);
+          setOnboardingScaledBox({ width: 0, height: 0 });
+          return;
+        }
+    
+        const scaleX = viewportWidth / modalWidth;
+        const scaleY = viewportHeight / modalHeight;
+        const nextScale = Math.min(scaleX, scaleY, 1);
+    
+        const safeScale =
+          Number.isFinite(nextScale) && nextScale > 0 ? nextScale : 1;
+    
+        setOnboardingDesktopScale(safeScale);
+        setOnboardingScaledBox({
+          width: modalWidth * safeScale,
+          height: modalHeight * safeScale,
+        });
+      };
+    
+      const scheduleUpdate = () => {
+        cancelAnimationFrame(frameId);
+        frameId = window.requestAnimationFrame(updateDesktopOnboardingScale);
+      };
+    
+      scheduleUpdate();
+      window.addEventListener("resize", scheduleUpdate);
+    
+      resizeObserver = new ResizeObserver(() => {
+        scheduleUpdate();
+      });
+    
+      if (onboardingViewportRef.current) {
+        resizeObserver.observe(onboardingViewportRef.current);
+      }
+    
+      if (onboardingModalRef.current) {
+        resizeObserver.observe(onboardingModalRef.current);
+      }
+    
+      return () => {
+        cancelAnimationFrame(frameId);
+        window.removeEventListener("resize", scheduleUpdate);
+        resizeObserver?.disconnect();
+      };
+    }, [
+      isOnboardingModalOpen,
+      onboardingStep,
+      currentGeneratedScreen?.id,
+      generatedOnboardingIndex,
+      selectedPainPointIds.length,
+      selectedMailProvider,
+      billingCycle,
+      selectedPaywallPlanId,
+      setupAnswers,
+    ]);
+
       useEffect(() => {
         if (onboardingStep !== "generated_flow") return;
         if (!currentGeneratedScreen) return;
@@ -2203,6 +2298,70 @@ export default function DashboardShell({
       {isOnboardingModalOpen && (
         <div className={styles.onboardingOverlay}>
           <div className={styles.onboardingBackdrop} />
+
+          <div
+            ref={onboardingViewportRef}
+            className={styles.onboardingViewport}
+          >
+            <div
+              className={styles.onboardingScaleStage}
+              style={
+                window.innerWidth > 820
+                  ? {
+                      width: onboardingScaledBox.width
+                        ? `${onboardingScaledBox.width}px`
+                        : "auto",
+                      height: onboardingScaledBox.height
+                        ? `${onboardingScaledBox.height}px`
+                        : "auto",
+                    }
+                  : undefined
+              }
+            >
+              <div
+                ref={onboardingModalRef}
+                className={`${styles.onboardingModal} ${
+                  onboardingStep === "pain_points" ? styles.onboardingModalLight : ""
+                } ${
+                  onboardingStep === "loading" ||
+                  (onboardingStep === "generated_flow" &&
+                    currentGeneratedScreen?.type === "loading_sequence")
+                    ? styles.onboardingModalLoadingSequence
+                    : ""
+                } ${
+                  onboardingStep === "generated_flow" &&
+                  currentGeneratedScreen?.type === "reassurance"
+                    ? styles.onboardingModalReassurance
+                    : ""
+                } ${
+                  onboardingStep === "generated_flow" &&
+                  currentGeneratedScreen?.type === "setup_question"
+                    ? styles.onboardingModalSetupQuestion
+                    : ""
+                } ${
+                  onboardingStep === "generated_flow" &&
+                  currentGeneratedScreen?.type === "activation_cta"
+                    ? styles.onboardingModalActivation
+                    : ""
+                } ${
+                  isMailOutcomeScreen ||
+                  isPostActeOutcomeScreen ||
+                  isPatientFilesValueScreen ||
+                  isPatientFilesOutcomeScreen ||
+                  isSinglePersonTestimonialScreen ||
+                  isFinalPaywallScreen
+                    ? styles.onboardingModalOutcome
+                    : ""
+                }`}
+                style={
+                  typeof window !== "undefined" && window.innerWidth > 820
+                    ? {
+                        transform: `scale(${onboardingDesktopScale})`,
+                        transformOrigin: "top center",
+                      }
+                    : undefined
+                }
+              >
 
           <div
             className={`${styles.onboardingModal} ${
@@ -3837,9 +3996,12 @@ export default function DashboardShell({
                 </div>
               )
             ) : null}
-          </div>
         </div>
-      )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       {isProtocolPreviewOpen && (
         <div className={styles.onboardingProtocolOverlay}>
           <div
