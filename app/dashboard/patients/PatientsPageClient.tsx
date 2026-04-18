@@ -1,3 +1,5 @@
+//app/dashboard/patients/PatientsPageClient.tsx
+
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -204,7 +206,13 @@ type PatientDetailResponse = {
     error?: string;
   };
 
-export default function PatientsPageClient() {
+  type PatientsPageClientProps = {
+    initialCabinetAccountId?: string | null;
+  };
+  
+  export default function PatientsPageClient({
+    initialCabinetAccountId = null,
+  }: PatientsPageClientProps) {
   const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -516,7 +524,10 @@ const rejectReason =
         : "—";
 
 
+    const activeCabinetAccountId =
+        patientDetail?.cabinetAccountId ?? initialCabinetAccountId ?? null;
 
+        console.log("[HL Client] activeCabinetAccountId (render)", activeCabinetAccountId);
 
   const bulkActionOptions = [
     {
@@ -790,14 +801,19 @@ const rejectReason =
   
       if (isPatientsLoadCancelledRef.current) return;
   
-      setPatients(payload.patients);
+      const isDemoMode = payload.mode === "demo";
+
+      const livePatients = isDemoMode ? [] : payload.patients;
+      
+      setPatients(livePatients);
+      
       setOptimisticPatients((prev) =>
         prev.filter((optimisticPatient) => {
           const optimisticFullName = String(optimisticPatient.fullName ?? "")
             .trim()
             .toLowerCase();
       
-          const hasRealMatch = payload.patients?.some((realPatient) => {
+          const hasRealMatch = livePatients?.some((realPatient) => {
             const realFullName = String(realPatient.fullName ?? "")
               .trim()
               .toLowerCase();
@@ -808,8 +824,11 @@ const rejectReason =
           return !hasRealMatch;
         })
       );
+      
       setSelectedPatientId(
-        payload.selectedPatientId ?? payload.patients[0]?.id ?? null
+        isDemoMode
+          ? null
+          : payload.selectedPatientId ?? livePatients[0]?.id ?? null
       );
     } catch (error) {
       if (isPatientsLoadCancelledRef.current) return;
@@ -2778,8 +2797,9 @@ function getInteractionTitle(interactionType: string | null | undefined) {
   }
 
   async function handleLaunchBulkProcess() {
+    console.log("[HL Client] activeCabinetAccountId (click)", activeCabinetAccountId);
     try {
-      if (!patientDetail?.cabinetAccountId) {
+      if (!activeCabinetAccountId) {
         console.error("cabinet_account_id introuvable.");
         return;
       }
@@ -2806,7 +2826,7 @@ function getInteractionTitle(interactionType: string | null | undefined) {
       fd.append("intent", bulkSelectedIntent);
       fd.append("instructions", bulkInstructions || "");
       fd.append("sub_options", JSON.stringify(bulkSelectedSubOptions));
-      fd.append("cabinet_account_id", patientDetail.cabinetAccountId);
+      fd.append("cabinet_account_id", activeCabinetAccountId);
   
       bulkSelectedFiles.forEach((file) => {
         fd.append("files", file, file.name);
@@ -3101,7 +3121,7 @@ function getInteractionTitle(interactionType: string | null | undefined) {
         return;
       }
   
-      if (!patientDetail?.cabinetAccountId) {
+      if (!activeCabinetAccountId) {
         console.error("cabinet_account_id introuvable.");
         return;
       }
@@ -3142,7 +3162,7 @@ function getInteractionTitle(interactionType: string | null | undefined) {
       }
   
       const payload = {
-        cabinet_account_id: patientDetail.cabinetAccountId,
+        cabinet_account_id: activeCabinetAccountId,
         patient_record_id: patientRecordId,
         patient_contact_id: patientContactId,
       
@@ -3360,7 +3380,9 @@ function getInteractionTitle(interactionType: string | null | undefined) {
         createPatientPhone.trim().length > 0
       );
 
-
+  const hasAnyPatient = patients.length > 0 || optimisticPatients.length > 0;
+  const shouldShowPatientsEmptyState =
+        !isLoading && !loadError && !hasAnyPatient;
 
   return (
     <div className={styles.patientsView}>
@@ -3490,9 +3512,65 @@ function getInteractionTitle(interactionType: string | null | undefined) {
 
       <section className={styles.patientsMain}>
         <div className={styles.patientsMainInner}>
-            {!selectedPatient ? (
-                <div className={styles.liveStateBox}>Aucun patient sélectionné.</div>
-            ) : isDetailLoading ? (
+        {shouldShowPatientsEmptyState ? (
+          <div className={styles.patientsEmptyStateShell}>
+            <div className={styles.patientsEmptyStateCard}>
+              <img
+                src="/imgs/Lisa_Avatar-min.webp"
+                alt="Lisa"
+                className={styles.patientsEmptyStateAvatar}
+              />
+
+              <h1 className={styles.patientsEmptyStateTitle}>
+                Commencez par créer un dossier ou traiter un document
+              </h1>
+
+              <p className={styles.patientsEmptyStateText}>
+                Ajoutez votre premier patient pour centraliser son suivi, ou confiez à Lisa
+                un document médical à analyser pour créer ou enrichir un dossier et préparer
+                les suites utiles au cabinet.
+              </p>
+
+              <div className={styles.patientsEmptyStateActions}>
+                <button
+                  type="button"
+                  className={styles.patientsEmptyStatePrimaryBtn}
+                  onClick={() => {
+                    setIsBulkProcessOpen(true);
+                    setBulkStep(2);
+                    setBulkRightPanelMode("confirm");
+                  }}
+                >
+                  Traiter des documents
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.patientsEmptyStateSecondaryBtn}
+                  onClick={() => {
+                    setCreatePatientSuccessMessage(null);
+                    setIsCreatePatientModalOpen(true);
+                  }}
+                >
+                  Créer un dossier patient
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className={styles.patientsEmptyStateGhostBtn}
+                onClick={() => {
+                  // phase 2 : on branchera ici la vraie démo read-only
+                  console.log("[HL Patients] demo requested");
+                }}
+              >
+                Voir un dossier démo
+              </button>
+            </div>
+          </div>
+        ) : !selectedPatient ? (
+          <div className={styles.liveStateBox}>Aucun patient sélectionné.</div>
+        ) : isDetailLoading ? (
         <div className={styles.liveStateBox}>Chargement du dossier patient...</div>
             ) : detailError ? (
         <div className={`${styles.liveStateBox} ${styles.liveStateBoxError}`}>

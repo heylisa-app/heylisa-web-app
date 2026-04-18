@@ -1,7 +1,8 @@
+//app/dashboard/patients/page.tsx
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import PatientsDemoView from "./PatientsDemoView";
 import PatientsPageClient from "./PatientsPageClient";
 
 export default async function DashboardPatientsPage() {
@@ -24,7 +25,7 @@ export default async function DashboardPatientsPage() {
       .single();
 
     if (userError || !userRow?.id) {
-      return <PatientsDemoView />;
+      redirect("https://heylisa.io/signup");
     }
 
     publicUserId = userRow.id;
@@ -58,24 +59,13 @@ export default async function DashboardPatientsPage() {
   }
 
   if (!cabinetAccountId || !publicUserId) {
-    return <PatientsDemoView />;
+    redirect("https://heylisa.io/signup");
   }
 
-  const admin = createAdminClient();
+  console.log("[HL Patients page] resolved ids", {
+    publicUserId,
+    cabinetAccountId,
+  });
 
-  const { count, error: countError } = await admin
-    .from("patient_records")
-    .select("*", { count: "exact", head: true })
-    .eq("cabinet_account_id", cabinetAccountId)
-    .eq("public_user_id", publicUserId)
-    .eq("is_demo", false)
-    .eq("record_status", "active");
-
-  const hasRealPatients = !countError && (count ?? 0) > 0;
-
-  if (!hasRealPatients) {
-    return <PatientsDemoView />;
-  }
-
-  return <PatientsPageClient />;
+  return <PatientsPageClient initialCabinetAccountId={cabinetAccountId} />;
 }

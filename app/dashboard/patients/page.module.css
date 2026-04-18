@@ -6930,3 +6930,125 @@
   overflow-y: auto;
   border-radius: 24px;
 }
+
+
+/* =========================
+  EMPTY STATE PATIENTS
+========================= */
+
+.patientsEmptyStateShell {
+  min-height: calc(100vh - 260px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 40px;
+}
+
+.patientsEmptyStateCard {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.patientsEmptyStateAvatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 18px;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.patientsEmptyStateTitle {
+  margin: 0 0 10px 0;
+  max-width: 420px;
+  font-size: clamp(1.15rem, 1.65vw, 1.55rem);
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.patientsEmptyStateText {
+  max-width: 420px;
+  margin: 0 0 14px 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.patientsEmptyStateActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.patientsEmptyStatePrimaryBtn,
+.patientsEmptyStateSecondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1;
+  font-weight: 450;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
+  cursor: pointer;
+}
+
+.patientsEmptyStatePrimaryBtn {
+  border: none;
+  background: #ffffff;
+  color: #111111;
+}
+
+.patientsEmptyStateSecondaryBtn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.patientsEmptyStatePrimaryBtn:hover,
+.patientsEmptyStateSecondaryBtn:hover,
+.patientsEmptyStateGhostBtn:hover {
+  transform: translateY(-1px);
+}
+
+.patientsEmptyStatePrimaryBtn:hover {
+  opacity: 0.96;
+}
+
+.patientsEmptyStateSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.patientsEmptyStateGhostBtn {
+  margin-top: 14px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.82rem;
+  line-height: 1;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 4px 8px;
+}
