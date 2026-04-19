@@ -137,8 +137,10 @@ const PAYWALL_PLANS: PaywallPlan[] = [
   },
 ];
 
+
 const topItems: NavItem[] = [
   { href: "/dashboard", label: "Accueil", icon: "/imgs/Home.png", activeClass: "activeHome" },
+  { href: "/dashboard/activity", label: "Activité", icon: "/imgs/activity_icon.png", activeClass: "activeFlux" },
   { href: "/dashboard/calendar", label: "Rendez-vous", icon: "/imgs/calendar.png", activeClass: "activeAgenda" },
   { href: "/dashboard/chat", label: "Discuter", icon: "/imgs/chat_def.png", activeClass: "activeMessages" },
   { href: "/dashboard/patients", label: "Patients", icon: "/imgs/patients.png", activeClass: "activeContacts" },

@@ -158,6 +158,12 @@
       radial-gradient(circle, rgba(124,105,255,1) 0%, rgba(124,105,255,0.84) 28%, rgba(124,105,255,0.22) 54%, rgba(124,105,255,0) 70%),
       radial-gradient(circle, rgba(255,120,216,0.72) 0%, rgba(255,120,216,0.20) 40%, rgba(255,120,216,0) 64%);
   }
+
+  .activeFlux .navGlow {
+    background:
+      radial-gradient(circle, rgba(77,192,255,1) 0%, rgba(77,192,255,0.84) 28%, rgba(77,192,255,0.22) 54%, rgba(77,192,255,0) 70%),
+      radial-gradient(circle, rgba(124,105,255,0.72) 0%, rgba(124,105,255,0.20) 40%, rgba(124,105,255,0) 64%);
+  }
   
   .activeContacts .navGlow {
     background:
